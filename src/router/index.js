@@ -6,12 +6,14 @@ const routes = [
   {
     path: '/',
     name: 'HomeView',
-    component: Home
+    component: Home,
+    meta: { requiresAuth: true }
   },
   {
     path: '/about',
     name: 'AboutView',
-    component: () => import('../views/AboutView.vue') // lazy loading
+    component: () => import('../views/AboutView.vue'),
+    meta: { requiresAuth: true }
   },
   {
     path: '/login',
@@ -28,6 +30,17 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes
+})
+
+router.beforeEach((to, _, next) => {
+  const isAuthenticated = !!localStorage.getItem('user')
+  console.log(isAuthenticated)
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    next({ name: 'Login' })
+  } else {
+    next()
+  }
 })
 
 export default router

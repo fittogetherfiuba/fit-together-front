@@ -38,7 +38,7 @@
             </v-card-text>
   
             <v-card-actions class="justify-center">
-              <v-btn color="primary" :disabled="!valid" @click="register">
+              <v-btn color="primary" :disabled="!valid" @click="handleRegister">
                 Registrarse
               </v-btn>
             </v-card-actions>
@@ -48,32 +48,91 @@
     </v-container>
   </template>
   
-  <script setup>
+  <script>
   import { ref } from 'vue'
-  
-  const email = ref('')
-  const password = ref('')
-  const confirmPassword = ref('')
-  const showPassword = ref(false)
-  const valid = ref(false)
-  
-  const emailRules = [
-    v => !!v || 'Email requerido',
-    v => /.+@.+\..+/.test(v) || 'Email no válido',
-  ]
-  
-  const passwordRules = [
-    v => !!v || 'Contraseña requerida',
-    v => v.length >= 6 || 'Mínimo 6 caracteres',
-  ]
-  
-  const confirmPasswordRules = [
-    v => !!v || 'Confirmación requerida',
-    v => v === password.value || 'Las contraseñas no coinciden',
-  ]
-  
+  import router from '@/router'
+
+/*
   const register = () => {
     console.log('Registrando:', email.value)
+
+    try {
+      const response = axios.post('http://localhost:3000/api/register', {
+        email: email.value,
+        password: password.value,
+      })
+
+      // cambiarlo por un token cuando haya
+      const userData = response.data
+      localStorage.setItem('user', JSON.stringify(userData))
+      console.log('Registro exitoso:', userData)
+
+      // redirigir a home
+      router.push('/')
+    } catch (error) {
+      console.error('Error al registrar:', error.response?.data || error.message)
+    }
+
   }
+*/
+  export default {
+  name: 'LoginView',
+  data () {
+    return {
+      email: ref(''),
+      password: ref(''),
+      showPassword: ref(false),
+      valid: ref(false),
+  
+      emailRules: [
+        v => !!v || 'Email es requerido',
+        v => /.+@.+\..+/.test(v) || 'Email no válido',
+      ],
+      passwordRules: [
+        v => !!v || 'Contraseña es requerida',
+        v => v.length >= 6 || 'Mínimo 6 caracteres',
+      ],
+
+      confirmPassword: ref(''),
+      confirmPasswordRules: [
+        v => !!v || 'Confirmación requerida',
+        v => v === this.password || 'Las contraseñas no coinciden',
+      ]
+
+    }
+  },
+  computed: {
+    loggedIn () {
+      return this.$store.state.main.loggedIn
+    }
+  },
+  created () {
+    if (this.loggedIn) {
+      router.push('/')
+    }
+  },
+  methods: {
+    handleRegister () {
+      console.log('Logueando con:', this.email, this.password)
+
+      const user = {
+        email: this.email,
+        password: this.password,
+      }
+
+      this.$store.dispatch('register', user).then(
+        () => {
+          console.log('Register exitoso')
+          this.$router.push('/')
+          console.log(this.$router)
+        },
+        (error) => {
+          this.error = error.response ? error.response.data.message : 'El usuario no puede registrarse.'
+        }
+      )
+    }
+  },
+}
+
   </script>
   

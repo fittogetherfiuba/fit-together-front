@@ -29,7 +29,7 @@
             </v-card-text>
   
             <v-card-actions class="justify-center">
-              <v-btn color="primary" :disabled="!valid" @click="login">
+              <v-btn color="primary" :disabled="!valid" @click="handleLogin">
                 Ingresar
               </v-btn>
             </v-card-actions>
@@ -42,12 +42,13 @@
         </v-col>
       </v-row>
     </v-container>
-  </template>
+</template>
   
-  <script setup>
+<script >
   import { ref } from 'vue'
-  
-  const email = ref('')
+  //import axios from 'axios'
+  import router from '@/router'
+  /*const email = ref('')
   const password = ref('')
   const showPassword = ref(false)
   const valid = ref(false)
@@ -60,10 +61,84 @@
   const passwordRules = [
     v => !!v || 'Contraseña es requerida',
     v => v.length >= 6 || 'Mínimo 6 caracteres',
-  ]
+  ]*/
+
+
+
+
+    /*const response = axios.post('http://localhost:3000/api/login', {
+      email: email.value,
+      password: password.value,
+    })
+
+    // cambiarlo por un token cuando haya
+    const userData = response.data
+    localStorage.setItem('user', JSON.stringify(userData))
+    console.log('Login exitoso:', userData)
+
+
+    // redirigir a home
+    router.push('/')
+    */
+  /*
+  } catch (error) {
+    console.error('Error al loguear:', error.response?.data || error.message)
+  }*/
+
+  export default {
+  name: 'LoginView',
+  data () {
+    return {
+      email: ref(''),
+      password: ref(''),
+      showPassword: ref(false),
+      valid: ref(false),
   
-  const login = () => {
-    console.log('Logueando con:', email.value, password.value)
-  }
-  </script>
+      emailRules: [
+        v => !!v || 'Email es requerido',
+        v => /.+@.+\..+/.test(v) || 'Email no válido',
+      ],
+      passwordRules: [
+        v => !!v || 'Contraseña es requerida',
+        v => v.length >= 6 || 'Mínimo 6 caracteres',
+      ]
+
+    }
+  },
+  computed: {
+    loggedIn () {
+      return this.$store.state.main.loggedIn
+    }
+  },
+  created () {
+    if (this.loggedIn) {
+      router.push('/')
+    }
+  },
+  methods: {
+    handleLogin () {
+      console.log('Logueando con:', this.email, this.password)
+
+      const user = {
+        email: this.email,
+        password: this.password,
+      }
+
+      this.$store.dispatch('login', user).then(
+        () => {
+          console.log('Login exitoso')
+          //router.push('/')
+          this.$router.push('/')
+          console.log(this.$router)
+        },
+        (error) => {
+          this.error = error.response ? error.response.data.message : 'El usuario es incorrecto.'
+        }
+      )
+    }
+  },
+}
+
+
+</script>
   
