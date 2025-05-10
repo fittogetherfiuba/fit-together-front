@@ -7,7 +7,7 @@ const routes = [
     path: '/',
     name: 'HomeView',
     component: Home,
-    meta: { requiresAuth: true }
+    //meta: { requiresAuth: true }
   },
   {
     path: '/about',
@@ -37,7 +37,7 @@ router.beforeEach((to, _, next) => {
   console.log(isAuthenticated)
 
   if (to.meta.requiresAuth && !isAuthenticated) {
-    next({ name: 'Login' })
+    next({ name: 'LoginView' })
   } else {
     next()
   }
