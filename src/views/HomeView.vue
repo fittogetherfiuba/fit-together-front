@@ -24,8 +24,30 @@
           </v-card-text>
 
           <v-card-actions class="justify-center">
-            <v-btn color="primary" @click="showDialog = true">
+            <v-btn class="border-sm" color="primary" @click="showDialog = true">
               Agregar actividad
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+
+        <v-card class="pa-4 mt-4" elevation="10">
+          <v-card-title class="text-h5 text-center">Alimentos consumidos</v-card-title>
+
+          <v-card-text>
+            <v-list>
+              <v-list-item v-for="(meal, index) in mealHistory" :key="index">
+                <v-list-item-content>
+                  <v-list-item-title class="font-weight-bold">
+                    {{ meal.meal.name }}
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
+          </v-card-text>
+
+          <v-card-actions class="justify-center">
+            <v-btn class="border-sm" color="primary" @click="showDialogMeal = true">
+              Agregar comida
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -85,6 +107,34 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="showDialogMeal" max-width="600px">
+      <v-card>
+        <v-card-title>
+          <span class="text-h6">Agregar comida</span>
+        </v-card-title>
+
+        <v-card-text>
+          <v-autocomplete
+            v-model="selectedMeal"
+            :items="mealList"
+            label="Comida"
+            prepend-icon="mdi-magnify"
+            return-object
+            autofocus
+            item-title="name"
+            :menu-props="{ maxHeight: '200px' }"
+          ></v-autocomplete>
+        </v-card-text>
+
+        <v-card-actions class="justify-end">
+          <v-btn text @click="closeDialogMeal">Cancelar</v-btn>
+          <v-btn color="primary" @click="handleAddMeal">Agregar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+
   </v-container>
 </template>
 
@@ -93,7 +143,9 @@ import { ref, /*onMounted*/ } from 'vue'
 //import axios from 'axios'
 
 const showDialog = ref(false)
+const showDialogMeal = ref(false)
 const selectedExercise = ref(null)
+const selectedMeal = ref(null)
 const duration = ref('')
 const distance = ref('')
 const sets = ref('')
@@ -112,8 +164,20 @@ const exerciseList = ref([
   { name: 'Yoga' },
 ])
 
+const mealList = ref([
+  { name: 'Ensalada' },
+  { name: 'Pollo a la plancha' },
+  { name: 'Pasta integral' },
+  { name: 'Frutas' },
+  { name: 'Pescado al horno' },
+  { name: 'Arroz integral' },
+  { name: 'Legumbres' },
+  { name: 'Batido de proteínas' },
+])
+
 // Lista local de actividades agregadas
 const exerciseHistory = ref([])
+const mealHistory = ref([])
 
 function handleAddExercise() {
   if (selectedExercise.value) {
@@ -136,6 +200,24 @@ function handleAddExercise() {
   }
 }
 
+function handleAddMeal() {
+  if (selectedMeal.value) {
+    const newMeal = {
+      meal: selectedMeal.value,
+    }
+
+    // await axios.post('http://localhost:3000/api/user/dashboard', newMeal)
+
+    // Guardar localmente
+    mealHistory.value.push(newMeal)
+
+    console.log('Actividad agregada:', newMeal)
+
+    closeDialogMeal()
+  }
+}
+
+
 function closeDialog() {
   showDialog.value = false
   selectedExercise.value = null
@@ -143,6 +225,11 @@ function closeDialog() {
   distance.value = ''
   sets.value = ''
   reps.value = ''
+}
+
+function closeDialogMeal() {
+  showDialogMeal.value = false
+  selectedMeal.value = null
 }
 
 // Esta función queda preparada para cuando el backend esté listo
@@ -155,8 +242,18 @@ function closeDialog() {
   }
 }
 
+/* async function fetchMeals() {
+  try {
+    const response = await axios.get('http://localhost:3000/api/user/dashboard')
+    mealHistory.value = response.data
+  } catch (error) {
+    console.error('Error al obtener comidas:', error)
+  }
+}
+
 onMounted(() => {
   // fetchExercises()
+  // fetchMeals()
 }) */
 </script>
 
