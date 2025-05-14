@@ -26,6 +26,7 @@ const exerciseList = [
   { name: 'Yoga' },
 ]
 
+/*
 const mealList = [
   { name: 'Ensalada' },
   { name: 'Pollo a la plancha' },
@@ -36,6 +37,7 @@ const mealList = [
   { name: 'Legumbres' },
   { name: 'Batido de proteínas' },
 ]
+*/
 </script>
 
 

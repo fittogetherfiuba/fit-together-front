@@ -18,7 +18,7 @@
         <v-card-text>
           <v-autocomplete
             v-model="selectedMeal"
-            :items="props.mealList"
+            :items="mealList"
             label="Comida"
             prepend-icon="mdi-magnify"
             return-object
@@ -36,50 +36,64 @@
   </v-card>
 </template>
 
-<script setup>
+<script>
 import { ref } from 'vue'
-//import { Axios } from 'axios'
+import axios from 'axios'
 
-const props = defineProps(['mealList'])
-// const mealList = ref([])
-const mealHistory = ref([])
+export default {
+  name: 'MealsCard',
+  data () {
+    return {
+      mealList: null,
+      mealHistory: ref([]),
+      showDialog: ref(false),
+      selectedMeal: ref(null)
+    }
+  },
 
-const showDialog = ref(false)
-const selectedMeal = ref(null)
+  methods: {
+    closeDialog() {
+      this.showDialog = false
+      this.selectedMeal = null
+    },
+    handleAddMeal() {
+      console.log(this.selectedMeal)
+      if (this.selectedMeal) {
+        console.log("holis")
+        this.mealHistory.push({ meal: this.selectedMeal })
+        this.closeDialog()
+      }
+    },
+    async fetchMeals() {
+      try {
+        const response = await axios.get('http://localhost:3000/api/foods')
+        this.mealList = response.data
+      } catch (error) {
+        console.error('Error al obtener comidas:', error)
+      }
+    },
+    async fetchEatenMeals() {
+      try {
+        const response = await axios.get('http://localhost:3000/api/user/dashboard')
+        this.mealHistory.value = response.data
+      } catch (error) {
+        console.error('Error al obtener comidas:', error)
+      }
+    }
+  },
 
-function handleAddMeal() {
-  if (selectedMeal.value) {
-    mealHistory.value.push({ meal: selectedMeal.value })
-    closeDialog()
+  async created () {
+    console.log(this.$store.state.main.user)
+    // fetchEatenMeals()
+    await this.fetchMeals()
   }
+
 }
 
-function closeDialog() {
-  showDialog.value = false
-  selectedMeal.value = null
-}
+/* 
 
-/* async function fetchEatenMeals() {
-  try {
-    const response = await axios.get('http://localhost:3000/api/user/dashboard')
-    mealHistory.value = response.data
-  } catch (error) {
-    console.error('Error al obtener comidas:', error)
-  }
-}
+*/
 
-async function fetchMeals() {
-  try {
-    const response = await axios.get('http://localhost:3000/api/user/dashboard')
-    mealList.value = response.data
-  } catch (error) {
-    console.error('Error al obtener comidas:', error)
-  }
-}
 
-onMounted(() => {
-  // fetchEatenMeals()
-  // fetchMeals()
-}) */
 
 </script>
