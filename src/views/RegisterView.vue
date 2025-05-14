@@ -1,48 +1,65 @@
 <template>
   <v-container fluid class="d-flex align-center justify-center fill-height">
     <v-row justify="center" align="center">
-      <v-col cols="12" sm="8" md="4">
-        <v-card class="pa-4" elevation="10">
-            <v-card-title class="text-h5 text-center">Registro</v-card-title>
+      <v-col cols="12" sm="8" md="7">
+
+        <v-card class="pa-10 justify-center" color="" elevation="10">
+          <v-row justify="center" align="center">
+            <v-col>
+              <div class="d-flex justify-center">
+                <v-img
+                max-width="420"
+
+                aspect-ratio="4/3"
+                contain
+                src="/login-icon.png"
+              ></v-img>
+              </div>
+            </v-col>
+            <v-divider vertical="true"></v-divider>
+            <v-col>
+              <v-card-text>
+                <v-form class="mt-5" v-model="valid">
+                  <v-text-field
+                    label="Email"
+                    v-model="email"
+                    :rules="emailRules"
+                    prepend-icon="mdi-email"
+                    required
+                  />
+    
+                  <v-text-field
+                    label="Contraseña"
+                    v-model="password"
+                    :rules="passwordRules"
+                    :type="showPassword ? 'text' : 'password'"
+                    :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                    @click:append="showPassword = !showPassword"
+                    prepend-icon="mdi-lock"
+                    required
+                  />
+    
+                  <v-text-field
+                    label="Confirmar Contraseña"
+                    v-model="confirmPassword"
+                    :rules="confirmPasswordRules"
+                    :type="showPassword ? 'text' : 'password'"
+                    prepend-icon="mdi-lock"
+                    required
+                  />
+                </v-form>
+              </v-card-text>
   
-            <v-card-text>
-              <v-form v-model="valid">
-                <v-text-field
-                  label="Email"
-                  v-model="email"
-                  :rules="emailRules"
-                  prepend-icon="mdi-email"
-                  required
-                />
-  
-                <v-text-field
-                  label="Contraseña"
-                  v-model="password"
-                  :rules="passwordRules"
-                  :type="showPassword ? 'text' : 'password'"
-                  :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                  @click:append="showPassword = !showPassword"
-                  prepend-icon="mdi-lock"
-                  required
-                />
-  
-                <v-text-field
-                  label="Confirmar Contraseña"
-                  v-model="confirmPassword"
-                  :rules="confirmPasswordRules"
-                  :type="showPassword ? 'text' : 'password'"
-                  prepend-icon="mdi-lock"
-                  required
-                />
-              </v-form>
-            </v-card-text>
-  
-            <v-card-actions class="justify-center">
-              <v-btn color="primary" :disabled="!valid" @click="handleRegister">
-                Registrarse
-              </v-btn>
-            </v-card-actions>
-          </v-card>
+              <v-card-actions class="justify-center">
+                <v-btn variant="elevated" color="primary" :disabled="!valid" @click="handleRegister">
+                  Registrarse
+                </v-btn>
+              </v-card-actions>
+           
+            </v-col>
+          </v-row>
+
+        </v-card>
         </v-col>
       </v-row>
     </v-container>
