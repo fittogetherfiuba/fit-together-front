@@ -5,7 +5,7 @@
       <v-list>
         <v-list-item class="border-b" v-for="(activity, index) in exerciseHistory" :key="index">
           <v-list-item-title class="font-weight-bold">
-            {{ activity.exercise.name }}
+            {{ activity.activity_name }}
           </v-list-item-title>
           <v-list-item-subtitle>
             Duración: {{ activity.duracion || 'N/A' }} min ·
@@ -26,7 +26,7 @@
         <v-card-text>
           <v-autocomplete
             v-model="selectedExercise"
-            :items="props.exerciseList"
+            :items="exerciseList"
             label="Ejercicio"
             prepend-icon="mdi-magnify"
             return-object
@@ -48,65 +48,90 @@
   </v-card>
 </template>
 
-<script setup>
+
+<script>
 import { ref } from 'vue'
-//import { Axios } from 'axios'
+import axios from 'axios'
 
-const props = defineProps(['exerciseList'])
-//const exerciseList = ref([])
-const exerciseHistory = ref([])
-
-const showDialog = ref(false)
-const selectedExercise = ref(null)
-const duration = ref('')
-const distance = ref('')
-const sets = ref('')
-const reps = ref('')
-
-function handleAddExercise() {
-  if (selectedExercise.value) {
-    const newExercise = {
-      exercise: selectedExercise.value,
-      duracion: duration.value,
-      distancia: distance.value,
-      series: sets.value,
-      repeticiones: reps.value,
+export default {
+  name: 'ExerciseCard',
+  data () {
+    return {
+      exerciseList: null,
+      exerciseHistory: ref([]),
+      showDialog: ref(false),
+      selectedExercise: ref(null),
+      duration: ref(''),
+      distance: ref(''),
+      sets: ref(''),
+      reps: ref(''),
     }
-    exerciseHistory.value.push(newExercise)
-    closeDialog()
+  },
+
+  methods: {
+    closeDialog() {
+      this.showDialog = false
+      this.selectedExercise = null
+      this.duration = ''
+      this.distance = ''
+      this.sets = ''
+      this.reps = ''
+    },
+
+    async handleAddExercise() {
+      if (this.selectedExercise) {
+        try {
+          console.log(this.selectedExercise)
+          const newExercise = {
+            userId: this.$store.state.main.user.userId,
+            activityName: this.selectedExercise.name,
+            duracion: this.duration,
+            distancia: this.distance,
+            series: this.sets,
+            repeticiones: this.reps,
+          }
+          await axios.post('http://localhost:3000/api/activities/entry', newExercise)
+          newExercise["activity_name"] = this.selectedExercise.name // esto no tendría que ser así, hay que unificarlo
+          this.exerciseHistory.push(newExercise)
+        } catch (error) {
+          console.error('Error al obtener comidas:', error)
+        }
+        this.closeDialog()
+      }
+    },
+
+    async fetchExercises() {
+      try {
+        const response = await axios.get('http://localhost:3000/api/activities')
+        this.exerciseList = response.data
+      } catch (error) {
+        console.error('Error al obtener actividades:', error)
+      }
+    },
+
+    async fetchDoneExercises() {
+      try {
+        const response = await axios.get('http://localhost:3000/api/activities/entry/' + this.$store.state.main.user.userId.toString())
+        console.log(response.data)
+        this.exerciseHistory = response.data.entries
+      } catch (error) {
+        console.error('Error al obtener actividades:', error)
+      }
+    }
+  },
+
+  async created () {
+    await this.fetchDoneExercises()
+    await this.fetchExercises()
+
   }
+
 }
 
-function closeDialog() {
-  showDialog.value = false
-  selectedExercise.value = null
-  duration.value = ''
-  distance.value = ''
-  sets.value = ''
-  reps.value = ''
-}
+/* 
 
-/* async function fetchDoneExercises() {
-  try {
-    const response = await axios.get('http://localhost:3000/api/user/dashboard')
-    exerciseHistory.value = response.data
-  } catch (error) {
-    console.error('Error al obtener actividades:', error)
-  }
-}
+*/
 
-async function fetchExercises() {
-  try {
-    const response = await axios.get('http://localhost:3000/api/user/dashboard')
-    exerciseList.value = response.data
-  } catch (error) {
-    console.error('Error al obtener actividades:', error)
-  }
-}
 
-onMounted(() => {
-  // fetchDoneExercises()
-  // fetchExercises()
-}) */
 
 </script>

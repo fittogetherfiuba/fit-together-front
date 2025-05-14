@@ -13,6 +13,7 @@
 import Exercises from '../components/ExercisesCard.vue'
 import Meals from '../components/MealsCard.vue'
 
+/*
 const exerciseList = [
   { name: 'Correr' },
   { name: 'Caminar' },
@@ -26,7 +27,6 @@ const exerciseList = [
   { name: 'Yoga' },
 ]
 
-/*
 const mealList = [
   { name: 'Ensalada' },
   { name: 'Pollo a la plancha' },

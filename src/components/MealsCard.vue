@@ -85,7 +85,6 @@ export default {
       try {
         const response = await axios.get('http://localhost:3000/api/foods/entry/' + this.$store.state.main.user.userId.toString())
         this.mealHistory = response.data.entries
-        console.log(this.mealHistory)
       } catch (error) {
         console.error('Error al obtener comidas:', error)
       }
@@ -93,7 +92,6 @@ export default {
   },
 
   async created () {
-    console.log(this.$store.state.main.user)
     await this.fetchEatenMeals()
     await this.fetchMeals()
   }
