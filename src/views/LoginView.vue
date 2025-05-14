@@ -17,6 +17,10 @@
             </v-col>
             <v-divider vertical="true"></v-divider>
             <v-col>
+              <div  v-if="loginError" class="alert alert-danger ml-4">
+                {{ loginError }}
+              </div>
+
               <v-card-text>
                 <v-form class="mt-12" v-model="valid">
                   <v-text-field
@@ -41,18 +45,17 @@
               </v-card-text>
   
               <v-card-actions class="justify-center">
-                <v-btn class="mb-5" variant="elevated" color="primary" :disabled="!valid" @click="handleLogin">
+                <v-btn class="mb-1" variant="elevated" color="primary" :disabled="!valid" @click="handleLogin">
                   Ingresar
                 </v-btn>
               </v-card-actions>
 
-              <v-divider></v-divider>
-
               <v-card-actions class="justify-center">
-                <v-btn class="mt-5" variant="elevated" color="primary" @click="handleRegister">
+                <v-btn variant="elevated" color="primary" @click="handleRegister">
                   Crear una cuenta
                 </v-btn>
-              </v-card-actions>              
+              </v-card-actions>     
+              
             </v-col>
           </v-row>
 
@@ -73,6 +76,7 @@
       password: ref(''),
       showPassword: ref(false),
       valid: ref(false),
+      loginError: null,
   
       emailRules: [
         v => !!v || 'Email es requerido',
@@ -99,6 +103,8 @@
     handleLogin () {
       console.log('Logueando con:', this.email, this.password)
 
+      this.loginError = null;
+
       const user = {
         email: this.email,
         password: this.password,
@@ -111,7 +117,9 @@
           console.log(this.$router)
         },
         (error) => {
-          this.error = error.response ? error.response.data.message : 'El usuario es incorrecto.'
+          console.log(error.response.data.error)
+          this.loginError = error.response ? error.response.data.error : 'El usuario es incorrecto.'
+          console.log(this.loginError)
         }
       )
     },
@@ -124,3 +132,14 @@
 
 </script>
   
+<style>
+.alert {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 0.25rem;
+}
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+</style>
