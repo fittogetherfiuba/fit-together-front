@@ -12,10 +12,11 @@ class AuthService {
         email: user.email,
         password: user.password
       }).then(response => {
+        console.log(response)
         if (response) {
-          localStorage.setItem('user', user)
+          localStorage.setItem('user', JSON.stringify(response.data))
         }
-        return response
+        return response.data
       })
       /*.then(response => {
         if (response.data.access_token) {
@@ -38,9 +39,9 @@ class AuthService {
       password: user.password
     }).then(response => {
       if (response) {
-        localStorage.setItem('user', user)
+        localStorage.setItem('user', JSON.stringify(response.data))
       }
-      return response
+      return response.data
     })
   }
 

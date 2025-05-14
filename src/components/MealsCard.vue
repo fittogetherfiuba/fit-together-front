@@ -4,7 +4,7 @@
     <v-card-text>
       <v-list>
         <v-list-item class="border-b" v-for="(meal, index) in mealHistory" :key="index">
-          <v-list-item-title class="font-weight-bold">{{ meal.meal.name }}</v-list-item-title>
+          <v-list-item-title class="font-weight-bold">{{ meal.food_name }}</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-card-text>
@@ -56,11 +56,20 @@ export default {
       this.showDialog = false
       this.selectedMeal = null
     },
-    handleAddMeal() {
-      console.log(this.selectedMeal)
+    async handleAddMeal() {
       if (this.selectedMeal) {
-        console.log("holis")
-        this.mealHistory.push({ meal: this.selectedMeal })
+        try {
+          const meal = {
+            "userId": this.$store.state.main.user.userId,
+            "foodName": this.selectedMeal.name,
+            "quantity": 1,
+          }
+          const response = await axios.post('http://localhost:3000/api/foods/entry', meal)
+          response.data.entry["food_name"] = this.selectedMeal.name // esto no tiene que ser así, hay que cambiarlo
+          this.mealHistory.push(response.data.entry)
+        } catch (error) {
+          console.error('Error al obtener comidas:', error)
+        }
         this.closeDialog()
       }
     },
@@ -74,8 +83,9 @@ export default {
     },
     async fetchEatenMeals() {
       try {
-        const response = await axios.get('http://localhost:3000/api/user/dashboard')
-        this.mealHistory.value = response.data
+        const response = await axios.get('http://localhost:3000/api/foods/entry/' + this.$store.state.main.user.userId.toString())
+        this.mealHistory = response.data.entries
+        console.log(this.mealHistory)
       } catch (error) {
         console.error('Error al obtener comidas:', error)
       }
@@ -84,7 +94,7 @@ export default {
 
   async created () {
     console.log(this.$store.state.main.user)
-    // fetchEatenMeals()
+    await this.fetchEatenMeals()
     await this.fetchMeals()
   }
 

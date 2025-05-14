@@ -22,7 +22,6 @@ const customTheme = {
   }
 }
 
-
 export default createVuetify({
   components,
   directives,
