@@ -1,27 +1,26 @@
 <template>
-    <v-app-bar app clipped-left color="#2b3c4b" class="elevation-1" height="70" v-if="currentUser">
+    <v-app-bar app clipped-left color="secondary" class="elevation-1" height="70" v-if="currentUser">
     <v-app-bar-nav-icon @click="toggleSideBar"></v-app-bar-nav-icon>
-    <!--
+
     <v-img
-    max-width="33"
-    :src="require('@/assets/login-logo.png')"
-    alt="kinetix logo"
+    max-width="40"
+    src="/logo-black.png"
+    alt="fittogether logo"
     class="ml-2 pointer"
     @click="redirect('DashboardView')"
     ></v-img>
 
     <v-img
-    max-width="70"
-    :src="require('@/assets/kinetix-name-white.png')"
+    max-width="100"
+    src="/name-black.png"
     alt="kinetix name"
-    class="ml-1 pointer"
+    class="ml-1 mt-1 pointer"
     @click="redirect('DashboardView')"
     ></v-img>
-    -->
 
     <template v-slot:append>
     <v-btn
-        color="#9ACD32"
+        color="FFFFFF"
         icon
         size="x-large"
         @click="logOut"

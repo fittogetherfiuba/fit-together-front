@@ -27,7 +27,7 @@
         link
         >
           <v-list-item-icon>
-            <v-icon color="#9ACD32">{{ item.icon }}</v-icon>
+            <v-icon color="primary">{{ item.icon }}</v-icon>
           </v-list-item-icon>
   
           <v-list-item-content>
@@ -53,10 +53,10 @@
       items: [
         { title: 'Dashboard', icon: 'mdi-view-dashboard', route: '/' },
         { title: 'Usuarios', icon: 'mdi-account-group', route: '/users' },
-        { title: 'Planes', icon: 'mdi-dumbbell', route: '/plans' },
-        { title: 'Servicios', icon: 'mdi-wrench-cog', route: '/services' },
-        { title: 'Métricas', icon: 'mdi-poll', route: '/metrics' },
-        { title: 'Registro de nuevos admins', icon: 'mdi-account-tie', route: '/register' }
+        //{ title: 'Planes', icon: 'mdi-dumbbell', route: '/plans' },
+        //{ title: 'Servicios', icon: 'mdi-wrench-cog', route: '/services' },
+        //{ title: 'Métricas', icon: 'mdi-poll', route: '/metrics' },
+        //{ title: 'Registro de nuevos admins', icon: 'mdi-account-tie', route: '/register' }
       ],
       fullname: '',
       email: ''
