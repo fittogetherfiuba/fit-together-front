@@ -9,7 +9,7 @@ const customTheme = {
   dark: false,
   options: { customProperties: true },
   colors: {
-    background: '#F2F2F2',
+    background: '#E7FEEF',
     surface: '#FFFFFF',
     'on-primary': '#333333',
     'on-warning': '#FFFFFF',

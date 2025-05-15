@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="d-flex align-center justify-center fill-height">
+  <v-container fluid class="d-flex align-center justify-center fill-height" >
     <v-row justify="center" align="center">
       <v-col cols="12" sm="8" md="7">
         <v-card class="pa-10 justify-center" color="" elevation="10">
@@ -22,7 +22,7 @@
               </div>
 
               <v-card-text>
-                <v-form class="mt-12" v-model="valid">
+                <v-form class="mt-12" @submit.prevent="handleLogin" v-model="valid">
                   <v-text-field
                     label="Email"
                     v-model="email"
@@ -41,15 +41,17 @@
                     prepend-icon="mdi-lock"
                     required
                   />
+
+                  <v-card-actions class="justify-center">
+                    <v-btn type="submit" variant="elevated" color="primary" :disabled="!valid" @click="handleLogin">
+                      Ingresar
+                    </v-btn>
+                  </v-card-actions>
+
                 </v-form>
+
               </v-card-text>
   
-              <v-card-actions class="justify-center">
-                <v-btn class="mb-1" variant="elevated" color="primary" :disabled="!valid" @click="handleLogin">
-                  Ingresar
-                </v-btn>
-              </v-card-actions>
-
               <v-card-actions class="justify-center">
                 <v-btn variant="elevated" color="primary" @click="handleRegister">
                   Crear una cuenta
