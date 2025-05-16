@@ -3,14 +3,14 @@
     <v-row align="center" justify="center"> 
       <v-col cols="12" sm="10" class="mx-5 my-5">
         <v-card class="mx-5 my-5 rounded-sm">
-          <v-sheet :color="isBlocked ? '#FF0000' : 'primary'" height="6"></v-sheet>
+          <v-sheet :color="isEditing ? '#FF5537' : 'primary'" height="6"></v-sheet>
           <v-card-item>
-            <v-row>
+            <v-row class="fill-height">
               <v-col cols="3" class="mt-2 mb-10">
                 <div class="font-weight-bold font-italic">
                   Foto de perfil
                 </div>
-                <v-row align="center" class="mt-2">
+                <v-row class="mt-2">
                   <img
                     :src=profile_pic
                     class="rounded-circle mx-auto my-5"
@@ -21,7 +21,7 @@
                   label="Biografía" 
                   variant="outlined"
                   :value="user.description"
-                  :readonly="editing"
+                  :readonly="!editing"
                   persistent-placeholder
                 ></v-textarea>
                 <v-row justify="center" class="mt-5" v-if="user.city || user.country">
@@ -39,16 +39,17 @@
                   </div>
                 </v-row>
               </v-col>
-              <v-divider vertical thickness="2"></v-divider>
+              <v-divider vertical class="mt-5 mb-5" style="height: auto;" thickness="2"></v-divider>
               <v-col cols="7" class="mt-2 mb-4">
-                <div class="font-weight-bold font-italic mx-auto">
+                <div class="mb-15 font-weight-bold font-italic mx-auto">
                   Información del usuario
                 </div>
-                <v-row class="ml-8 mt" justify="center" align="center">
+                <v-row class="ml-8 mt-15 d-flex align-center" justify="center" align="start">
                   <v-col cols="10" offset="2" justify="center" align="center">
-                    <v-row>
+                    <v-row justify="center" align="center" class="mb-7">
                       <v-col cols="5" class="ml-4">
                         <v-text-field
+                          class="info-icon"
                           :value="user.username"
                           label="Usuario"
                           prepend-icon="mdi-at"
@@ -59,7 +60,20 @@
                       </v-col>
                       <v-col>
                         <v-text-field
-                          class="ml-4"
+                          :class="editing ? 'ml-4 edit-icon' : 'ml-4 info-icon'"
+                          v-model="user.fullname"
+                          label="Nombre completo"
+                          prepend-icon="mdi-run"
+                          :readonly="!editing"
+                          variant="underlined"
+                          persistent-placeholder
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
+                    <v-row justify="center" align="center" class="mb-7">
+                      <v-col cols="5" class="ml-4">
+                        <v-text-field
+                          class="info-icon"             
                           :value="user.createdAt.split('T')[0]"
                           label="Fecha de registro"
                           prepend-icon="mdi-calendar-account-outline"
@@ -68,22 +82,10 @@
                           persistent-placeholder
                         ></v-text-field>
                       </v-col>
-                    </v-row>
-                    <v-row>
-                      <v-col cols="5" class="ml-4">
-                        <v-text-field
-                          :value="user.fullname"
-                          label="Nombre completo"
-                          prepend-icon="mdi-run"
-                          :readonly="editing"
-                          variant="underlined"
-                          persistent-placeholder
-                        ></v-text-field>
-                      </v-col>
                       <v-col>
                         <v-text-field
-                          class="ml-4"
-                          :value="user.email"
+                          class="ml-4 info-icon"
+                          v-model="user.email"
                           label="Correo electrónico"
                           prepend-icon="mdi-email-outline"
                           readonly
@@ -92,26 +94,38 @@
                         ></v-text-field>
                       </v-col>
                     </v-row>
-                    <v-row>
+                    <v-row justify="center" align="center">
                       <v-col cols="5" class="ml-4">
                         <v-text-field
-                          :value="user.weight ? user.weight : 'N/A'"
-                          suffix="kg"
-                          label="Peso"
-                          prepend-icon="mdi-weight-kilogram"
-                          :readonly="editing"
+                          :class="editing ? 'edit-icon' : 'info-icon'"
+                          v-model="user.birthday"
+                          label="Fecha de nacimiento"
+                          prepend-icon="mdi-cake-variant-outline"
+                          :readonly="!editing"
                           variant="underlined"
                           persistent-placeholder
                         ></v-text-field>
                       </v-col>
-                      <v-col>
+                      <v-col class="mr-5">
                         <v-text-field
-                          class="ml-4"
+                          :class="editing ? 'ml-4 edit-icon' : 'ml-4 info-icon'"
+                          v-model="user.weight"
+                          suffix="kg"
+                          label="Peso"
+                          prepend-icon="mdi-weight-kilogram"
+                          :readonly="!editing"
+                          variant="underlined"
+                          persistent-placeholder
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="3">
+                        <v-text-field
                           suffix="cm"
-                          :value="user.height ? user.height : 'N/A'"
+                          :class="editing ? 'edit-icon' : 'info-icon'"
+                          v-model="user.height"
                           label="Altura"
                           prepend-icon="mdi-human-male-height"
-                          :readonly="editing"
+                          :readonly="!editing"
                           variant="underlined"
                           persistent-placeholder
                         ></v-text-field>
@@ -122,16 +136,16 @@
               </v-col>
               <v-col align="right">
                 <v-btn
-                  color="secondary"
+                  :color="editing ? '#FF5537' : 'secondary'"
                   size="small"
                   v-on:click="handleEditButton()"
                   :disabled="block_loading"
                   class="my-2"
                 >
                   <v-icon class="mr-2">
-                    mdi-pencil
+                    {{ editing ? 'mdi-check' : 'mdi-pencil' }}
                   </v-icon>
-                  {{ editing ? 'EDITAR' : 'CONFIRMAR' }}
+                  {{ editing ? 'CONFIRMAR' : 'EDITAR' }}
                 </v-btn>
               </v-col>
             </v-row>
@@ -145,7 +159,7 @@
 
 
 <script>
-//import UserService from '../services/user.service'
+import UserService from '../services/user.service'
 //import generateMediaURL from '../services/firebase'
 export default {
   name: 'UsersDetail',
@@ -156,7 +170,7 @@ export default {
       profile_pic: '/user-icon-white-background.png',
       block_loading: false,
       tab: null,
-      editing: true
+      editing: false
     }
   },
   created () {
@@ -166,7 +180,10 @@ export default {
       createdAt: '16/05/2025',
       username: 'maritolml',
       email: 'mgonzalez@gmail.com',
-      description: 'Hola que tal soy el chico de las poesías'
+      description: 'Hola que tal soy el chico de las poesías',
+      birthday: 'N/A',
+      weight: 'N/A',
+      height: 'N/A'
     } 
     this.user.isBlocked = false
     this.user.balance = 0
@@ -178,6 +195,7 @@ export default {
     //  this.profile_pic = await generateMediaURL('users/' + this.user.profileimage)
     //};
 
+    console.log(localStorage.getItem('user'))
     this.loading = false
   },
   computed: {
@@ -190,6 +208,10 @@ export default {
       this.$router.push('/users')
     },
     handleEditButton() {
+      if (this.editing) {
+        console.log(this.user)
+        UserService.editCurrentUserInfo(this.user)
+      }
       this.editing = !this.editing
     }
   }
@@ -197,8 +219,13 @@ export default {
 </script>
 
 <style>
-.ml-4 .v-icon {
-  color: #6FCF97 !important;
+.info-icon .v-icon {
+  color: #219653 !important;
+}
+
+.edit-icon .v-icon {
+  opacity: 1 !important;
+  color: #FF5537 !important;
 }
 .rounded-sm {
   background: #F7F7F7;
