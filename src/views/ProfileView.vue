@@ -96,15 +96,15 @@
                     </v-row>
                     <v-row justify="center" align="center">
                       <v-col cols="5" class="ml-4">
-                        <v-text-field
-                          :class="editing ? 'edit-icon' : 'info-icon'"
+                        <v-date-input
+                          :class="editing ? 'edit-icon date' : 'info-icon date'"
                           v-model="user.birthday"
                           label="Fecha de nacimiento"
                           prepend-icon="mdi-cake-variant-outline"
                           :readonly="!editing"
                           variant="underlined"
                           persistent-placeholder
-                        ></v-text-field>
+                        ></v-date-input>
                       </v-col>
                       <v-col class="mr-5">
                         <v-text-field
@@ -174,14 +174,15 @@ export default {
     }
   },
   created () {
-    //const userResponse = await UserService.getUserInfoById(this.$route.params.id)
+    //const userResponse = await UserService.getCurrentUserInfo()
+    //console.log(userResponse)
     this.user = { // userResponse.data
       fullname: 'Mario Gonzalez',
       createdAt: '16/05/2025',
       username: 'maritolml',
       email: 'mgonzalez@gmail.com',
       description: 'Hola que tal soy el chico de las poesías',
-      birthday: 'N/A',
+      birthday: '16/05/2002',
       weight: 'N/A',
       height: 'N/A'
     } 
