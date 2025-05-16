@@ -19,8 +19,14 @@ const customTheme = {
     info: '#2196F3',
     success: '#4CAF50',
     warning: '#F2994A',
-  }
+  },
+  variables: {
+    'font-family': 'Montserrat, sans-serif',
+    'font-weight': '700',  // semi bold por defecto
+  },
 }
+
+
 
 export default createVuetify({
   components,

@@ -19,12 +19,23 @@
     ></v-img>
 
     <template v-slot:append>
+      <v-btn
+        color="FFFFFF"
+        icon
+        size="x-large"
+        @click="accessProfile"
+    >
+        <v-icon>
+        mdi-account
+        </v-icon>
+    </v-btn>
+
     <v-btn
         color="FFFFFF"
         icon
         size="x-large"
         @click="logOut"
-        class="ml-12"
+
     >
         <v-icon>
         mdi-logout
@@ -35,7 +46,6 @@
 </template>
 
 <script>
-import router from '@/router'
 export default {
   name: 'WebNav',
   methods: {
@@ -44,11 +54,14 @@ export default {
     //},
     logOut () {
       this.$store.dispatch('logout')
-      router.push('/login')
+      this.$router.push('/login')
 
     },
     toggleSideBar () {
       this.$store.dispatch('toggleSideBar')
+    },
+    accessProfile () {
+      this.$router.push('/profile')
     }
   },
   computed: {

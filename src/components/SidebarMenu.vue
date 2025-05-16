@@ -46,9 +46,9 @@
     data: () => ({
       drawer: null,
       user_info: [{
-        //prependAvatar: require('../assets/profile-pic.jpg'),
-        title: '',
-        subtitle: ''
+        prependAvatar: '/user-icon-white-background.png',
+        title: 'Mario Gonzalez',
+        subtitle: 'mgonzalez@gmail.com'
       }],
       items: [
         { title: 'Dashboard', icon: 'mdi-view-dashboard', route: '/' },
