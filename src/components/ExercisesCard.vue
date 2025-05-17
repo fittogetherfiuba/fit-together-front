@@ -1,5 +1,5 @@
 <template>
-  <v-card class="pa-4" elevation="10">
+  <v-card class="pa-4 mt-4" elevation="10">
     <v-card-title class="text-h5 text-center text-main font-weight-bold">Actividades Realizadas</v-card-title>
     <v-card-text>
       <v-list>
