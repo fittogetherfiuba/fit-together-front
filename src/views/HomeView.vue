@@ -13,31 +13,9 @@
 import Exercises from '../components/ExercisesCard.vue'
 import Meals from '../components/MealsCard.vue'
 
-/*
-const exerciseList = [
-  { name: 'Correr' },
-  { name: 'Caminar' },
-  { name: 'Nadar' },
-  { name: 'Bicicleta' },
-  { name: 'Sentadillas' },
-  { name: 'Flexiones' },
-  { name: 'Plancha' },
-  { name: 'Burpees' },
-  { name: 'Abdominales' },
-  { name: 'Yoga' },
-]
+const exerciseList = []
+const mealList = []
 
-const mealList = [
-  { name: 'Ensalada' },
-  { name: 'Pollo a la plancha' },
-  { name: 'Pasta integral' },
-  { name: 'Frutas' },
-  { name: 'Pescado al horno' },
-  { name: 'Arroz integral' },
-  { name: 'Legumbres' },
-  { name: 'Batido de proteínas' },
-]
-*/
 </script>
 
 
