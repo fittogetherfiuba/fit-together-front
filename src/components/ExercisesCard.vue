@@ -1,17 +1,17 @@
 <template>
   <v-card class="pa-4" elevation="10">
-    <v-card-title class="text-h5 text-center text-main">Actividades Realizadas</v-card-title>
+    <v-card-title class="text-h5 text-center text-main font-weight-bold">Actividades Realizadas</v-card-title>
     <v-card-text>
       <v-list>
         <v-list-item class="border-b" v-for="(activity, index) in exerciseHistory" :key="index">
           <v-list-item-title class="font-weight-bold">
-            {{ activity.activity_name }}
+            {{ activity.activityName }}
           </v-list-item-title>
           <v-list-item-subtitle>
-            Duración: {{ activity.duracion || 'N/A' }} min ·
-            Distancia: {{ activity.distancia || 'N/A' }} km ·
-            Series: {{ activity.series || 'N/A' }} ·
-            Repeticiones: {{ activity.repeticiones || 'N/A' }}
+            <span v-if="activity.durationMinutes">Duración: {{ activity.durationMinutes }} min · </span>
+            <span v-if="activity.distanceKm">Distancia: {{ activity.distanceKm }} km · </span>
+            <span v-if="activity.series">Series: {{ activity.series }} · </span>
+            <span v-if="activity.repetitions">Repeticiones: {{ activity.repetitions }}</span>
           </v-list-item-subtitle>
         </v-list-item>
       </v-list>
@@ -20,7 +20,7 @@
       <v-btn class="border-sm bg-warning" @click="showDialog = true">Agregar actividad</v-btn>
     </v-card-actions>
 
-    <v-dialog v-model="showDialog" max-width="600px">
+    <v-dialog v-model="showDialog" max-width="500px">
       <v-card>
         <v-card-title><span class="text-h6">Agregar actividad física</span></v-card-title>
         <v-card-text>
@@ -85,14 +85,14 @@ export default {
           const newExercise = {
             userId: this.$store.state.main.user.userId,
             activityName: this.selectedExercise.name,
-            duracion: this.duration,
-            distancia: this.distance,
+            durationMinutes: this.duration,
+            distanceKm: this.distance,
             series: this.sets,
-            repeticiones: this.reps,
+            repetitions: this.reps,
+            performedAt: new Date().toLocaleString()
           }
           await axios.post('http://localhost:3000/api/activities/entry', newExercise)
-          newExercise["activity_name"] = this.selectedExercise.name // esto no tendría que ser así, hay que unificarlo
-          this.exerciseHistory.push(newExercise)
+          this.fetchDoneExercises()
         } catch (error) {
           console.error('Error al obtener comidas:', error)
         }
@@ -112,7 +112,6 @@ export default {
     async fetchDoneExercises() {
       try {
         const response = await axios.get('http://localhost:3000/api/activities/entry/' + this.$store.state.main.user.userId.toString())
-        console.log(response.data)
         this.exerciseHistory = response.data.entries
       } catch (error) {
         console.error('Error al obtener actividades:', error)
@@ -127,11 +126,5 @@ export default {
   }
 
 }
-
-/* 
-
-*/
-
-
 
 </script>
