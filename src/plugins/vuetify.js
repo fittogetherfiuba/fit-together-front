@@ -5,6 +5,7 @@ import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { VDateInput } from 'vuetify/labs/VDateInput'
+import { es } from 'vuetify/locale'
 
 const customTheme = {
   dark: false,
@@ -29,6 +30,10 @@ const customTheme = {
 
 
 export default createVuetify({
+  locale: {
+    locale: 'es',
+    messages: { es },
+  },
   components: {
     ...components,
     VDateInput,

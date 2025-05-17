@@ -43,7 +43,7 @@
                   />
 
                   <v-card-actions class="justify-center">
-                    <v-btn type="submit" variant="elevated" color="primary" :disabled="!valid" @click="handleLogin">
+                    <v-btn type="submit" variant="elevated" color="primary" :disabled="!valid">
                       Ingresar
                     </v-btn>
                   </v-card-actions>

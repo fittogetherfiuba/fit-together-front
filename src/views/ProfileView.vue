@@ -20,8 +20,9 @@
                   class="mx-7 mt-5" 
                   label="Biografía" 
                   variant="outlined"
-                  :value="user.description"
+                  v-model="user.description"
                   :readonly="!editing"
+                  placeholder="Contanos un poco más sobre vos."
                   persistent-placeholder
                 ></v-textarea>
                 <v-row justify="center" class="mt-5" v-if="user.city || user.country">
@@ -74,7 +75,7 @@
                       <v-col cols="5" class="ml-4">
                         <v-text-field
                           class="info-icon"             
-                          :value="user.createdAt.split('T')[0]"
+                          :value="user.registrationday"
                           label="Fecha de registro"
                           prepend-icon="mdi-calendar-account-outline"
                           readonly
@@ -110,8 +111,10 @@
                         <v-text-field
                           :class="editing ? 'ml-4 edit-icon' : 'ml-4 info-icon'"
                           v-model="user.weight"
+                          :rules="weightRules"
                           suffix="kg"
                           label="Peso"
+                          placeholder="N/A"
                           prepend-icon="mdi-weight-kilogram"
                           :readonly="!editing"
                           variant="underlined"
@@ -123,6 +126,7 @@
                           suffix="cm"
                           :class="editing ? 'edit-icon' : 'info-icon'"
                           v-model="user.height"
+                          placeholder="N/A"
                           label="Altura"
                           prepend-icon="mdi-human-male-height"
                           :readonly="!editing"
@@ -139,7 +143,7 @@
                   :color="editing ? '#FF5537' : 'secondary'"
                   size="small"
                   v-on:click="handleEditButton()"
-                  :disabled="block_loading"
+                  :disabled="editing && (!isWeightValid() || !isHeightValid())"
                   class="my-2"
                 >
                   <v-icon class="mr-2">
@@ -165,29 +169,41 @@ export default {
   name: 'UsersDetail',
   data () {
     return {
-      user: null,
+      user: {
+        fullname: '',
+        registrationday: '',
+        username: '',
+        email: '',
+        description: '',
+        birthday: '',
+        weight: '',
+        height: '',
+      },
       loading: true,
       profile_pic: '/user-icon-white-background.png',
       block_loading: false,
       tab: null,
-      editing: false
+      editing: false,
+
+      weightRules: [
+        v => !isNaN(v) || 'Debe ser un número',
+        v => v.length >= 2 || 'Entre 2 y 3 caracteres',
+        v => v.length <= 3 || 'Entre 2 y 3 caracteres',
+      ],
+      heightRules: [
+        v => !isNaN(v) || 'Debe ser un número',
+        v => v.length >= 2 || 'Entre 2 y 3 caracteres',
+        v => v.length <= 3 || 'Entre 2 y 3 caracteres',
+      ],
+
     }
   },
-  created () {
-    //const userResponse = await UserService.getCurrentUserInfo()
-    //console.log(userResponse)
-    this.user = { // userResponse.data
-      fullname: 'Mario Gonzalez',
-      createdAt: '16/05/2025',
-      username: 'maritolml',
-      email: 'mgonzalez@gmail.com',
-      description: 'Hola que tal soy el chico de las poesías',
-      birthday: '16/05/2002',
-      weight: 'N/A',
-      height: 'N/A'
-    } 
-    this.user.isBlocked = false
-    this.user.balance = 0
+  async mounted () {
+    const response = await UserService.getCurrentUserInfo()
+    this.user = response.data
+    console.log(this.user)
+
+    console.log(this.isWeightValid())
     //this.markers[0].position.lat = parseFloat(this.user.latitude)
     //this.markers[0].position.lng = parseFloat(this.user.longitude)
     //console.log(!(this.user.city || ''))
@@ -214,9 +230,22 @@ export default {
         UserService.editCurrentUserInfo(this.user)
       }
       this.editing = !this.editing
-    }
+    },
+    isWeightValid () {
+      const weight = this.user.weight
+      const isNumber = !isNaN(weight)
+      const lengthValid = weight?.toString().length >= 2 && weight.toString().length <= 3
+      return isNumber && lengthValid
+    },
+    isHeightValid () {
+      const height = this.user.height
+      const isNumber = !isNaN(height)
+      const lengthValid = height?.toString().length >= 2 && height.toString().length <= 3
+      return isNumber && lengthValid
+    },
   }
 }
+
 </script>
 
 <style>

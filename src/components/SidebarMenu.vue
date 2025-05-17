@@ -39,7 +39,7 @@
   </template>
   
   <script>
-  //import UserService from '../../services/user.service'
+  import UserService from '../services/user.service'
   //import generateMediaURL from '../services/firebase'
   export default {
     name: 'SidebarMenu',
@@ -47,8 +47,8 @@
       drawer: null,
       user_info: [{
         prependAvatar: '/user-icon-white-background.png',
-        title: 'Mario Gonzalez',
-        subtitle: 'mgonzalez@gmail.com'
+        title: null,
+        subtitle: null
       }],
       items: [
         { title: 'Dashboard', icon: 'mdi-view-dashboard', route: '/' },
@@ -62,9 +62,10 @@
       email: ''
     }),
     async mounted () {
-      //const response = await UserService.getCurrentUserInfo()
-      //this.user_info[0].title = response.data.fullname
-      //this.user_info[0].subtitle = response.data.email
+      const response = await UserService.getCurrentUserInfo()
+      this.user_info[0].title = response.data.fullname
+      console.log(response.data)
+      this.user_info[0].subtitle = response.data.username
       //this.user_info[0].prependAvatar = await generateMediaURL('users/' + response.data.profileimage)
     }
   }
