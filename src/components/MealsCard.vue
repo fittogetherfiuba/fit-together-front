@@ -1,6 +1,6 @@
 <template>
   <v-card class="pa-4 mt-4" elevation="10">
-    <v-card-title class="text-h5 text-center">Alimentos consumidos</v-card-title>
+    <v-card-title class="text-center">Alimentos consumidos</v-card-title>
     <v-card-text>
       <v-list>
         <v-list-item class="border-b" v-for="(meal, index) in mealHistory" :key="index">

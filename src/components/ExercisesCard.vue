@@ -1,6 +1,6 @@
 <template>
   <v-card class="pa-4" elevation="10">
-    <v-card-title class="text-h5 text-center text-main">Actividades Realizadas</v-card-title>
+    <v-card-title class="font-bold text-center text-main">Actividades Realizadas</v-card-title>
     <v-card-text>
       <v-list>
         <v-list-item class="border-b" v-for="(activity, index) in exerciseHistory" :key="index">
