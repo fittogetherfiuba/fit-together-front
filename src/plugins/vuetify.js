@@ -12,13 +12,14 @@ const customTheme = {
     background: '#E7FEEF',
     surface: '#FFFFFF',
     'on-primary': '#333333',
+    'on-secondary': '#333333',
     'on-warning': '#FFFFFF',
     primary: '#6FCF97',
     secondary: '#219653',
     error: '#B00020',
     info: '#2196F3',
     success: '#4CAF50',
-    warning: '#F2994A',
+    warning: '#eb8334',
   }
 }
 

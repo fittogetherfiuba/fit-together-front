@@ -1,20 +1,20 @@
 <template>
-  <v-card class="pa-4 mt-4" elevation="10">
-    <v-card-title class="text-h5 text-center font-weight-bold">Agua consumida</v-card-title>
+  <v-card class="pb-4 mt-4" elevation="10">
+    <v-card-title class="text-h5 mb-4 text-center font-weight-bold bg-secondary">Agua consumida</v-card-title>
     <v-card-text class="d-flex justify-center text-h5">
       {{ this.waterHistory }} litros
     </v-card-text>
     <v-card-actions class="justify-center">
-      <v-btn class="border-sm bg-warning" @click="showDialog = true">Agregar agua</v-btn>
+      <v-btn class="border-sm font-weight-bold bg-warning" @click="showDialog = true">Agregar agua</v-btn>
     </v-card-actions>
 
-    <v-dialog v-model="showDialog" max-width="500px">
-      <v-card>
-        <v-card-title><span class="text-h6">Agregar agua</span></v-card-title>
-        <v-text-field v-model="waterQuantity" label="Cantidad (litros)" type="number" min="0" />
+    <v-dialog v-model="showDialog" max-width="450px">
+      <v-card class="d-flex align-center">
+        <v-card-title class="mb-3"><span class="text-h6">Agregar agua</span></v-card-title>
+        <v-text-field class="w-50" variant="outlined" v-model="waterQuantity" label="Cantidad (litros)" type="number" min="0" />
         <v-card-actions class="justify-end">
-          <v-btn text @click="closeDialog">Cancelar</v-btn>
-          <v-btn color="primary" @click="handleAddWater">Agregar</v-btn>
+          <v-btn class="border-sm bg-error font-weight-bold" text @click="closeDialog">Cancelar</v-btn>
+          <v-btn class="border-sm bg-warning font-weight-bold" @click="handleAddWater">Agregar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
