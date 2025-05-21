@@ -4,6 +4,7 @@
       <v-col cols="12" sm="8" md="4">
         <Exercises :exerciseList="exerciseList" />
         <Meals :mealList="mealList" />
+        <Goals />
       </v-col>
     </v-row>
   </v-container>
@@ -12,6 +13,7 @@
 <script setup>
 import Exercises from '../components/ExercisesCard.vue'
 import Meals from '../components/MealsCard.vue'
+import Goals from '../components/GoalsCard.vue'
 
 /*
 const exerciseList = [
