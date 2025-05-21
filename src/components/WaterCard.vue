@@ -1,10 +1,10 @@
 <template>
   <v-card class="pb-4 mt-4" elevation="10">
-    <v-card-title class="text-h5 mb-4 text-center font-weight-bold bg-secondary">
+    <v-card-title class="mb-4 text-center font-weight-bold bg-secondary" style="font-size: 1.4rem;">
       <v-icon start icon="mdi-water"></v-icon>
       Agua consumida
     </v-card-title>
-    <v-card-text class="d-flex justify-center text-h5">
+    <v-card-text class="font-weight-medium d-flex justify-center" style="font-size: 1.2rem;">
       {{ this.waterHistory }} litros
     </v-card-text>
     <v-card-actions class="justify-center">

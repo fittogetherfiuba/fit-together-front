@@ -23,10 +23,6 @@ const customTheme = {
     success: '#4CAF50',
     warning: '#EB8334',
   },
-  variables: {
-    'font-family': 'Montserrat, sans-serif',
-    'font-weight': '700',  // semi bold por defecto
-  },
 }
 
 

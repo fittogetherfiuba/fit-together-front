@@ -1,6 +1,10 @@
 <template>
-  <v-card class="pa-4 mt-4" elevation="10">
-    <v-card-title class="text-h5 text-center">Objetivos Establecidos</v-card-title>
+  <v-card elevation="10">
+    <v-card-title class="mb-4 text-center text-main font-weight-bold bg-secondary" style="font-size: 1.4rem;">
+      <v-icon start icon="mdi-flag-checkered"></v-icon>
+      Objetivos Establecidos
+    </v-card-title>
+
     <v-card-text>
       <v-list>
         <v-list-item
@@ -20,7 +24,6 @@
               </v-btn>
             </div>
 
-            <!-- Barra de progreso calculada -->
             <v-progress-linear
               :value="(goalItem.currentProgress / goalItem.goal) * 100"
               height="20"
@@ -40,7 +43,6 @@
       </v-list>
     </v-card-text>
     <v-card-actions class="justify-center">
-      <!-- Botón oculto si ya existen ambos objetivos -->
       <v-btn
         v-if="goalsHistory.length < 2"
         class="border-sm bg-warning"
@@ -48,7 +50,6 @@
       >Agregar objetivo</v-btn>
     </v-card-actions>
 
-    <!-- Diálogo para agregar objetivo -->
     <v-dialog v-model="showDialog" max-width="500px">
       <v-card>
         <v-card-title>
@@ -109,12 +110,10 @@ export default {
 
     const valueRule = (v) => v > 0 || 'El valor debe ser mayor a 0';
 
-    // Filtra los tipos que aún no existen en goalsHistory
     const availableTypeOptions = computed(() =>
       typeOptions.filter(opt => !goalsHistory.value.some(g => g.type === opt.value))
     );
 
-    // Solo puede agregar si hay tipo seleccionado, valor válido y no existe ya un objetivo de ese tipo
     const canAdd = computed(
       () => selectedType.value
         && selectedGoal.value > 0
@@ -154,7 +153,6 @@ export default {
           goal: data[key],
           currentProgress: 0,
         }));
-        // Obtener progreso para cada objetivo
         for (const item of goalsHistory.value) {
           await fetchProgress(item);
         }

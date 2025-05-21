@@ -12,8 +12,9 @@ class AuthService {
         email: user.email,
         password: user.password
       }).then(response => {
-        console.log(response)
         if (response) {
+          console.log(response.data)
+          console.log(user)
           localStorage.setItem('user', JSON.stringify(response.data))
         }
         return response.data

@@ -1,6 +1,6 @@
 <template>
   <v-card class="pb-4 mt-4" elevation="10">
-    <v-card-title class="text-h5 mb-4 text-center text-main font-weight-bold bg-secondary">
+    <v-card-title class="mb-4 text-center text-main font-weight-bold bg-secondary" style="font-size: 1.4rem;">
       <v-icon start icon="mdi-run"></v-icon>
       Actividades Realizadas
     </v-card-title>
