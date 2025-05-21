@@ -3,12 +3,19 @@ import Home from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import ProfileView from '../views/ProfileView.vue'
+import MetricsView from '../views/MetricsView.vue'
 const routes = [
   {
     path: '/',
     name: 'HomeView',
     component: Home,
     meta: { requiresAuth: true }
+  },
+  { 
+    path: '/metrics', 
+    name: 'metrics', 
+    component: MetricsView, 
+    meta: { requiresAuth: true } 
   },
   {
     path: '/about',
