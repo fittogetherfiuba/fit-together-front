@@ -1,6 +1,6 @@
 <template>
-  <div class="pa-4 grid gap-4">
-    <WaterMetricsCard />
+  <div class="pa-4 d-flex flex-column align-center">
+    <WaterMetricsCard class="mb-4" />
     <CaloriesMetricsCard />
   </div>
 </template>
