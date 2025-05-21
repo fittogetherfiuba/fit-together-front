@@ -1,10 +1,10 @@
 <template>
   <v-card class="pa-4 mt-4" elevation="10">
-    <v-card-title class="text-center">Alimentos consumidos</v-card-title>
+    <v-card-title class="text-h5 text-center font-weight-bold">Alimentos consumidos</v-card-title>
     <v-card-text>
       <v-list>
         <v-list-item class="border-b" v-for="(meal, index) in mealHistory" :key="index">
-          <v-list-item-title class="font-weight-bold">{{ meal.food_name }}</v-list-item-title>
+          <v-list-item-title >{{ meal.foodName }} - {{ meal.grams }} gr </v-list-item-title>
         </v-list-item>
       </v-list>
     </v-card-text>
@@ -12,7 +12,7 @@
       <v-btn class="border-sm bg-warning" @click="showDialog = true">Agregar comida</v-btn>
     </v-card-actions>
 
-    <v-dialog v-model="showDialog" max-width="600px">
+    <v-dialog v-model="showDialog" max-width="500px">
       <v-card>
         <v-card-title><span class="text-h6">Agregar comida</span></v-card-title>
         <v-card-text>
@@ -26,6 +26,7 @@
             item-title="name"
             :menu-props="{ maxHeight: '200px' }"
           />
+          <v-text-field v-model="grams" label="Cantidad (gramos)" type="number" min="0" />
         </v-card-text>
         <v-card-actions class="justify-end">
           <v-btn text @click="closeDialog">Cancelar</v-btn>
@@ -44,10 +45,11 @@ export default {
   name: 'MealsCard',
   data () {
     return {
-      mealList: null,
-      mealHistory: ref([]),
+      mealList: ref(null),
+      mealHistory: ref(null),
       showDialog: ref(false),
-      selectedMeal: ref(null)
+      selectedMeal: ref(null),
+      grams: ref('')
     }
   },
 
@@ -55,6 +57,7 @@ export default {
     closeDialog() {
       this.showDialog = false
       this.selectedMeal = null
+      this.grams = ''
     },
     async handleAddMeal() {
       if (this.selectedMeal) {
@@ -62,11 +65,11 @@ export default {
           const meal = {
             "userId": this.$store.state.main.user.userId,
             "foodName": this.selectedMeal.name,
-            "quantity": 1,
+            "grams": parseInt(this.grams),
+            "consumedAt": new Date().toLocaleString()
           }
-          const response = await axios.post('http://localhost:3000/api/foods/entry', meal)
-          response.data.entry["food_name"] = this.selectedMeal.name // esto no tiene que ser así, hay que cambiarlo
-          this.mealHistory.push(response.data.entry)
+          await axios.post('http://localhost:3000/api/foods/entry', meal)
+          this.fetchEatenMeals()
         } catch (error) {
           console.error('Error al obtener comidas:', error)
         }
@@ -97,11 +100,5 @@ export default {
   }
 
 }
-
-/* 
-
-*/
-
-
 
 </script>
