@@ -39,16 +39,16 @@
   </template>
   
   <script>
-  //import UserService from '../../services/user.service'
+  import UserService from '../services/user.service'
   //import generateMediaURL from '../services/firebase'
   export default {
     name: 'SidebarMenu',
     data: () => ({
       drawer: null,
       user_info: [{
-        //prependAvatar: require('../assets/profile-pic.jpg'),
-        title: '',
-        subtitle: ''
+        prependAvatar: '/user-icon-white-background.png',
+        title: null,
+        subtitle: null
       }],
       items: [
         { title: 'Dashboard', icon: 'mdi-view-dashboard', route: '/' },
@@ -62,9 +62,10 @@
       email: ''
     }),
     async mounted () {
-      //const response = await UserService.getCurrentUserInfo()
-      //this.user_info[0].title = response.data.fullname
-      //this.user_info[0].subtitle = response.data.email
+      const response = await UserService.getCurrentUserInfo()
+      this.user_info[0].title = response.data.fullname
+      console.log(response.data)
+      this.user_info[0].subtitle = response.data.username
       //this.user_info[0].prependAvatar = await generateMediaURL('users/' + response.data.profileimage)
     }
   }

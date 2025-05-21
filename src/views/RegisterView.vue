@@ -19,7 +19,7 @@
             <v-divider vertical="true"></v-divider>
             <v-col>
               <v-card-text>
-                <v-form class="mt-5" v-model="valid">
+                <v-form class="mt-5" @submit.prevent="handleRegister" v-model="valid">
                   <v-text-field
                     label="Email"
                     v-model="email"
@@ -27,7 +27,36 @@
                     prepend-icon="mdi-email"
                     required
                   />
-    
+                  <v-text-field
+                    label="Usuario"
+                    v-model="username"
+                    :rules="usernameRules"
+                    prepend-icon="mdi-at"
+                    required
+                  />
+                  
+                  <v-row>
+                    <v-col>
+                      <v-text-field
+                        label="Nombre"
+                        v-model="firstname"
+                        :rules="nameRules"
+                        prepend-icon="mdi-run"
+                        required
+                      />
+                    </v-col>
+                    <v-col>
+                      <v-text-field
+                        class="ml-3"
+                        label="Apellido"
+                        v-model="surname"
+                        :rules="nameRules"
+                        required
+                      />
+                    </v-col>
+                  </v-row>
+
+                  
                   <v-text-field
                     label="Contraseña"
                     v-model="password"
@@ -47,14 +76,17 @@
                     prepend-icon="mdi-lock"
                     required
                   />
+                  
+                  <v-card-actions class="justify-center">
+                    <v-btn type="submit" variant="elevated" color="primary" :disabled="!valid">
+                      Registrarse
+                    </v-btn>
+                  </v-card-actions>
+
                 </v-form>
+
               </v-card-text>
-  
-              <v-card-actions class="justify-center">
-                <v-btn variant="elevated" color="primary" :disabled="!valid" @click="handleRegister">
-                  Registrarse
-                </v-btn>
-              </v-card-actions>
+
            
             </v-col>
           </v-row>
@@ -98,6 +130,9 @@
     return {
       email: ref(''),
       password: ref(''),
+      username: ref(''),
+      firstname: ref(''),
+      surname: ref(''),
       showPassword: ref(false),
       valid: ref(false),
   
@@ -108,6 +143,14 @@
       passwordRules: [
         v => !!v || 'Contraseña es requerida',
         v => v.length >= 6 || 'Mínimo 6 caracteres',
+      ],
+      usernameRules: [
+        v => !!v || 'Contraseña es requerida',
+        v => v.length >= 6 || 'Mínimo 6 caracteres',
+      ],
+      nameRules: [
+        v => !!v || 'Nombre es requerido',
+        v => v.length >= 2 || 'Mínimo 2 caracteres',
       ],
 
       confirmPassword: ref(''),
@@ -130,12 +173,17 @@
   },
   methods: {
     handleRegister () {
-      console.log('Logueando con:', this.email, this.password)
+      const fullname = this.firstname + ' ' + this.surname
+      console.log('Registrando con:', this.email, this.password, this.username, fullname)
 
       const user = {
         email: this.email,
         password: this.password,
+        username: this.username,
+        fullname
       }
+
+      console.log(user)
 
       this.$store.dispatch('register', user).then(
         () => {
@@ -144,6 +192,7 @@
           console.log(this.$router)
         },
         (error) => {
+          console.log(error)
           this.error = error.response ? error.response.data.message : 'El usuario no puede registrarse.'
         }
       )

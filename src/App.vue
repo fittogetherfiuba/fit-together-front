@@ -5,7 +5,7 @@
     </div>
 
     <div v-if="currentUser && showSideBar">
-      <SideBarMenu />
+      <SideBarMenu class="font-semibold"/>
     </div>
 
     <v-main>
@@ -35,5 +35,7 @@ export default {
 }
 </script>
 <style>
-/* Opcional: estilo global */
+body {
+  font-family: 'Montserrat', sans-serif;
+}
 </style>
