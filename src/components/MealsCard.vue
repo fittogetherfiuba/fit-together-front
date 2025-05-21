@@ -1,36 +1,44 @@
 <template>
-  <v-card class="pa-4 mt-4" elevation="10">
-    <v-card-title class="text-h5 text-center font-weight-bold">Alimentos consumidos</v-card-title>
+  <v-card class="pb-4 mt-4" elevation="10">
+    <v-card-title class="text-h5 mb-4 text-center font-weight-bold bg-secondary">
+      <v-icon start icon="mdi-food-drumstick"></v-icon>
+      Alimentos consumidos
+    </v-card-title>
     <v-card-text>
       <v-list>
+        <span class="d-flex text-h6 justify-center font-weight-bold" v-if="mealHistory.length === 0">No hay alimentos registrados</span>
         <v-list-item class="border-b" v-for="(meal, index) in mealHistory" :key="index">
           <v-list-item-title >{{ meal.foodName }} - {{ meal.grams }} gr </v-list-item-title>
         </v-list-item>
       </v-list>
     </v-card-text>
     <v-card-actions class="justify-center">
-      <v-btn class="border-sm bg-warning" @click="showDialog = true">Agregar comida</v-btn>
+      <v-btn class="border-sm bg-warning font-weight-bold" @click="showDialog = true">Agregar comida</v-btn>
     </v-card-actions>
 
-    <v-dialog v-model="showDialog" max-width="500px">
-      <v-card>
-        <v-card-title><span class="text-h6">Agregar comida</span></v-card-title>
-        <v-card-text>
-          <v-autocomplete
-            v-model="selectedMeal"
-            :items="mealList"
-            label="Comida"
-            prepend-icon="mdi-magnify"
-            return-object
-            autofocus
-            item-title="name"
-            :menu-props="{ maxHeight: '200px' }"
-          />
-          <v-text-field v-model="grams" label="Cantidad (gramos)" type="number" min="0" />
+    <v-dialog v-model="showDialog" max-width="450px">
+      <v-card class="d-flex align-center">
+        <v-card-title class="pa-3"><span class="text-h6 font-weight-bold">Agregar comida</span></v-card-title>
+        <v-card-text class="w-75">
+          <v-form ref="form">
+            <v-autocomplete
+              v-model="selectedMeal"
+              :items="mealList"
+              label="Comida"
+              variant="outlined"
+              return-object
+              :rules="[rules.required]"
+              clearable
+              autofocus
+              item-title="name"
+              :menu-props="{ maxHeight: '200px' }"
+            />
+            <v-text-field v-model="grams" :rules="[rules.foodRequired]" variant="outlined" label="Cantidad (gramos)" type="number" min="0" />
+          </v-form>
         </v-card-text>
         <v-card-actions class="justify-end">
-          <v-btn text @click="closeDialog">Cancelar</v-btn>
-          <v-btn color="primary" @click="handleAddMeal">Agregar</v-btn>
+          <v-btn class="border-sm bg-error font-weight-bold" text @click="closeDialog">Cancelar</v-btn>
+          <v-btn class="border-sm bg-warning font-weight-bold" @click="handleAddMeal">Agregar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -46,10 +54,15 @@ export default {
   data () {
     return {
       mealList: ref(null),
-      mealHistory: ref(null),
+      mealHistory: ref([]),
       showDialog: ref(false),
       selectedMeal: ref(null),
-      grams: ref('')
+      grams: ref(''),
+      form: ref(null),
+      rules: {
+        required: value => !!value || 'Debe ingresar una comida',
+        foodRequired: value => !!value || 'Debe ingresar una cantidad de comida',
+      }
     }
   },
 
@@ -60,7 +73,12 @@ export default {
       this.grams = ''
     },
     async handleAddMeal() {
-      if (this.selectedMeal) {
+      const isValid = this.$refs.form.validate()
+      if (!isValid) {
+        return // No continúa si el formulario no es válido
+      }
+
+      if (this.selectedMeal && this.grams) {
         try {
           const meal = {
             "userId": this.$store.state.main.user.userId,

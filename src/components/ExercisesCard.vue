@@ -1,8 +1,12 @@
 <template>
-  <v-card class="pa-4" elevation="10">
-    <v-card-title class="text-h5 text-center text-main font-weight-bold">Actividades Realizadas</v-card-title>
+  <v-card class="pb-4 mt-4" elevation="10">
+    <v-card-title class="text-h5 mb-4 text-center text-main font-weight-bold bg-secondary">
+      <v-icon start icon="mdi-run"></v-icon>
+      Actividades Realizadas
+    </v-card-title>
     <v-card-text>
       <v-list>
+        <span class="d-flex text-h6 justify-center font-weight-bold" v-if="exerciseHistory.length === 0">No hay actividades registradas</span>
         <v-list-item class="border-b" v-for="(activity, index) in exerciseHistory" :key="index">
           <v-list-item-title class="font-weight-bold">
             {{ activity.activityName }}
@@ -17,31 +21,35 @@
       </v-list>
     </v-card-text>
     <v-card-actions class="justify-center">
-      <v-btn class="border-sm bg-warning" @click="showDialog = true">Agregar actividad</v-btn>
+      <v-btn variant="tonal" class="border-sm font-weight-bold bg-warning" @click="showDialog = true">Agregar actividad</v-btn>
     </v-card-actions>
 
-    <v-dialog v-model="showDialog" max-width="500px">
-      <v-card>
-        <v-card-title><span class="text-h6">Agregar actividad física</span></v-card-title>
-        <v-card-text>
-          <v-autocomplete
-            v-model="selectedExercise"
-            :items="exerciseList"
-            label="Ejercicio"
-            prepend-icon="mdi-magnify"
-            return-object
-            autofocus
-            item-title="name"
-            :menu-props="{ maxHeight: '200px' }"
-          />
-          <v-text-field v-model="duration" label="Duración (minutos)" type="number" min="0" />
-          <v-text-field v-model="distance" label="Distancia (km)" type="number" min="0" />
-          <v-text-field v-model="sets" label="Series" type="number" min="0" />
-          <v-text-field v-model="reps" label="Repeticiones" type="number" min="0" />
+    <v-dialog v-model="showDialog" max-width="450px">
+      <v-card class="d-flex align-center">
+        <v-card-title class="pa-3"><span class="text-h6 font-weight-bold">Agregar actividad física</span></v-card-title>
+        <v-card-text class="w-75">
+          <v-form ref="form">
+            <v-autocomplete
+              v-model="selectedExercise"
+              :items="exerciseList"
+              label="Ejercicio"
+              return-object
+              :rules="[rules.required]"
+              clearable
+              autofocus
+              variant="outlined"
+              item-title="name"
+              :menu-props="{ maxHeight: '200px' }"
+            />
+            <v-text-field variant="outlined" v-model="duration" label="Duración (minutos)" type="number" min="0" />
+            <v-text-field variant="outlined" v-model="distance" label="Distancia (km)" type="number" min="0" />
+            <v-text-field variant="outlined" v-model="sets" label="Series" type="number" min="0" />
+            <v-text-field variant="outlined" v-model="reps" label="Repeticiones" type="number" min="0" />
+          </v-form>
         </v-card-text>
         <v-card-actions class="justify-end">
-          <v-btn text @click="closeDialog">Cancelar</v-btn>
-          <v-btn color="primary" @click="handleAddExercise">Agregar</v-btn>
+          <v-btn class="border-sm bg-error font-weight-bold" text @click="closeDialog">Cancelar</v-btn>
+          <v-btn class="border-sm bg-warning font-weight-bold" @click="handleAddExercise">Agregar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -65,6 +73,10 @@ export default {
       distance: ref(''),
       sets: ref(''),
       reps: ref(''),
+      form: ref(null),
+      rules: {
+        required: value => !!value || 'Debe ingresar un ejercicio',
+      }
     }
   },
 
@@ -79,6 +91,11 @@ export default {
     },
 
     async handleAddExercise() {
+      const isValid = this.$refs.form.validate()
+      if (!isValid) {
+        return // No continúa si el formulario no es válido
+      }
+
       if (this.selectedExercise) {
         try {
           console.log(this.selectedExercise)
@@ -122,7 +139,6 @@ export default {
   async created () {
     await this.fetchDoneExercises()
     await this.fetchExercises()
-
   }
 
 }
