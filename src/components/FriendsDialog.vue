@@ -44,33 +44,41 @@
                 <v-tabs
                     v-model="tab"
                     bg-color=""
+                    align-tabs="center"
                     >
-                    <v-tab value="one">Amigos</v-tab>
-                    <v-tab value="two">Solicitudes</v-tab>
-                    </v-tabs>
+                    <v-tab value="friends"> Amigos </v-tab>
+                    <v-tab value="requests">Solicitudes</v-tab>
+                </v-tabs>
+                <v-divider></v-divider>
 
-                    <v-card-text>
+                <v-card-text>
                     <v-tabs-window v-model="tab">
-                        <v-tabs-window-item value="one">
+                        <v-tabs-window-item value="friends">
                         One
                         </v-tabs-window-item>
 
-                        <v-tabs-window-item value="two">
-                        Two
+                        <v-tabs-window-item value="requests">
+                            <FriendRequestTable />
                         </v-tabs-window-item>
                     </v-tabs-window>
-                    </v-card-text>
+                </v-card-text>
             </v-card>
-
-
-
         </v-card>
         </template>
     </v-dialog>
 </template>
 
 <script>
+import FriendRequestTable from './FriendRequestTable.vue'
 export default {
     name: 'FriendsDialog',
+    components: {
+        FriendRequestTable,
+    },
+    data() {
+        return {
+            tab: 'friends'
+        }
+    }
 }
 </script>
