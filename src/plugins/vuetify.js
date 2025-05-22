@@ -14,7 +14,6 @@ const customTheme = {
     background: '#E7FEEF',
     surface: '#FFFFFF',
     'on-primary': '#333333',
-    'on-secondary': '#333333',
     'on-warning': '#FFFFFF',
     primary: '#6FCF97',
     secondary: '#219653',

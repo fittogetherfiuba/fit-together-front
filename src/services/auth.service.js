@@ -13,8 +13,6 @@ class AuthService {
         password: user.password
       }).then(response => {
         if (response) {
-          console.log(response.data)
-          console.log(user)
           localStorage.setItem('user', JSON.stringify(response.data))
         }
         return response.data
@@ -41,7 +39,7 @@ class AuthService {
       username: user.username
     }).then(response => {
       if (response) {
-        localStorage.setItem('user', JSON.stringify(user))
+        localStorage.setItem('user', JSON.stringify(response.data))
       }
       return response.data
     })
