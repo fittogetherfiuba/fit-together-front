@@ -3,7 +3,7 @@
         <v-row v-if="!users_info.length" class="my-auto mx-auto" justify="center">
             <v-col align="center">
                 <v-list-item>
-                    <v-list-item-title class="text--disabled">No tenés solicitudes de amistad pendientes.</v-list-item-title>
+                    <v-list-item-title class="text--disabled">Todavía no tenés amigos.</v-list-item-title>
                 </v-list-item>
             </v-col>
         </v-row>
@@ -61,10 +61,16 @@
 </template>
 
 <script>
-//import generateMediaURL from '../services/firebase'
 import FriendsService from '../services/friends.service'
+//import generateMediaURL from '../services/firebase'
 export default {
-  name: 'FriendRequestTable',
+  name: 'FriendsTable',
+  props: ['refresh'],
+  watch: {
+    refresh () {
+        this.loadFriends()
+    }
+  },
   data: () => ({
     drawer: null,
     users_info: [],
@@ -72,30 +78,32 @@ export default {
     email: ''
   }),
   async mounted () {
-    const response = await FriendsService.getFriendRequests(this.$store.state.main.user.username)
-    console.log(response.data.requests)
-
-    for (var i = 0; i < response.data.requests.length; i++) {
-        this.users_info[i] = {
-            title: response.data.requests[i].fullname,
-            subtitle: response.data.requests[i].username,
-            prependAvatar: '/user-icon-white-background.png'
-        }
-    }
+    await this.loadFriends()
   },
 
   methods: {
+    async loadFriends() {
+        const response = await FriendsService.getFriendsList(this.$store.state.main.user.username)
+        console.log(response.data.friends)
+
+        for (var i = 0; i < response.data.friends.length; i++) {
+            this.users_info[i] = {
+                title: response.data.friends[i].fullname,
+                subtitle: response.data.friends[i].username,
+                prependAvatar: '/user-icon-white-background.png'
+            }
+        }
+    },
     async rejectRequest(k) {
-        const response = await FriendsService.rejectFriendRequest(this.users_info[k].subtitle, this.$store.state.main.user.username);
+        console.log(this.$store.state.main.user.username)
+        const response = await FriendsService.removeFriend(this.users_info[k].subtitle, this.$store.state.main.user.username);
         this.users_info.splice(k, 1)
         console.log(response)
     },
     async acceptRequest(k) {
-        const response = await FriendsService.acceptFriendRequest(this.users_info[k].subtitle, this.$store.state.main.user.username);
         this.users_info.splice(k, 1)
-        this.$emit('accepted-request')
-        console.log(response)
-    },
+
+    }
   }
 }
 </script>
