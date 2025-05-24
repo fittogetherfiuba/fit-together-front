@@ -12,9 +12,9 @@
             {{ activity.activityName }}
           </v-list-item-title>
           <v-list-item-subtitle>
-            <span v-if="activity.durationMinutes">Duración: {{ activity.durationMinutes }} min · </span>
-            <span v-if="activity.distanceKm">Distancia: {{ activity.distanceKm }} km · </span>
-            <span v-if="activity.series">Series: {{ activity.series }} · </span>
+            <span v-if="activity.durationMinutes">Duración: {{ activity.durationMinutes }} min - </span>
+            <span v-if="activity.distanceKm">Distancia: {{ activity.distanceKm }} km </span>
+            <span v-if="activity.series">Series: {{ activity.series }} - </span>
             <span v-if="activity.repetitions">Repeticiones: {{ activity.repetitions }}</span>
           </v-list-item-subtitle>
         </v-list-item>
@@ -24,12 +24,25 @@
       <v-btn variant="tonal" class="border-sm font-weight-bold bg-warning" @click="showDialog = true">Agregar actividad</v-btn>
     </v-card-actions>
 
-    <v-dialog v-model="showDialog" max-width="450px">
+    <v-dialog v-model="showDialog" max-width="450px" @after-leave="closeDialog">
       <v-card class="d-flex align-center">
         <v-card-title class="pa-3"><span class="text-h6 font-weight-bold">Agregar actividad física</span></v-card-title>
         <v-card-text class="w-75">
           <v-form ref="form">
             <v-autocomplete
+              v-model="selectedType"
+              :items="exerciseTypes"
+              label="Tipo de ejercicio"
+              return-object
+              :rules="[rules.required]"
+              clearable
+              autofocus
+              variant="outlined"
+              item-title="name"
+              @update:model-value="fetchExercises"
+            />
+            <v-autocomplete
+              v-if="selectedType"
               v-model="selectedExercise"
               :items="exerciseList"
               label="Ejercicio"
@@ -41,10 +54,10 @@
               item-title="name"
               :menu-props="{ maxHeight: '200px' }"
             />
-            <v-text-field variant="outlined" v-model="duration" label="Duración (minutos)" type="number" min="0" />
-            <v-text-field variant="outlined" v-model="distance" label="Distancia (km)" type="number" min="0" />
-            <v-text-field variant="outlined" v-model="sets" label="Series" type="number" min="0" />
-            <v-text-field variant="outlined" v-model="reps" label="Repeticiones" type="number" min="0" />
+            <v-text-field v-if="selectedType === 'Cardio'" variant="outlined" v-model="duration" label="Duración (minutos)" type="number" min="0" />
+            <v-text-field v-if="selectedType === 'Cardio'" variant="outlined" v-model="distance" label="Distancia (km)" type="number" min="0" />
+            <v-text-field v-if="selectedType === 'Musculacion'" variant="outlined" v-model="sets" label="Series" type="number" min="0" />
+            <v-text-field v-if="selectedType === 'Musculacion'" variant="outlined" v-model="reps" label="Repeticiones" type="number" min="0" />
           </v-form>
         </v-card-text>
         <v-card-actions class="justify-end">
@@ -58,22 +71,23 @@
 
 
 <script>
-import { ref } from 'vue'
 import axios from 'axios'
 
 export default {
   name: 'ExerciseCard',
   data () {
     return {
-      exerciseList: null,
-      exerciseHistory: ref([]),
-      showDialog: ref(false),
-      selectedExercise: ref(null),
-      duration: ref(''),
-      distance: ref(''),
-      sets: ref(''),
-      reps: ref(''),
-      form: ref(null),
+      exerciseList: [],
+      exerciseTypes: ['Cardio', 'Musculacion'],
+      exerciseHistory: [],
+      showDialog: false,
+      selectedExercise: null,
+      selectedType: null,
+      duration: '',
+      distance: '',
+      sets: '',
+      reps: '',
+      form: null,
       rules: {
         required: value => !!value || 'Debe ingresar un ejercicio',
       }
@@ -84,6 +98,7 @@ export default {
     closeDialog() {
       this.showDialog = false
       this.selectedExercise = null
+      this.selectedType = null
       this.duration = ''
       this.distance = ''
       this.sets = ''
@@ -93,7 +108,7 @@ export default {
     async handleAddExercise() {
       const isValid = this.$refs.form.validate()
       if (!isValid) {
-        return // No continúa si el formulario no es válido
+        return
       }
 
       if (this.selectedExercise) {
@@ -118,11 +133,14 @@ export default {
     },
 
     async fetchExercises() {
-      try {
-        const response = await axios.get('http://localhost:3000/api/activities')
-        this.exerciseList = response.data
-      } catch (error) {
-        console.error('Error al obtener actividades:', error)
+      if(this.selectedType){
+        try {
+          const response = await axios.get('http://localhost:3000/api/activities')
+          //const response = await axios.get('http://localhost:3000/api/activities/type/' + this.selectedType)
+          this.exerciseList = response.data
+        } catch (error) {
+          console.error('Error al obtener actividades:', error)
+        }
       }
     },
 
@@ -138,7 +156,6 @@ export default {
 
   async created () {
     await this.fetchDoneExercises()
-    await this.fetchExercises()
   }
 
 }

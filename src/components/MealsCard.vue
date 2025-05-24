@@ -8,7 +8,18 @@
       <v-list>
         <span class="d-flex text-h6 justify-center font-weight-bold" v-if="mealHistory.length === 0">No hay alimentos registrados</span>
         <v-list-item class="border-b" v-for="(meal, index) in mealHistory" :key="index">
-          <v-list-item-title >{{ meal.foodName }} - {{ meal.grams }} gr </v-list-item-title>
+          <v-list-item-title class="font-weight-bold"> {{ meal.foodName }} </v-list-item-title>
+          <v-list-item-subtitle>
+            <span>Cantidad: {{ meal.grams }}gr - </span>
+            <span>Calorias: {{ meal.calories }} - </span>
+            <span>Proteinas: {{ meal.grams }} - </span>
+            <span>Grasas: {{ meal.grams }} </span>
+          </v-list-item-subtitle>
+          <v-list-item-subtitle>
+            <span>Carbohidratos: {{ meal.grams }} - </span>
+            <span>Fibras: {{ meal.grams }} - </span>
+            <span>Sodio: {{ meal.grams }} </span>
+          </v-list-item-subtitle>
         </v-list-item>
       </v-list>
     </v-card-text>
@@ -16,11 +27,22 @@
       <v-btn class="border-sm bg-warning font-weight-bold" @click="showDialog = true">Agregar comida</v-btn>
     </v-card-actions>
 
-    <v-dialog v-model="showDialog" max-width="450px">
+    <v-dialog v-model="showDialog" max-width="450px" @after-leave="closeDialog">
       <v-card class="d-flex align-center">
         <v-card-title class="pa-3"><span class="text-h6 font-weight-bold">Agregar comida</span></v-card-title>
         <v-card-text class="w-75">
           <v-form ref="form">
+            <v-autocomplete
+              v-model="selectedPeriod"
+              :items="mealPeriods"
+              label="Periodo"
+              return-object
+              :rules="[rules.required]"
+              clearable
+              variant="outlined"
+              item-title="name"
+              :menu-props="{ maxHeight: '200px' }"
+            />
             <v-autocomplete
               v-model="selectedMeal"
               :items="mealList"
@@ -29,7 +51,6 @@
               return-object
               :rules="[rules.required]"
               clearable
-              autofocus
               item-title="name"
               :menu-props="{ maxHeight: '200px' }"
             />
@@ -55,7 +76,9 @@ export default {
     return {
       mealList: ref(null),
       mealHistory: ref([]),
+      mealPeriods: ['Desayuno', 'Almuerzo', 'Merienda', 'Cena'],
       showDialog: ref(false),
+      selectedPeriod: ref(null),
       selectedMeal: ref(null),
       grams: ref(''),
       form: ref(null),
@@ -70,6 +93,7 @@ export default {
     closeDialog() {
       this.showDialog = false
       this.selectedMeal = null
+      this.selectedPeriod = null
       this.grams = ''
     },
     async handleAddMeal() {
@@ -84,6 +108,7 @@ export default {
             "userId": this.$store.state.main.user.userId,
             "foodName": this.selectedMeal.name,
             "grams": parseInt(this.grams),
+            /**/
             "consumedAt": new Date().toLocaleString()
           }
           await axios.post('http://localhost:3000/api/foods/entry', meal)

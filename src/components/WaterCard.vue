@@ -5,7 +5,7 @@
       Agua consumida
     </v-card-title>
     <v-card-text class="font-weight-medium d-flex justify-center" style="font-size: 1.2rem;">
-      {{ this.waterHistory }} litros
+      {{ waterHistory }} {{ waterHistory === 1 ? 'litro' : 'litros' }}
     </v-card-text>
     <v-card-actions class="justify-center">
       <v-btn class="border-sm font-weight-bold bg-warning" @click="showDialog = true">Agregar agua</v-btn>

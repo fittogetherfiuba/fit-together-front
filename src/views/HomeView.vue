@@ -1,7 +1,10 @@
 <template>
   <v-container fluid class="d-flex align-center justify-center fill-height">
-    <v-row justify="center" align="center">
+    <v-row justify="center" align="start">
       <v-col cols="12" sm="8" md="10">
+        <v-col>
+          <Goals />
+        </v-col>    
         <v-row justify="center" align="start">
           <v-col cols="12" sm="4">
             <Exercises :exerciseList="exerciseList" />
@@ -12,9 +15,6 @@
           <v-col cols="12" sm="4">
             <Water />
           </v-col>
-          <v-col>
-            <Goals />
-          </v-col>    
         </v-row>
       </v-col>
     </v-row>
