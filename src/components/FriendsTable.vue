@@ -23,29 +23,27 @@
                 <v-col class="d-flex align-center justify-end ">
                     <v-btn
                         class="mr-4"
-                        variant="outlined"
-                        color="success"
+                        color="info"
                         icon
                         size=""
-                        @click="acceptRequest(index)"
+                        @click="lookProfile(index)"
                         style="width: 38px; height: 38px;"
                     >
                         <v-icon size="25">
-                        mdi-check
+                        mdi-eye
                         </v-icon>
                     </v-btn>
 
                     <v-btn
                         class="mr-4"
                         style="width: 38px; height: 38px;"
-                        variant="outlined"
                         color="error"
                         icon
                         size="normal"
-                        @click="rejectRequest(index)"
+                        @click="deleteFriend(index)"
                     >
                         <v-icon size="25">
-                        mdi-close
+                        mdi-account-remove
                         </v-icon>
                     </v-btn>
 
@@ -94,15 +92,16 @@ export default {
             }
         }
     },
-    async rejectRequest(k) {
+    async deleteFriend(k) {
         console.log(this.$store.state.main.user.username)
         const response = await FriendsService.removeFriend(this.users_info[k].subtitle, this.$store.state.main.user.username);
         this.users_info.splice(k, 1)
         console.log(response)
     },
-    async acceptRequest(k) {
-        this.users_info.splice(k, 1)
-
+    async lookProfile(k) {
+        this.$emit('close-dialog')
+        this.$router.push('/friends/' + this.users_info[k].subtitle)
+        console.log(k)
     }
   }
 }

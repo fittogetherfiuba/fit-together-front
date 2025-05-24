@@ -39,34 +39,29 @@
                     </v-btn>
                 </v-col>
             </v-row>
-            <v-card class="mx-2 mb-3">
-                <v-row class="d-flex mx-auto my-auto" justify="center">
-                    <v-col cols=11 class="pa-0">
-                        <v-text-field 
-                        hide-details
-                        v-model="request_username"
-                        ></v-text-field>
-                    </v-col>   
-                    
-                    <v-col cols="auto" class="d-flex pa-0">
-                        <v-divider style="background-color: black; opacity: 0.7;" vertical :thickness="2" />
-                    </v-col>
-                    
-                    <v-col class="" align="end">
-                        <v-btn
-                        color="FFFFFF"
-                        icon
-                        style="width: 15px; height: 18px"
-                        @click="handleNewRequest"
-                        >
-                            <v-icon>
-                            mdi-account-plus
-                            </v-icon>
-                        </v-btn>
-                    </v-col>
-                </v-row>
-            </v-card>
 
+            <v-alert
+            v-if="showAlert"
+            :type="alertType"
+            text
+            class="mx-2 mb-3"
+            density="compact"
+            :color="alertType === 'success' ? 'info' : undefined"
+            >
+            {{ alertMessage }}
+            </v-alert>
+
+            <v-card class="mx-2 mb-3">
+                <v-text-field
+                placeholder="Introducí un nombre de usuario"
+                hide-details
+                v-model="request_username"
+                @click:append-inner="handleNewRequest"
+                append-inner-icon="mdi-account-plus"
+                class="custom-icon"
+                @keydown.enter="handleNewRequest"
+                ></v-text-field>
+            </v-card>
 
             <v-card class="mx-2 mb-3">
                 <v-tabs
@@ -82,7 +77,7 @@
                 <v-card-text>
                     <v-tabs-window v-model="tab">
                         <v-tabs-window-item value="friends">
-                            <FriendsTable :refresh="refresh"  />
+                            <FriendsTable :refresh="refresh" @close-dialog="isActive.value = false" />
                         </v-tabs-window-item>
 
                         <v-tabs-window-item value="requests">
@@ -111,7 +106,17 @@ export default {
         return {
             tab: 'friends',
             request_username: "",
-            refresh: false
+            refresh: false,
+            alertMessage: '',
+            alertType: '', // 'success' o 'error'
+            showAlert: false,
+        }
+    },
+    watch: {
+        request_username(newVal) {
+            if (this.showAlert && newVal.trim() !== '') {
+                this.showAlert = false;
+            }
         }
     },
     methods: {
@@ -119,10 +124,21 @@ export default {
             try {
                 const request = await FriendsService.sendFriendRequest(this.$store.state.main.user.username, this.request_username)
                 console.log(request)
-                this.request_username = ""
+                this.alertMessage = 'Solicitud enviada con éxito';
+                this.alertType = 'success';
+                this.showAlert = true;
+                this.request_username = '';
+
             } catch (error) {
                 console.log(error.response.data.error)
+                this.alertMessage = 'Usuario no encontrado';
+                this.alertType = 'error';
+                this.showAlert = true;
             }
+
+            setTimeout(() => {
+                this.showAlert = false;
+            }, 5000);
         },
 
         refreshFriends () {
@@ -132,3 +148,10 @@ export default {
     }
 }
 </script>
+
+<style>
+.custom-icon .v-icon {
+  color: #000000;
+  opacity: 0.8;
+}
+</style>
