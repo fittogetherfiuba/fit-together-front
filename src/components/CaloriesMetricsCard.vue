@@ -1,3 +1,4 @@
+
 <template>
   <v-card class="pa-4" elevation="10">
     <v-card-title class="text-h6 text-center">
@@ -22,6 +23,7 @@
     </v-card-text>
   </v-card>
 </template>
+<!--
 
 <script>
 import { Pie } from 'vue-chartjs';
@@ -73,3 +75,5 @@ export default {
   }
 };
 </script>
+
+-->

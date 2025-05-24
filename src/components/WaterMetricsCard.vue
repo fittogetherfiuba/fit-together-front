@@ -96,7 +96,7 @@ export default defineComponent({
           data.push(liters);
           sum += liters;
         }
-
+        console.log(labels)
         this.chartData = {
           labels,
           datasets: [
