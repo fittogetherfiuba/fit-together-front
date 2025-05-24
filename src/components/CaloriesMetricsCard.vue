@@ -1,79 +1,47 @@
-
 <template>
-  <v-card class="pa-4" elevation="10">
-    <v-card-title class="text-h6 text-center">
-      Calorías por tipo
+    <v-card
+    class="pb-4 mt-4 mx-auto"
+    elevation="10"
+    max-width="500"
+     >
+    <!-- Título con fondo verde difuminado -->
+    <v-card-title class="text-h5 mb-4 text-center font-weight-bold bg-secondary">
+      <v-icon start icon="mdi-food"></v-icon>
+      Calorías consumidas esta semana
     </v-card-title>
-    <v-card-text class="d-flex">
-      <Pie :chart-data="chartData" :chart-options="chartOptions" />
-      <ul class="ml-4" style="list-style:none; padding:0;">
-        <li v-for="(label, i) in labels" :key="label">
-          <span
-            :style="{
-              backgroundColor: colors[i],
-              display: 'inline-block',
-              width: '12px',
-              height: '12px',
-              marginRight: '8px'
-            }"
-          ></span>
-          {{ label }}: {{ dataValues[i] }} kcal
-        </li>
-      </ul>
+
+    <!-- Área de texto con fondo verde oscuro y fuente negra -->
+    <v-card-text
+    class="d-flex align-baseline justify-center text-h4 font-weight-bold bg-secondary-darken-2 text-black"
+    style="padding: 16px;"
+    >
+    <span>
+        {{ totalCalories }}</span>
+        <span class="text-h4 font-weight-bold text-light-green--text">
+            &nbsp;Cal
+        </span>
     </v-card-text>
   </v-card>
 </template>
-<!--
 
 <script>
-import { Pie } from 'vue-chartjs';
-import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
-import axios from 'axios';
-
-Chart.register(ArcElement, Tooltip, Legend);
+import axios from 'axios'
 
 export default {
   name: 'CaloriesMetricsCard',
-  components: { Pie },
   data() {
-    return {
-      chartData: { labels: [], datasets: [{ data: [], backgroundColor: [] }] },
-      chartOptions: { plugins: { legend: { position: 'right' } } },
-      labels: [],
-      dataValues: [],
-      colors: []
-    };
+    return { totalCalories: 0 }
   },
-  created() {
-    this.fetchCaloriesMetrics();
-  },
-  methods: {
-    async fetchCaloriesMetrics() {
-      const userId = this.$store.state.main.user.userId;
-      try {
-        const resp = await axios.get('/api/foods/entries/since-last-monday', {
-          params: { userId }
-        });
-        const { entries } = resp.data;
-        const totals = {};
-        entries.forEach(e => {
-          totals[e.foodname || e.foodName] = (totals[e.foodname || e.foodName] || 0) + e.calories;
-        });
-        this.labels = Object.keys(totals);
-        this.dataValues = this.labels.map(k => totals[k]);
-        this.colors = this.labels.map((_, idx) =>
-          `hsl(${(idx * 360) / this.labels.length},70%,70%)`
-        );
-        this.chartData = {
-          labels: this.labels,
-          datasets: [{ data: this.dataValues, backgroundColor: this.colors }]
-        };
-      } catch (error) {
-        console.error('Error cargando métricas de calorías:', error);
-      }
+  async created() {
+    try {
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_APP_API_URL}foods/calories/since-last-monday`,
+        { params: { userId: this.$store.state.main.user.userId } }
+      )
+      this.totalCalories = data.totalCalories
+    } catch (e) {
+      console.error('Error al cargar métricas de calorías semanal:', e)
     }
   }
-};
+}
 </script>
-
--->
