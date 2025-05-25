@@ -116,6 +116,7 @@ export default {
           console.log(this.selectedExercise)
           const newExercise = {
             userId: this.$store.state.main.user.userId,
+            /*type: this.selectedType*/
             activityName: this.selectedExercise.name,
             durationMinutes: this.duration,
             distanceKm: this.distance,

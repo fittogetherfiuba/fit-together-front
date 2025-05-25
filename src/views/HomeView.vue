@@ -2,7 +2,7 @@
   <v-container fluid class="d-flex align-center justify-center fill-height">
     <v-row justify="center" align="start">
       <v-col cols="12" sm="8" md="10">
-        <v-col>
+        <v-col class="pa-0">
           <Goals />
         </v-col>    
         <v-row justify="center" align="start">
