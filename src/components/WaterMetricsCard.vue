@@ -5,7 +5,7 @@
     </v-card-title>
     <v-card-text class="d-flex flex-column" style="flex: 1;">
       <div v-if="isChartDataReady" style="flex: 1;">
-        <Bar :chart-data="chartData" :chart-options="chartOptions" style="flex: 1;" />
+        <Bar :data="chartData" :options="chartOptions"/>
       </div>
       <div v-else class="text-center py-4">Cargando gráfico...</div>
 
@@ -36,7 +36,7 @@ export default defineComponent({
   components: { Bar },
   data() {
     return {
-      chartData: null,  // Se inicializa como null para forzar control de carga
+      chartData: null,
       chartOptions: {
         responsive: true,
         maintainAspectRatio: false,
@@ -51,20 +51,21 @@ export default defineComponent({
     };
   },
   computed: {
-    isChartDataReady() {
-      return (
-        this.chartData &&
-        Array.isArray(this.chartData.labels) &&
-        this.chartData.labels.length > 0
-      );
-    }
+  isChartDataReady() {
+    return (
+      this.chartData &&
+      Array.isArray(this.chartData.datasets) &&
+      this.chartData.datasets.length > 0 &&
+      Array.isArray(this.chartData.labels)
+    );
+  }
   },
   mounted() {
     this.fetchWaterMetrics();
   },
   methods: {
     async fetchWaterMetrics() {
-      const userId = this.$store?.state?.main?.user?.userId;
+      const userId = this.$store.state.main.user.userId.toString();
       if (!userId) {
         console.warn("userId no disponible");
         return;
@@ -78,10 +79,15 @@ export default defineComponent({
       monday.setHours(0, 0, 0, 0);
 
       try {
-        const resp = await axios.get('/api/water/entries/since-last-monday', {
-          params: { userId }
-        });
+        const resp = await axios.get('http://localhost:3000/api/water/entries?userId=' + userId);
         const entries = Array.isArray(resp.data.entries) ? resp.data.entries : [];
+        
+        
+        console.log(Array.isArray(resp.data.entries))
+        console.log(resp)
+        console.log(entries)
+
+
 
         const labels = [];
         const data = [];
@@ -91,12 +97,17 @@ export default defineComponent({
         for (let d = new Date(monday); d <= endDate; d.setDate(d.getDate() + 1)) {
           const dateStr = d.toISOString().slice(0, 10);
           labels.push(dateStr);
-          const rec = entries.find(e => e.consumed_at === dateStr);
-          const liters = rec && typeof rec.liters === 'number' ? rec.liters : 0;
+          const dayEntries = entries.filter(e => e.consumedAt.slice(0, 10) === dateStr);
+
+          const liters = dayEntries.reduce((sum, e) => {
+            const value = Number(e.liters); 
+            return !isNaN(value) ? sum + value : sum;
+          }, 0);
+
           data.push(liters);
           sum += liters;
         }
-        console.log(labels)
+        console.log(data)
         this.chartData = {
           labels,
           datasets: [
@@ -107,7 +118,6 @@ export default defineComponent({
             }
           ]
         };
-
         this.totalLiters = sum;
       } catch (error) {
         console.error('Error cargando métricas de agua:', error);
