@@ -1,10 +1,15 @@
 <template>
-  <v-card class="pa-4" elevation="10" style="height: 400px;">
-    <v-card-title class="text-h6 text-center">
+  <v-card
+    class="mx-auto my-4"
+    elevation="10"
+    max-width="550"
+  >
+    <v-card-title class="text-h6 text-center font-weight-bold bg-secondary">
+      <v-icon left>mdi-water</v-icon>
       Agua consumida esta semana
     </v-card-title>
     <v-card-text class="d-flex flex-column" style="flex: 1;">
-      <div v-if="isChartDataReady" style="flex: 1;">
+      <div v-if="isChartDataReady" class="mt-4" style="flex: 1;">
         <Bar :data="chartData" :options="chartOptions"/>
       </div>
       <div v-else class="text-center py-4">Cargando gráfico...</div>
@@ -43,7 +48,7 @@ export default defineComponent({
         scales: {
           y: {
             beginAtZero: true,
-            max: 5
+            max: 4
           }
         }
       },
@@ -81,14 +86,6 @@ export default defineComponent({
       try {
         const resp = await axios.get('http://localhost:3000/api/water/entries?userId=' + userId);
         const entries = Array.isArray(resp.data.entries) ? resp.data.entries : [];
-        
-        
-        console.log(Array.isArray(resp.data.entries))
-        console.log(resp)
-        console.log(entries)
-
-
-
         const labels = [];
         const data = [];
         let sum = 0;
@@ -96,9 +93,8 @@ export default defineComponent({
 
         for (let d = new Date(monday); d <= endDate; d.setDate(d.getDate() + 1)) {
           const dateStr = d.toISOString().slice(0, 10);
-          labels.push(dateStr);
+          labels.push(d.toString().slice(0,3));
           const dayEntries = entries.filter(e => e.consumedAt.slice(0, 10) === dateStr);
-
           const liters = dayEntries.reduce((sum, e) => {
             const value = Number(e.liters); 
             return !isNaN(value) ? sum + value : sum;
@@ -107,7 +103,6 @@ export default defineComponent({
           data.push(liters);
           sum += liters;
         }
-        console.log(data)
         this.chartData = {
           labels,
           datasets: [
