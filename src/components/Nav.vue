@@ -19,6 +19,9 @@
     ></v-img>
 
     <template v-slot:append>
+
+      <FriendsDialog />
+
       <v-btn
         color="FFFFFF"
         icon
@@ -46,8 +49,13 @@
 </template>
 
 <script>
+import FriendsDialog from './FriendsDialog.vue'
+
 export default {
   name: 'WebNav',
+  components: {
+    FriendsDialog
+  },
   methods: {
     //redirect (routeName) {
       //this.$router.push({ name: routeName })
