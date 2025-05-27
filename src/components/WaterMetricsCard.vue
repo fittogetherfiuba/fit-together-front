@@ -22,10 +22,23 @@
 </template>
 
 <script>
-import axios from 'axios'
+import axios from 'axios';
+import { defineComponent } from 'vue';
+import { Bar } from 'vue-chartjs';
+import {
+  Chart,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Title,
+  Tooltip
+} from 'chart.js';
 
-export default {
+Chart.register(BarElement, CategoryScale, LinearScale, Title, Tooltip);
+
+export default defineComponent({
   name: 'WaterMetricsCard',
+  components: { Bar },
   data() {
     return {
       chartData: null,
@@ -106,5 +119,12 @@ export default {
       }
     }
   }
-}
+});
 </script>
+
+<style scoped>
+.v-card-text {
+  display: flex;
+  flex-direction: column;
+}
+</style>
