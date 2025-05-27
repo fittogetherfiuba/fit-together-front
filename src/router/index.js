@@ -47,6 +47,11 @@ const routes = [
     component: FriendsProfileView,
     meta: { requiresAuth: true }
   },
+  {
+  path: '/metrics/foods',
+  name: 'FoodsMetrics',
+  component: () => import('@/components/FoodsMetricCard.vue')
+  },
 ]
 
 const router = createRouter({

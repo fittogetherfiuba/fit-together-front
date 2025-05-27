@@ -3,9 +3,7 @@
     class="mx-auto my-4"
     elevation="10"
     max-width="550"
-  >
-    <!-- Título igual que en Water/Calories -->
-    <v-card-title class="text-h5 text-center font-weight-bold bg-secondary">
+  >    <v-card-title class="text-h5 text-center font-weight-bold bg-secondary">
       <v-icon left>mdi-run</v-icon>
       Actividades realizadas esta semana
     </v-card-title>
