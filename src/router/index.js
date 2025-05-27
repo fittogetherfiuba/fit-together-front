@@ -37,6 +37,11 @@ const routes = [
     path: '/profile',
     name: 'ProfileView',
     component: ProfileView
+  },
+  {
+  path: '/metrics/foods',
+  name: 'FoodsMetrics',
+  component: () => import('@/components/FoodsMetricCard.vue')
   }
 ]
 

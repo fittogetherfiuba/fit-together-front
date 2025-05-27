@@ -93,7 +93,7 @@ export default defineComponent({
 
         for (let d = new Date(monday); d <= endDate; d.setDate(d.getDate() + 1)) {
           const dateStr = d.toISOString().slice(0, 10);
-          labels.push(d.toString().slice(0,3));
+          labels.push(d.toLocaleDateString('es-AR', { weekday: 'short' }));
           const dayEntries = entries.filter(e => e.consumedAt.slice(0, 10) === dateStr);
           const liters = dayEntries.reduce((sum, e) => {
             const value = Number(e.liters); 
