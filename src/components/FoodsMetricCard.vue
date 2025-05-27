@@ -6,7 +6,6 @@
     </v-card-title>
 
     <v-card-text class="d-flex flex-column" style="gap: 24px; flex:1">
-      <!-- Gráficos (c/u maneja su propio loading) -->
       <CaloriesBarChart         :entries="entries"/>
       <CaloriesByPeriodBarChart :entries="entries"/>
       <NutrientsPieChart        :entries="entries"/>
@@ -47,6 +46,7 @@ export default defineComponent({
           `http://localhost:3000/api/foods/entries/since-last-monday?userId=${userId}`
         );
         this.entries = resp.data?.entries ?? [];
+        console.log(this.entries)
       } catch (err) {
         console.error(err);
       }

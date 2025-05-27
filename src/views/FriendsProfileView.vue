@@ -111,7 +111,6 @@
                           <v-text-field
                             :class="editing ? 'ml-4 edit-icon' : 'ml-4 info-icon'"
                             v-model="user.weight"
-                            :rules="weightRules"
                             suffix="kg"
                             label="Peso"
                             placeholder="N/A"
@@ -180,6 +179,7 @@
           weight: '',
           height: '',
         },
+        editing: false,
         loading: true,
         profile_pic: '/user-icon-white-background.png',
         block_loading: false,
@@ -193,7 +193,6 @@
       console.log(this.$route.params.id)
       this.user = response.data
       console.log(this.user)
-      console.log(this.isWeightValid())
   
       console.log(localStorage.getItem('user'))
       this.loading = false
@@ -203,6 +202,9 @@
   }
   
   </script>
+  
+
+
   
   <style>
   .info-icon .v-icon {

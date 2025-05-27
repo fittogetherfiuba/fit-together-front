@@ -1,5 +1,5 @@
 <template>
-    <div class="chart-wrapper" style="flex:1">
+    <div v-if="chartData.length" class="chart-wrapper" style="flex:1">
         <Pie v-if="isChartDataReady" :data="chartData" :options="chartOptions"/>
         <div v-else class="text-center py-4">Cargando gráfico de nutrientes…</div>
     </div>

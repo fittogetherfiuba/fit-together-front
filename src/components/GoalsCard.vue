@@ -146,6 +146,7 @@ export default {
 
     const fetchGoals = async () => {
       try {
+        console.log(userId.value)
         const res = await axios.get(`http://localhost:3000/api/goals/${userId.value}`);
         const data = res.data.goals || {};
         goalsHistory.value = Object.keys(data).map((key) => ({
