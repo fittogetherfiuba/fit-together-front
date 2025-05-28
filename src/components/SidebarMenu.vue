@@ -56,6 +56,7 @@
         //{ title: 'Planes', icon: 'mdi-dumbbell', route: '/plans' },
         //{ title: 'Servicios', icon: 'mdi-wrench-cog', route: '/services' },
         { title: 'Métricas', icon: 'mdi-poll', route: '/metrics' },
+        { title: 'Recetas', icon: 'mdi-food-apple', route: '/recipes'},
         //{ title: 'Registro de nuevos admins', icon: 'mdi-account-tie', route: '/register' }
       ],
       fullname: '',

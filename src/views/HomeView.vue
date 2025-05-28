@@ -7,10 +7,10 @@
         </v-col>    
         <v-row justify="center" align="start">
           <v-col cols="12" sm="4">
-            <Exercises :exerciseList="exerciseList" />
+            <Exercises />
           </v-col>
           <v-col cols="12" sm="4">
-            <Meals :mealList="mealList" />
+            <Meals />
           </v-col>
           <v-col cols="12" sm="4">
             <Water />
@@ -26,8 +26,6 @@ import Exercises from '../components/ExercisesCard.vue'
 import Meals from '../components/MealsCard.vue'
 import Water from '../components/WaterCard.vue'
 import Goals from '../components/GoalsCard.vue'
-const exerciseList = []
-const mealList = []
 
 </script>
 
