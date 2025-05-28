@@ -134,7 +134,7 @@ export default {
             "foodName": this.selectedMeal.name,
             "grams": parseInt(this.grams),
             "period": this.selectedPeriod,
-            "consumedAt": new Date().toLocaleString()
+            "consumedAt": new Date().toISOString()
           }
           await axios.post('http://localhost:3000/api/foods/entry', meal)
           this.fetchEatenMeals()
