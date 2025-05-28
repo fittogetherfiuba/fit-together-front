@@ -1,10 +1,7 @@
 <template>
-  <div class="text-center mt-4">
-    Total Calorias (kcal)
-  </div>
-  <div class="chart-wrapper" style="min-height: 250px;">
-    <Bar v-if="isChartDataReady" :data="chartData" :options="chartOptions"/>
-    <div v-else class="text-center py-4">Cargando gráfico de calorías…</div>
+  <div class="chart-wrapper" style="flex: 1">
+    <Bar v-if="isChartDataReady" :data="chartData" :options="chartOptions" />
+    <div v-else class="text-center py-4">Cargando gráfico de agua…</div>
   </div>
 </template>
 
@@ -26,26 +23,30 @@ const props = defineProps({
   entries: { type: Array, required: true } // array crudo de la API
 });
 
-const chartData = ref(null);
+const chartData        = ref(null);
 const isChartDataReady = ref(false);
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
-  scales: { y: { beginAtZero: true } },
-  plugins: { legend: { position: 'bottom' } }
+  scales: { y: { beginAtZero: true, max: 4 } } // 4 L máx. por día
 };
 
-
 function buildChart() {
-  const totalsByDay = new Map(); // yyyy-mm-dd → kcal
+  if (!Array.isArray(props.entries) || !props.entries.length) {
+    isChartDataReady.value = false;
+    return;
+  }
+
+  const totalsByDay = new Map();          // yyyy-mm-dd → litros
   props.entries.forEach(e => {
     const day = e.consumedAt.slice(0, 10);
-    totalsByDay.set(day, (totalsByDay.get(day) || 0) + Number(e.calories));
+    totalsByDay.set(day, (totalsByDay.get(day) || 0) + Number(e.liters));
   });
 
   const labels = [];
-  const data = [];
-  const today = new Date();
+  const data   = [];
+
+  const today  = new Date();
   const monday = new Date(today);
   monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
   monday.setHours(0, 0, 0, 0);
@@ -58,14 +59,13 @@ function buildChart() {
 
   chartData.value = {
     labels,
-    datasets: [
-        { 
-        label: 'Calorías (kcal)',
-        data,
-        backgroundColor: 'orange' 
-        }
-    ]
+    datasets: [{ 
+        label: 'Agua (litros)',
+        data, 
+        backgroundColor: 'lightblue'
+    }],
   };
+
   isChartDataReady.value = true;
 }
 

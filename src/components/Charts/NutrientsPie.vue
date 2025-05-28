@@ -1,5 +1,8 @@
 <template>
-    <div v-if="chartData.labels.length" class="chart-wrapper" style="flex:1">
+    <div class="text-center mt-4">
+    	Nutrientes (gramos)
+  	</div>
+    <div v-if="chartData.labels.length" class="chart-wrapper" style="flex:1" >
         <Pie v-if="isChartDataReady" :data="chartData" :options="chartOptions"/>
         <div v-else class="text-center py-4">Cargando gráfico de nutrientes…</div>
     </div>
@@ -15,7 +18,6 @@ import {
     Tooltip,
     Legend
 } from 'chart.js';
-//import {PALETTE} from '@/components/Charts/Chart.js';
 
 Chart.register(ArcElement, Title, Tooltip, Legend);
 
@@ -32,14 +34,16 @@ const chartOptions = {
 };
 
 function buildChart() {
-    const PALETTE = [
-      '#4CAF50', // verde
-      '#2196F3', // azul
-      '#FF9800', // naranja
-      '#9C27B0', // violeta
-      '#FFC107', // amarillo
-      '#009688', // turquesa
-      '#E91E63'  // rosa
+const PALETTE = [
+  '#81C784', // verde atenuado
+  '#64B5F6', // azul atenuado
+  '#FFB74D', // naranja atenuado
+  '#BA68C8', // violeta atenuado
+  '#FFD54F', // amarillo atenuado
+  '#4DB6AC', // turquesa atenuado
+  '#EC407A', // rosa atenuado
+  '#9575CD', // lavanda intermedia 
+  '#FF8A65'  // coral intermedio 
     ];
     
     const totals = new Map(); // nutrientName -> gramos (o mg)

@@ -1,5 +1,8 @@
 <template>
-	<div class="chart-wrapper" style="flex:1">
+	<div class="text-center mt-4">
+    	Calorias Por Comida (kcal)
+  	</div>
+	<div class="chart-wrapper" style="min-height: 250px;">
 		<Bar v-if="isChartDataReady" :data="chartData" :options="chartOptions"/>
 		<div v-else class="text-center py-4">Cargando gráfico de calorías por período…</div>
 	</div>
@@ -83,7 +86,6 @@ function buildChart() {
 		const dateStr = new Date(monday.getTime() + i * 864e5).toISOString().slice(0, 10);
 		return map[period].get(dateStr) || 0;
 		}),
-		stack: 'kcal',
 		backgroundColor: colorByPeriod.get(period)
 	}));
 
