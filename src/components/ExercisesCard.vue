@@ -54,10 +54,11 @@
               item-title="name"
               :menu-props="{ maxHeight: '200px' }"
             />
-            <v-text-field v-if="selectedType === 'Cardio'" variant="outlined" v-model="duration" label="Duración (minutos)" type="number" min="0" />
+            <v-text-field v-if="selectedType === 'Cardio'" variant="outlined" v-model="duration" @update:model-value="fetchCalories" label="Duración (minutos)" type="number" min="0" />
             <v-text-field v-if="selectedType === 'Cardio'" variant="outlined" v-model="distance" label="Distancia (km)" type="number" min="0" />
             <v-text-field v-if="selectedType === 'Musculacion'" variant="outlined" v-model="sets" label="Series" type="number" min="0" />
-            <v-text-field v-if="selectedType === 'Musculacion'" variant="outlined" v-model="reps" label="Repeticiones" type="number" min="0" />
+            <v-text-field v-if="selectedType === 'Musculacion'" variant="outlined" v-model="reps" @update:model-value="fetchCalories" label="Repeticiones" type="number" min="0" />
+            <v-text-field v-if="selectedType" variant="outlined" v-model="calories" label="Calorias quemadas" type="number" min="0" />
           </v-form>
         </v-card-text>
         <v-card-actions class="justify-end">
@@ -87,6 +88,7 @@ export default {
       distance: '',
       sets: '',
       reps: '',
+      calories: '',
       form: null,
       rules: {
         required: value => !!value || 'Debe ingresar un ejercicio',
@@ -103,6 +105,7 @@ export default {
       this.distance = ''
       this.sets = ''
       this.reps = ''
+      this.calories = ''
     },
 
     async handleAddExercise() {
@@ -116,12 +119,13 @@ export default {
           console.log(this.selectedExercise)
           const newExercise = {
             userId: this.$store.state.main.user.userId,
-            /*type: this.selectedType*/
+            /*type: this.selectedType,*/
             activityName: this.selectedExercise.name,
             durationMinutes: this.duration,
             distanceKm: this.distance,
             series: this.sets,
             repetitions: this.reps,
+            /* calories: this.calories,*/
             performedAt: new Date().toLocaleString()
           }
           await axios.post('http://localhost:3000/api/activities/entry', newExercise)
@@ -142,6 +146,25 @@ export default {
         } catch (error) {
           console.error('Error al obtener actividades:', error)
         }
+      }
+    },
+
+    async fetchCalories(){
+      if(this.selectedType){
+        /*
+        try {
+          const exercise = {
+            type: this.selectedType,
+            ...(this.duration
+              ? { duration: this.duration }
+              : { reps: this.reps }),
+          }
+          const response = await axios.get('http://localhost:3000/api/calories' + exercise)
+          this.calories = response.data
+        } catch (error) {
+          console.error('Error al obtener calorias:', error)
+        }
+          */
       }
     },
 

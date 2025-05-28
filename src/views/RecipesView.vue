@@ -145,7 +145,6 @@ export default {
     async fetchRecipes() {
       try {
         const response = await axios.get('http://localhost:3000/api/recipes/get?userId=' + this.$store.state.main.user.userId.toString())
-        console.log(response.data.recipes)
         this.recipesList = response.data.recipes
       } catch (error) {
         console.error('Error al obtener recetas:', error)
