@@ -1,8 +1,8 @@
 <template>
   <div class="pa-4 d-flex flex-column align-center">
-    <WaterMetricsCard class="mb-4" />
-    <FoodsMetricCard class="mb-4" />
-    <ActivitiesMetricsCard />
+    <WaterMetricsCard :userId="$store.state.main.user.userId" class="mb-4" />
+    <FoodsMetricCard :userId="$store.state.main.user.userId" class="mb-4" />
+    <ActivitiesMetricsCard :userId="$store.state.main.user.userId" />
   </div>
 </template>
 

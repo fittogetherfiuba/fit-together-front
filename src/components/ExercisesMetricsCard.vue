@@ -51,15 +51,36 @@ export default {
       entries: []
     };
   },
-  async created() {
-    try {
-      const { data } = await axios.get(
-        `${import.meta.env.VITE_APP_API_URL}activities/since-last-monday`,
-        { params: { userId: this.$store.state.main.user.userId } }
-      );
-      this.entries = data.entries;
-    } catch (e) {
-      console.error('Error al cargar actividades semanales:', e);
+  props: {
+    userId: {
+      type: [String, Number],
+      required: true,
+    }
+  },
+  watch: {
+    userId(newVal) {
+      console.log(newVal)
+      this.fetchEntries()
+    }
+  },
+  mounted() {
+    this.fetchEntries()
+  },
+  methods: {
+    async fetchEntries() {
+      if (!this.userId) {
+        console.warn('userId no disponible');
+        return;
+      }
+      try {
+        const { data } = await axios.get(
+          `${import.meta.env.VITE_APP_API_URL}activities/since-last-monday`,
+          { params: { userId: this.userId } }
+        );
+        this.entries = data.entries;
+      } catch (e) {
+        console.error('Error al cargar actividades semanales:', e);
+      }
     }
   }
 };

@@ -39,6 +39,18 @@ Chart.register(BarElement, CategoryScale, LinearScale, Title, Tooltip);
 export default defineComponent({
   name: 'WaterMetricsCard',
   components: { Bar },
+  props: {
+    userId: {
+      type: [String, Number],
+      required: true,
+    }
+  },
+  watch: {
+    userId(newVal) {
+      console.log(newVal)
+      this.fetchWaterMetrics()
+    }
+  },
   data() {
     return {
       chartData: null,
@@ -70,8 +82,8 @@ export default defineComponent({
   },
   methods: {
     async fetchWaterMetrics() {
-      const userId = this.$store.state.main.user.userId.toString();
-      if (!userId) {
+      //const userId = this.$store.state.main.user.userId.toString();
+      if (!this.userId) {
         console.warn("userId no disponible");
         return;
       }
@@ -84,7 +96,7 @@ export default defineComponent({
       monday.setHours(0, 0, 0, 0);
 
       try {
-        const resp = await axios.get('http://localhost:3000/api/water/entries?userId=' + userId);
+        const resp = await axios.get('http://localhost:3000/api/water/entries?userId=' + this.userId);
         const entries = Array.isArray(resp.data.entries) ? resp.data.entries : [];
         const labels = [];
         const data = [];

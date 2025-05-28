@@ -157,6 +157,17 @@
           </v-card>
         </v-col>
       </v-row>
+      <v-row justify="center">
+        <v-col cols="12" md="3">
+          <WaterMetricsCard :userId="user.id"/>
+        </v-col>
+        <v-col cols="12" md="3">
+          <FoodsMetricCard :userId="user.id" class="mb-4" />
+        </v-col>
+        <v-col  cols="12" md="3">
+          <ActivitiesMetricsCard :userId="user.id"/>
+        </v-col>
+      </v-row>
     </div>
   </template>
   
@@ -164,9 +175,17 @@
   
   <script>
   import UserService from '../services/user.service'
+  import WaterMetricsCard      from '../components/WaterMetricsCard.vue'
+  import ActivitiesMetricsCard from '../components/ExercisesMetricsCard.vue'
+  import FoodsMetricCard from '../components/FoodsMetricCard.vue';
   //import generateMediaURL from '../services/firebase'
   export default {
     name: 'FriendsProfile',
+      components: {
+      WaterMetricsCard,
+      FoodsMetricCard,
+      ActivitiesMetricsCard
+    },
     data () {
       return {
         user: {
@@ -192,7 +211,7 @@
       const response = await UserService.getUserInfoByUsername(this.$route.params.id)
       console.log(this.$route.params.id)
       this.user = response.data
-      console.log(this.user)
+      console.log(this.user.id)
   
       console.log(localStorage.getItem('user'))
       this.loading = false

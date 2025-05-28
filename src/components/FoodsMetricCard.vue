@@ -27,23 +27,35 @@ export default defineComponent({
     CaloriesByPeriodBarChart,
     NutrientsPieChart
   },
+  props: {
+    userId: {
+      type: [String, Number],
+      required: true,
+    }
+  },
   data() {
     return { entries: [] };
   },
   mounted() {
     this.fetchEntries();
   },
+  watch: {
+    userId(newVal) {
+      console.log(newVal)
+      this.fetchEntries()
+    }
+  },
   methods: {
     async fetchEntries() {
-      const userId = this.$store.state.main.user.userId?.toString();
-      if (!userId) {
+      //const userId = this.$store.state.main.user.userId?.toString();
+      if (!this.userId) {
         console.warn('userId no disponible');
         return;
       }
 
       try {
         const resp = await axios.get(
-          `http://localhost:3000/api/foods/entries/since-last-monday?userId=${userId}`
+          `http://localhost:3000/api/foods/entries/since-last-monday?userId=${this.userId}`
         );
         this.entries = resp.data?.entries ?? [];
         console.log(this.entries)
