@@ -126,7 +126,7 @@ export default {
             series: this.sets,
             repetitions: this.reps,
             performedAt: new Date().toISOString(),
-            /* caloriesBurned: this.calories,*/
+            caloriesBurned: this.calories
           }
           await axios.post('http://localhost:3000/api/activities/entry', newExercise)
           this.fetchDoneExercises()
@@ -140,8 +140,8 @@ export default {
     async fetchExercises() {
       if(this.selectedType){
         try {
-          const response = await axios.get('http://localhost:3000/api/activities')
-          //const response = await axios.get('http://localhost:3000/api/activities/type/' + this.selectedType)
+          //const response = await axios.get('http://localhost:3000/api/activities')
+          const response = await axios.get('http://localhost:3000/api/activities/type/' + this.selectedType)
           this.exerciseList = response.data
         } catch (error) {
           console.error('Error al obtener actividades:', error)
@@ -151,20 +151,20 @@ export default {
 
     async fetchCalories(){
       if(this.selectedType){
-        /*
+
         try {
-          const exercise = {
-            type: this.selectedType,
-            ...(this.duration
-              ? { duration: this.duration }
-              : { reps: this.reps }),
-          }
-          const response = await axios.get('http://localhost:3000/api/calories' + exercise)
-          this.calories = response.data
+          const response = await axios.post('http://localhost:3000/api/activities/estimate-calories',
+              {
+                activityName: this.selectedExercise.name,
+                durationMinutes: this.duration,
+                repetitions: this.reps
+
+              })
+          this.calories = response.data.estimatedCalories
         } catch (error) {
           console.error('Error al obtener calorias:', error)
         }
-          */
+
       }
     },
 
