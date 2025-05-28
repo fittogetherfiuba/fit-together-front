@@ -5,6 +5,8 @@ import RegisterView from '../views/RegisterView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import MetricsView from '../views/MetricsView.vue'
 import RecipesView from '@/views/RecipesView.vue'
+import FriendsProfileView from '@/views/FriendsProfileView.vue'
+
 const routes = [
   {
     path: '/',
@@ -38,12 +40,25 @@ const routes = [
     path: '/profile',
     name: 'ProfileView',
     component: ProfileView
+    meta: { requiresAuth: true }
   },
   {
     path: '/recipes',
     name: 'RecipesView',
     component: RecipesView
-  }
+  },
+  {
+    path: '/friends/:id',
+    name: 'FriendsProfile',
+    component: FriendsProfileView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/metrics/foods',
+    name: 'FoodsMetrics',
+    component: () => import('@/components/FoodsMetricCard.vue')
+  },
+
 ]
 
 const router = createRouter({

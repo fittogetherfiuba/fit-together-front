@@ -17,6 +17,10 @@ class UserService {
   editCurrentUserInfo (user) {
     return axios.put(API_URL + 'users/' + user.username, user)
   }
+
+  getUserInfoByUsername (username) {
+    return axios.get(API_URL + 'users/' + username)
+  }
 }
 
 export default new UserService()
