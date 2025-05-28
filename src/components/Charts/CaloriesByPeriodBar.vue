@@ -36,7 +36,7 @@ const chartOptions = {
 	plugins: { legend: { position: 'bottom' } }
 };
 
-const PERIODS = ['desayuno', 'almuerzo', 'cena', 'Sin período definido'];
+const PERIODS = ['desayuno', 'almuerzo', 'merienda', 'cena', 'Sin período definido'];
 
 function buildChart() {
 	const map = {}; // period -> Map(day->kcal)
