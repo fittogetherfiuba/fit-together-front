@@ -125,8 +125,8 @@ export default {
             distanceKm: this.distance,
             series: this.sets,
             repetitions: this.reps,
-            /* calories: this.calories,*/
             performedAt: new Date().toLocaleString()
+            /* caloriesBurned: this.calories,*/
           }
           await axios.post('http://localhost:3000/api/activities/entry', newExercise)
           this.fetchDoneExercises()
