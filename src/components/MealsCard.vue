@@ -7,8 +7,12 @@
     <v-card-text>
       <v-list>
         <span class="d-flex text-h6 justify-center font-weight-bold" v-if="mealHistory.length === 0">No hay alimentos registrados</span>
-        <v-list-item class="border-b" v-for="(meal, index) in mealHistory" :key="index">
-          <v-list-item-title >{{ meal.foodName }} - {{ meal.grams }} gr </v-list-item-title>
+        <v-list-item class="border-b" v-for="(meal, index) in mealHistory" @click="handleMealInfo(meal)" :key="index">
+          <v-list-item-title class="font-weight-bold"> {{ meal.foodName }} </v-list-item-title>
+          <v-list-item-subtitle>
+            <span>Cantidad: {{ meal.grams }}g - </span>
+            <span>Calorias: {{ meal.calories }} </span>
+          </v-list-item-subtitle>
         </v-list-item>
       </v-list>
     </v-card-text>
@@ -16,11 +20,22 @@
       <v-btn class="border-sm bg-warning font-weight-bold" @click="showDialog = true">Agregar comida</v-btn>
     </v-card-actions>
 
-    <v-dialog v-model="showDialog" max-width="450px">
+    <v-dialog v-model="showDialog" max-width="450px" @after-leave="closeDialog">
       <v-card class="d-flex align-center">
         <v-card-title class="pa-3"><span class="text-h6 font-weight-bold">Agregar comida</span></v-card-title>
         <v-card-text class="w-75">
           <v-form ref="form">
+            <v-autocomplete
+              v-model="selectedPeriod"
+              :items="mealPeriods"
+              label="Periodo"
+              return-object
+              :rules="[rules.required]"
+              clearable
+              variant="outlined"
+              item-title="name"
+              :menu-props="{ maxHeight: '200px' }"
+            />
             <v-autocomplete
               v-model="selectedMeal"
               :items="mealList"
@@ -29,7 +44,6 @@
               return-object
               :rules="[rules.required]"
               clearable
-              autofocus
               item-title="name"
               :menu-props="{ maxHeight: '200px' }"
             />
@@ -40,6 +54,27 @@
           <v-btn class="border-sm bg-error font-weight-bold" text @click="closeDialog">Cancelar</v-btn>
           <v-btn class="border-sm bg-warning font-weight-bold" @click="handleAddMeal">Agregar</v-btn>
         </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="showFoodInfo" max-width="450px" @after-leave="closeFoodInfo">
+      <v-card class="d-flex align-center">
+        <v-card-title class="pa-3">
+          <span class="text-h6 font-weight-bold">{{ selectedMealInfo ? selectedMealInfo.foodName : '' }}</span>
+        </v-card-title>
+        <v-card-text class="w-75">
+          <p><strong>Periodo: </strong> {{ selectedMealInfo.period }}</p>
+          <p><strong>Cantidad: </strong> {{ selectedMealInfo.grams }}g</p>
+          <p><strong>Calorias: </strong> {{ selectedMealInfo.calories }}</p>
+          <br/>
+          <p class="font-weight-bold text-center">Nutrientes </p>
+          <v-data-table
+            :items="selectedMealInfo.nutrients"
+            :headers="headers"
+            hide-default-header
+            hide-default-footer
+          ></v-data-table>
+        </v-card-text>
       </v-card>
     </v-dialog>
   </v-card>
@@ -55,10 +90,15 @@ export default {
     return {
       mealList: ref(null),
       mealHistory: ref([]),
+      mealPeriods: ['Desayuno', 'Almuerzo', 'Merienda', 'Cena'],
       showDialog: ref(false),
+      showFoodInfo: ref(false),
+      selectedPeriod: ref(null),
       selectedMeal: ref(null),
+      selectedMealInfo: ref(null),
       grams: ref(''),
       form: ref(null),
+      headers: [{title: 'Name', value: 'name'}, {title: 'Amount', value: 'amount'}],
       rules: {
         required: value => !!value || 'Debe ingresar una comida',
         foodRequired: value => !!value || 'Debe ingresar una cantidad de comida',
@@ -70,12 +110,21 @@ export default {
     closeDialog() {
       this.showDialog = false
       this.selectedMeal = null
+      this.selectedPeriod = null
       this.grams = ''
+    },
+    closeFoodInfo() {
+      this.selectedMealInfo = null
+      this.showFoodInfo = false
+    },
+    async handleMealInfo(meal) {
+      this.selectedMealInfo = meal;
+      this.showFoodInfo = true;
     },
     async handleAddMeal() {
       const isValid = this.$refs.form.validate()
       if (!isValid) {
-        return // No continúa si el formulario no es válido
+        return
       }
 
       if (this.selectedMeal && this.grams) {
@@ -84,6 +133,7 @@ export default {
             "userId": this.$store.state.main.user.userId,
             "foodName": this.selectedMeal.name,
             "grams": parseInt(this.grams),
+            "period": this.selectedPeriod,
             "consumedAt": new Date().toLocaleString()
           }
           await axios.post('http://localhost:3000/api/foods/entry', meal)
