@@ -12,7 +12,7 @@
                   </div>
                   <v-row class="mt-2">
                     <img
-                      :src=profile_pic
+                      :src=user.image_url
                       class="rounded-circle mx-auto my-5"
                     />
                   </v-row>

@@ -79,7 +79,7 @@ export default {
         this.users_info[i] = {
             title: response.data.requests[i].fullname,
             subtitle: response.data.requests[i].username,
-            prependAvatar: '/user-icon-white-background.png'
+            prependAvatar: response.data.requests[i].image_url,
         }
     }
   },

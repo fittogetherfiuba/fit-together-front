@@ -13,7 +13,7 @@
                 <v-row class="mt-2">
                   <div class="perfil-wrapper mx-auto my-5">
                     <v-img
-                      :src="profile_pic"
+                      :src="user.image_url"
                       class="mx-3 rounded-circle borde-foto"
                       width="180"
                       height="180"
@@ -35,26 +35,26 @@
                   <v-dialog v-model="editingProfilePic" max-width="700px">
                     <v-card color="secondary">
                       <v-row justify="center">
-                          <v-col>
-                              <v-card-title class="my-1 font-weight-bold bg-secondary" style="font-size: 1.4rem;">
-                                  <v-icon start icon="mdi-camera"></v-icon>
-                                  Editar foto de perfil
-                              </v-card-title>
-                          </v-col>
-                          <v-col align="end">
-                            <v-btn
-                            class="mr-1 mt-1"
-                            icon
-                            color="secondary"
-                            @click="editingProfilePic = false"
-                            size="medium"
-                            elevation="0"
-                            >
-                              <v-icon>
-                              mdi-close
-                              </v-icon>
-                            </v-btn>
-                          </v-col>
+                        <v-col>
+                          <v-card-title class="my-1 font-weight-bold bg-secondary" style="font-size: 1.4rem;">
+                            <v-icon start icon="mdi-camera"></v-icon>
+                            Editar foto de perfil
+                          </v-card-title>
+                        </v-col>
+                        <v-col align="end">
+                          <v-btn
+                          class="mr-1 mt-1"
+                          icon
+                          color="secondary"
+                          @click="editingProfilePic = false"
+                          size="medium"
+                          elevation="0"
+                          >
+                            <v-icon>
+                            mdi-close
+                            </v-icon>
+                          </v-btn>
+                        </v-col>
                       </v-row>
 
                       <v-card class="mx-3 mb-3">
@@ -269,7 +269,6 @@ export default {
       showEditingProfilePic: false,
       editPicError: false,
       loading: true,
-      profile_pic: 'https://i.postimg.cc/K8yZ8Mpn/user-icon-white-background.png',
       block_loading: false,
       tab: null,
       editing: false,
@@ -348,8 +347,9 @@ export default {
       this.showEditingProfilePic = true
     },
     applyNewProfilePic () {
-      // request de axios
-      this.profile_pic = this.profilePicUrl
+      this.user.image_url = this.profilePicUrl
+      this.editingProfilePic = false
+      this.profilePicUrl = ''
     },
     handleEditPicError () {
       this.editPicError = true;
