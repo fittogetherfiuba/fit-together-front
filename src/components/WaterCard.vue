@@ -4,7 +4,7 @@
       <v-icon start icon="mdi-water"></v-icon>
       Agua consumida
     </v-card-title>
-    <v-card-text class="font-weight-medium d-flex justify-center" style="font-size: 1.2rem;">
+    <v-card-text class="font-weight-medium text-h4 d-flex justify-center" style="font-size: 1.2rem;">
       {{ waterHistory }} {{ waterHistory === 1 ? 'litro' : 'litros' }}
     </v-card-text>
     <v-card-actions class="justify-center">

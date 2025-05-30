@@ -2,8 +2,8 @@
   <v-container fluid class="d-flex align-center justify-center fill-height">
     <v-row justify="center" align="start">
       <v-col cols="12" class="text-center mb-4 text-h6">
-        <v-btn class="border-sm bg-secondary font-weight-bold" @click="showDialog = true">Agregar Receta</v-btn>
-        <span class="d-flex text-h6 justify-center font-weight-bold" v-if="recipesList.length === 0">No hay alimentos registrados</span>
+        <v-btn class="border-sm bg-secondary text-h5 w-25 mb-4 font-weight-bold" @click="showDialog = true">Agregar Receta</v-btn>
+        <span class="d-flex text-h5 justify-center font-weight-bold" v-if="recipesList.length === 0">No hay recetas registradas</span>
         <v-dialog v-model="showDialog" max-width="650px" style="overflow-y: auto; max-height: 70vh;" @after-leave="closeDialog">
           <v-card class="d-flex align-center">
             <v-card-title class="pa-3"><span class="text-h6 font-weight-bold">Agregar Receta</span></v-card-title>
@@ -11,7 +11,7 @@
               <v-form ref="form">
                 <v-text-field v-model="name" :rules="[rules.nameRequired]" variant="outlined" label="Nombre" />
                 <span class="font-weight-bold">Ingredientes:</span>
-                <div class="d-flex ga-3 mb-2" v-for="(ingredient, index) in ingredients" :key="index">
+                <div class="d-flex ga-3 mt-2" v-for="(ingredient, index) in ingredients" :key="index">
                   <v-autocomplete
                     v-model="ingredient.selectedMeal"
                     :items="mealList"
@@ -34,7 +34,7 @@
                   />
                 </div>
                 <v-col cols="12" class="d-flex justify-center pa-0">
-                  <v-btn class="border-sm font-weight-bold" @click="addIngredient">+</v-btn>
+                  <v-btn class="border-sm bg-secondary w-25 text-h5 font-weight-bold" @click="addIngredient">+</v-btn>
                 </v-col>
                 <br/>
                 <span class="font-weight-bold">Pasos:</span>
