@@ -6,6 +6,7 @@ import ProfileView from '../views/ProfileView.vue'
 import MetricsView from '../views/MetricsView.vue'
 import RecipesView from '@/views/RecipesView.vue'
 import FriendsProfileView from '@/views/FriendsProfileView.vue'
+import CommunitiesView from '@/views/CommunitiesView.vue'
 
 const routes = [
   {
@@ -57,6 +58,11 @@ const routes = [
     path: '/metrics/foods',
     name: 'FoodsMetrics',
     component: () => import('@/components/FoodsMetricCard.vue')
+  },
+  {
+    path: '/communities',
+    name: 'CommunitiesView',
+    component: CommunitiesView
   },
 
 ]
