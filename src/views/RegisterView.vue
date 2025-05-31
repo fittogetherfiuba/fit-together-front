@@ -116,7 +116,7 @@
       localStorage.setItem('user', JSON.stringify(userData))
       console.log('Registro exitoso:', userData)
 
-      // redirigir a home
+      // redirigir a verificacion
       router.push('/')
     } catch (error) {
       console.error('Error al registrar:', error.response?.data || error.message)
@@ -188,7 +188,7 @@
       this.$store.dispatch('register', user).then(
         () => {
           console.log('Register exitoso')
-          this.$router.push('/')
+          this.$router.push('/verify-email')
           console.log(this.$router)
         },
         (error) => {
