@@ -58,7 +58,12 @@ const routes = [
     name: 'FoodsMetrics',
     component: () => import('@/components/FoodsMetricCard.vue')
   },
-
+  {
+    path: '/verify-email',
+    name: 'EmailVerificationView',
+    component: () => import('../views/EmailVerificationView.vue'),
+    meta: { requiresAuth: true }
+  }  
 ]
 
 const router = createRouter({

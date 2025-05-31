@@ -2,6 +2,18 @@
   <div>
     <v-row align="center" justify="center"> 
       <v-col cols="12" sm="10" class="mx-5 my-5">
+      <v-alert
+          v-if="!user.verified && !loading"
+          type="warning"
+          text
+          class="mb-4 mx-5"
+          density="compact"
+        >
+          Tu cuenta no está verificada. 
+          <RouterLink to="/verify-email"   style="text-decoration: underline; color: white; font-weight: bold; margin-left: 4px;">
+            Ingresá acá</RouterLink> para verificarla
+          
+        </v-alert>
         <v-card class="mx-5 my-5 rounded-sm">
           <v-sheet :color="isEditing ? '#FF5537' : 'primary'" height="6"></v-sheet>
           <v-card-item>
@@ -179,6 +191,7 @@ export default {
         birthday: '',
         weight: '',
         height: '',
+        verified: '',
       },
       loading: true,
       profile_pic: '/user-icon-white-background.png',
@@ -202,6 +215,7 @@ export default {
   async mounted () {
     const response = await UserService.getCurrentUserInfo()
     this.user = response.data
+
     console.log(this.user)
 
     console.log(this.isWeightValid())
