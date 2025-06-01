@@ -23,10 +23,94 @@
                   Foto de perfil
                 </div>
                 <v-row class="mt-2">
-                  <img
-                    :src=profile_pic
-                    class="rounded-circle mx-auto my-5"
-                  />
+                  <div class="perfil-wrapper mx-auto my-5">
+                    <v-img
+                      :src="user.image_url"
+                      class="mx-3 rounded-circle borde-foto"
+                      width="180"
+                      height="180"
+                      :style= "editing ? 'border: 3px solid #FF5537;' : ''"
+                      cover
+                    ></v-img>
+                    <v-btn
+                      icon
+                      v-if="editing"
+                      size="small"
+                      color="#FF5537"
+                      class="btn-editar"
+                      @click="editingProfilePic = true"
+                    >
+                      <v-icon>mdi-pencil</v-icon>
+                    </v-btn>
+                  </div>
+
+                  <v-dialog v-model="editingProfilePic" max-width="700px">
+                    <v-card color="secondary">
+                      <v-row justify="center">
+                        <v-col>
+                          <v-card-title class="my-1 font-weight-bold bg-secondary" style="font-size: 1.4rem;">
+                            <v-icon start icon="mdi-camera"></v-icon>
+                            Editar foto de perfil
+                          </v-card-title>
+                        </v-col>
+                        <v-col align="end">
+                          <v-btn
+                          class="mr-1 mt-1"
+                          icon
+                          color="secondary"
+                          @click="editingProfilePic = false"
+                          size="medium"
+                          elevation="0"
+                          >
+                            <v-icon>
+                            mdi-close
+                            </v-icon>
+                          </v-btn>
+                        </v-col>
+                      </v-row>
+
+                      <v-card class="mx-3 mb-3">
+                        <v-text-field
+                          v-model="profilePicUrl"
+                          label="Introducí el URL de la nueva foto"
+                          placeholder="https://..."
+                          hide-details
+                          append-inner-icon="mdi-link-variant"
+                          @click:append="searchPicUrl"
+                          @keydown.enter="searchPicUrl"
+                        ></v-text-field>
+                      </v-card>
+
+                      <v-card v-if="showEditingProfilePic" class="mx-auto mb-3 rounded-circle">
+                        <v-img
+                          @error="handleEditPicError"
+                          :src="profilePicUrl"
+                          class="mx-auto rounded-circle"
+                          width="180"
+                          height="180"
+                          cover
+                        ></v-img>
+                      </v-card>
+
+                      <v-alert
+                        v-if="editPicError"
+                        text
+                        type="error"
+                        max-width="500"
+                        class="mx-auto mt-2 mb-1"
+                        density="compact"
+                        >
+                        La URL introducida no es correcta.
+                        </v-alert>
+
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn :disabled="!showEditingProfilePic || editPicError" @click="applyNewProfilePic">Aplicar</v-btn>
+                      </v-card-actions>
+                    </v-card>
+
+                  </v-dialog>
+
                 </v-row>
                 <v-textarea
                   class="mx-7 mt-5" 
@@ -193,8 +277,11 @@ export default {
         height: '',
         verified: '',
       },
+      editingProfilePic: false,
+      profilePicUrl: '',
+      showEditingProfilePic: false,
+      editPicError: false,
       loading: true,
-      profile_pic: '/user-icon-white-background.png',
       block_loading: false,
       tab: null,
       editing: false,
@@ -210,6 +297,18 @@ export default {
         v => v.length <= 3 || 'Entre 2 y 3 caracteres',
       ],
 
+    }
+  },
+  watch: {
+    profilePicUrl() {
+      console.log()
+      if (this.showEditingProfilePic) {
+        this.showEditingProfilePic = false
+
+      }
+      if (this.editPicError) {
+        this.editPicError = false
+      }
     }
   },
   async mounted () {
@@ -258,12 +357,39 @@ export default {
       const lengthValid = height?.toString().length >= 2 && height.toString().length <= 3
       return isNumber && lengthValid
     },
+    searchPicUrl () {
+      this.showEditingProfilePic = true
+    },
+    applyNewProfilePic () {
+      this.user.image_url = this.profilePicUrl
+      this.editingProfilePic = false
+      this.profilePicUrl = ''
+    },
+    handleEditPicError () {
+      this.editPicError = true;
+      this.showEditingProfilePic = false;
+    }
   }
 }
 
 </script>
 
 <style>
+
+.perfil-wrapper {
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
+
+.btn-editar {
+  position: absolute;
+  bottom: 168px;
+  left: 150px;
+  background-color: white;
+  border: 1px solid #ccc;
+}
+
 .info-icon .v-icon {
   color: #219653 !important;
 }
