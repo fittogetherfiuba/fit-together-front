@@ -9,9 +9,9 @@
             <v-card-title class="pa-3"><span class="text-h6 font-weight-bold">Agregar Receta</span></v-card-title>
             <v-card-text class="w-75">
               <v-form ref="form">
-                <v-text-field v-model="name" :rules="[rules.nameRequired]" variant="outlined" label="Nombre" />
+                <v-text-field class="mb-4" v-model="name" :rules="[rules.nameRequired]" variant="outlined" label="Nombre" />
                 <span class="font-weight-bold">Ingredientes:</span>
-                <div class="d-flex ga-3 mt-2" v-for="(ingredient, index) in ingredients" :key="index">
+                <div class="d-flex ga-3 mt-2 mb-3" v-for="(ingredient, index) in ingredients" :key="index">
                   <v-autocomplete
                     v-model="ingredient.selectedMeal"
                     :items="mealList"
@@ -39,11 +39,22 @@
                 <br/>
                 <span class="font-weight-bold">Pasos:</span>
                 <v-textarea v-model="steps" 
-                  class="mt-3" 
+                  class="mt-3 mb-4" 
                   :rules="[rules.stepsRequired]" 
                   variant="outlined"
                   :placeholder="'Escribe los pasos de la receta de esta forma: \n1. Paso uno. \n2. Paso dos. \n3. Paso tres.'"
                 />
+                <span class="font-weight-bold">Foto del plato:</span>
+                <v-text-field
+                  class="mt-3"
+                  :rules="[rules.stepsRequired]" 
+                  v-model="picUrl"
+                  label="Introducí el URL de la foto"
+                  placeholder="https://..."
+                  append-inner-icon="mdi-link-variant"
+                  @click:append="searchPicUrl"
+                  @keydown.enter="searchPicUrl"
+                ></v-text-field>
               </v-form>
             </v-card-text>
             <v-card-actions class="justify-end">
@@ -88,6 +99,7 @@ export default {
           grams: ''
         }
       ],
+      picUrl: '',
       form: null,
       recipesList: [],
       rules: {
@@ -149,6 +161,9 @@ export default {
       } catch (error) {
         console.error('Error al obtener recetas:', error)
       }
+    },
+    searchPicUrl () {
+      this.showEditingProfilePic = true
     },
   },
 
