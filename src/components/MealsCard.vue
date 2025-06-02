@@ -21,54 +21,99 @@
     </v-card-actions>
 
     <v-dialog v-model="showDialog" max-width="450px" @after-leave="closeDialog">
-      <v-card class="d-flex align-center">
-        <v-card-title class="pa-3"><span class="text-h6 font-weight-bold">Agregar comida</span></v-card-title>
-        <v-card-text class="w-75">
-          <v-form ref="form">
-            <v-autocomplete
-              v-model="selectedPeriod"
-              :items="mealPeriods"
-              label="Periodo"
-              return-object
-              :rules="[rules.required]"
-              clearable
-              variant="outlined"
-              item-title="name"
-              :menu-props="{ maxHeight: '200px' }"
-            />
-            <v-autocomplete
-              v-model="selectedMeal"
-              :items="mealList"
-              label="Comida"
-              variant="outlined"
-              return-object
-              :rules="[rules.required]"
-              clearable
-              item-title="name"
-              :menu-props="{ maxHeight: '200px' }"
-            />
-            <v-text-field v-model="grams" :rules="[rules.foodRequired]" variant="outlined" label="Cantidad (gramos)" type="number" min="0" />
+      <v-card>
+        <!-- Título -->
+        <v-card-title class="pa-0">
+          <v-row no-gutters class="text-center pa-2 bg-secondary w-100">
+            <v-col class="d-flex justify-center align-center">
+              <v-icon start icon="mdi-food-drumstick"></v-icon>
+              <span class="text-h6 font-weight-bold">Agregar comida</span>
+            </v-col>
+          </v-row>
+        </v-card-title>
+
+        <!-- Contenido del formulario -->
+        <v-card-text class="pt-6 pb-3 d-flex justify-center">
+          <v-form class="w-75" ref="form">
+            <v-row dense>
+              <v-col cols="12">
+                <v-autocomplete
+                  v-model="selectedPeriod"
+                  :items="mealPeriods"
+                  label="Periodo"
+                  return-object
+                  :rules="[rules.required]"
+                  clearable
+                  variant="outlined"
+                  item-title="name"
+                  :menu-props="{ maxHeight: '200px' }"
+                />
+              </v-col>
+
+              <v-col cols="12">
+                <v-autocomplete
+                  v-model="selectedMeal"
+                  :items="mealList"
+                  label="Comida"
+                  return-object
+                  :rules="[rules.required]"
+                  clearable
+                  variant="outlined"
+                  item-title="name"
+                  :menu-props="{ maxHeight: '200px' }"
+                />
+              </v-col>
+
+              <v-col cols="12">
+                <v-text-field
+                  v-model="grams"
+                  :rules="[rules.foodRequired]"
+                  variant="outlined"
+                  label="Cantidad (gramos)"
+                  type="number"
+                  min="0"
+                />
+              </v-col>
+            </v-row>
           </v-form>
         </v-card-text>
-        <v-card-actions class="justify-end">
-          <v-btn class="border-sm bg-error font-weight-bold" text @click="closeDialog">Cancelar</v-btn>
-          <v-btn class="border-sm bg-warning font-weight-bold" @click="handleAddMeal">Agregar</v-btn>
+        <!-- Botones de acción -->
+        <v-card-actions class="pb-4">
+          <v-row justify="center" class="w-100">
+            <v-col cols="auto">
+              <v-btn class="border-sm bg-error font-weight-bold" text @click="closeDialog">
+                Cancelar
+              </v-btn>
+            </v-col>
+            <v-col cols="auto">
+              <v-btn class="border-sm bg-warning font-weight-bold" @click="handleAddMeal">
+                Agregar
+              </v-btn>
+            </v-col>
+          </v-row>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
+
     <v-dialog v-model="showFoodInfo" max-width="450px" @after-leave="closeFoodInfo">
       <v-card class="d-flex align-center">
-        <v-card-title class="pa-3">
-          <span class="text-h6 font-weight-bold">{{ selectedMealInfo ? selectedMealInfo.foodName : '' }}</span>
+        <v-card-title class="pa-0 w-100">
+          <v-row no-gutters class="text-center pa-2 bg-secondary w-100">
+            <v-col>
+              <span class="text-h6 font-weight-bold">{{ selectedMealInfo ? selectedMealInfo.foodName : '' }}</span>
+            </v-col>
+          </v-row>
         </v-card-title>
         <v-card-text class="w-75">
           <p><strong>Periodo: </strong> {{ selectedMealInfo.period }}</p>
           <p><strong>Cantidad: </strong> {{ selectedMealInfo.grams }}g</p>
           <p><strong>Calorias: </strong> {{ selectedMealInfo.calories }}</p>
           <br/>
-          <p class="font-weight-bold text-center">Nutrientes </p>
+          
+          <p class="font-weight-bold mb-2 text-center">Nutrientes </p>
           <v-data-table
+            class="border-md"
             :items="selectedMealInfo.nutrients"
             :headers="headers"
             hide-default-header

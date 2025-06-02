@@ -1,6 +1,6 @@
 <template>
   <v-card class="pb-4 mt-4" elevation="10">
-    <v-card-title class="mb-4 text-center font-weight-bold bg-secondary" style="font-size: 1.4rem;">
+    <v-card-title class="mb-4 text-center d-flex justify-center align-center font-weight-bold bg-secondary" style="font-size: 1.4rem;">
       <v-icon start icon="mdi-note-text-outline"></v-icon>
       {{ recipe.name }}
     </v-card-title>

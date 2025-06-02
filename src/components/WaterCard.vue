@@ -13,13 +13,20 @@
 
     <v-dialog v-model="showDialog" max-width="450px">
       <v-card class="d-flex align-center">
-        <v-card-title class="pa-3"><span class="text-h6 font-weight-bold">Agregar agua</span></v-card-title>
-        <v-card-text class="w-75">
+        <v-card-title class="pa-0 w-100">
+          <v-row no-gutters class="text-center pa-2 bg-secondary w-100">
+            <v-col class="d-flex justify-center align-center">
+              <v-icon start icon="mdi-water"></v-icon>
+              <span class="text-h6 font-weight-bold">Agregar agua</span>
+            </v-col>
+          </v-row>
+        </v-card-title>
+        <v-card-text class="pt-8 pb-3 w-75">
           <v-form ref="form">
             <v-text-field :rules="[rules.required]" variant="outlined" v-model="waterQuantity" label="Cantidad (litros)" type="number" min="0" />
           </v-form>
         </v-card-text>
-        <v-card-actions class="justify-end">
+        <v-card-actions class="pb-4 justify-end">
           <v-btn class="border-sm bg-error font-weight-bold" text @click="closeDialog">Cancelar</v-btn>
           <v-btn class="border-sm bg-warning font-weight-bold" @click="handleAddWater">Agregar</v-btn>
         </v-card-actions>

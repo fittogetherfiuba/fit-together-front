@@ -4,10 +4,17 @@
       <v-col cols="12" class="text-center mb-4 text-h6">
         <v-btn class="border-sm bg-secondary text-h5 w-25 mb-4 font-weight-bold" @click="showDialog = true">Agregar Receta</v-btn>
         <span class="d-flex text-h5 justify-center font-weight-bold" v-if="recipesList.length === 0">No hay recetas registradas</span>
-        <v-dialog v-model="showDialog" max-width="650px" style="overflow-y: auto; max-height: 70vh;" @after-leave="closeDialog">
+        <v-dialog v-model="showDialog" max-width="625px" style="overflow-y: auto; max-height: 80vh;" @after-leave="closeDialog">
           <v-card class="d-flex align-center">
-            <v-card-title class="pa-3"><span class="text-h6 font-weight-bold">Agregar Receta</span></v-card-title>
-            <v-card-text class="w-75">
+            <v-card-title class="pa-0 w-100">
+              <v-row no-gutters class="text-center pa-2 bg-secondary w-100">
+                <v-col class="d-flex justify-center align-center">
+                  <v-icon start icon="mdi-note-text-outline"></v-icon>
+                  <span class="text-h6 font-weight-bold">Agregar receta</span>
+                </v-col>
+              </v-row>
+            </v-card-title>
+            <v-card-text class="pt-8 w-75">
               <v-form ref="form">
                 <v-text-field v-model="name" :rules="[rules.nameRequired]" variant="outlined" label="Nombre" />
                 <span class="font-weight-bold">Ingredientes:</span>
@@ -46,7 +53,7 @@
                 />
               </v-form>
             </v-card-text>
-            <v-card-actions class="justify-end">
+            <v-card-actions class="pb-4 justify-end">
               <v-btn class="border-sm bg-error font-weight-bold" text @click="closeDialog">Cancelar</v-btn>
               <v-btn class="border-sm bg-warning font-weight-bold" @click="handleAddRecipe">Agregar</v-btn>
             </v-card-actions>
