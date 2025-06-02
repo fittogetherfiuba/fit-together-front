@@ -4,10 +4,34 @@
       <v-col cols="12" class="text-center mb-4 text-h6">
         <v-btn class="border-sm bg-secondary text-h5 w-25 mb-4 font-weight-bold" @click="showDialog = true">Agregar Receta</v-btn>
         <span class="d-flex text-h5 justify-center font-weight-bold" v-if="recipesList.length === 0">No hay recetas registradas</span>
-        <v-dialog v-model="showDialog" max-width="650px" style="overflow-y: auto; max-height: 70vh;" @after-leave="closeDialog">
-          <v-card class="d-flex align-center">
-            <v-card-title class="pa-3"><span class="text-h6 font-weight-bold">Agregar Receta</span></v-card-title>
-            <v-card-text class="w-75">
+        <v-dialog v-model="showDialog" max-width="650px" style="max-height: 80vh;" @after-leave="closeDialog">
+          <v-card class="" color="secondary">
+
+            <v-row justify="center">
+                <v-col>
+                    <v-card-title class="my-1 font-weight-bold bg-secondary" style="font-size: 1.4rem;">
+                        <v-icon start icon="mdi-account-multiple-outline"></v-icon>
+                        Agregar nueva receta
+                    </v-card-title>
+                </v-col>
+                <v-col align="end">
+                    
+                    <v-btn
+                    class="mr-1 mt-1"
+                    icon
+                    color="secondary"
+                    @click="showDialog = false"
+                    size="medium"
+                    elevation="0"
+                    >
+                        <v-icon>
+                        mdi-close
+                        </v-icon>
+                    </v-btn>
+                </v-col>
+            </v-row>
+
+            <v-card class="mx-5 mb-3 pa-5"  style="overflow-y: auto;">
               <v-form ref="form">
                 <v-text-field class="mb-4" v-model="name" :rules="[rules.nameRequired]" variant="outlined" label="Nombre" />
                 <span class="font-weight-bold">Ingredientes:</span>
@@ -47,7 +71,7 @@
                 <span class="font-weight-bold">Foto del plato:</span>
                 <v-text-field
                   class="mt-3"
-                  :rules="[rules.stepsRequired]" 
+                  :rules="[rules.picRequired]" 
                   v-model="picUrl"
                   label="Introducí el URL de la foto"
                   placeholder="https://..."
@@ -55,12 +79,33 @@
                   @click:append="searchPicUrl"
                   @keydown.enter="searchPicUrl"
                 ></v-text-field>
+
+                <v-img v-if="showPic"
+                  @error="handlePicError"
+                  :src="picUrl"
+                  class="mx-auto mb-4"
+                  max-width="350"
+                  max-height="350"
+                  cover
+                ></v-img>
+
+                <v-alert
+                v-if="picError"
+                text
+                type="error"
+                class="mx-auto mt-2 mb-1"
+                density="compact"
+                >
+                La URL introducida no es correcta.
+                </v-alert>
               </v-form>
-            </v-card-text>
+            </v-card>
+          
             <v-card-actions class="justify-end">
               <v-btn class="border-sm bg-error font-weight-bold" text @click="closeDialog">Cancelar</v-btn>
               <v-btn class="border-sm bg-warning font-weight-bold" @click="handleAddRecipe">Agregar</v-btn>
             </v-card-actions>
+
           </v-card>
         </v-dialog>
       </v-col>
@@ -100,17 +145,30 @@ export default {
         }
       ],
       picUrl: '',
+      picError: false,
+      showPic: false,
       form: null,
       recipesList: [],
       rules: {
         required: value => !!value || 'Debe ingresar una comida',
         nameRequired: value => !!value || 'Debe ingresar un nombre',
         foodRequired: value => !!value || 'Ingrese un valor',
-        stepsRequired: value => !!value || 'Debe ingresar los pasos de la receta'
+        stepsRequired: value => !!value || 'Debe ingresar los pasos de la receta',
       }
     }
   },
+  watch: {
+    picUrl() {
+      if (this.showPic) {
+        console.log("cambie")
+        this.showPic = false
 
+      }
+      if (this.picError) {
+        this.picError = false
+      }
+    }
+  },
   methods: {
     addIngredient() {
       this.ingredients.push({ selectedMeal: null, grams: '' });
@@ -120,6 +178,7 @@ export default {
       this.ingredients = [{ selectedMeal: null, grams: '' }];
       this.name = '';
       this.steps = '';
+      this.picUrl = '';
     },
     async handleAddRecipe(){
       const isValid = this.$refs.form.validate()
@@ -137,6 +196,9 @@ export default {
               grams: parseInt(ingredient.grams)
             })),
             "steps": this.steps,
+          }
+          if (!this.picError && this.showPic) {
+            recipe["pic"] = this.picUrl
           }
           await axios.post('http://localhost:3000/api/recipes/create', recipe)
           this.fetchRecipes()
@@ -163,8 +225,12 @@ export default {
       }
     },
     searchPicUrl () {
-      this.showEditingProfilePic = true
+      this.showPic = true
     },
+    handlePicError () {
+      this.picError = true;
+      this.showPic = false;
+    }
   },
 
   async created () {
