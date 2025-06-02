@@ -99,7 +99,7 @@ export default {
             "name": this.name,
             "description": this.description,
           }
-          await axios.post('http://localhost:3000/api/recipes/create', community)
+          await axios.post('http://localhost:3000/api/communities/create', community)
           this.fetchCommunities()
         } catch (error) {
           console.error('Error al obtener comunidades:', error)
@@ -109,7 +109,7 @@ export default {
     },
     async fetchCommunities() {
       try {
-        const response = await axios.get('http://localhost:3000/api/recipes/get?userId=' + this.$store.state.main.user.userId.toString())
+        const response = await axios.get('http://localhost:3000/api/communities?userId=' + this.$store.state.main.user.userId.toString())
         this.communitiesList = response.data.communities
       } catch (error) {
         console.error('Error al obtener comunidades:', error)
