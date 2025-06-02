@@ -10,7 +10,7 @@
             <v-row justify="center">
                 <v-col>
                     <v-card-title class="my-1 font-weight-bold bg-secondary" style="font-size: 1.4rem;">
-                        <v-icon start icon="mdi-account-multiple-outline"></v-icon>
+                        <v-icon start icon="mdi-food-outline"></v-icon>
                         Agregar nueva receta
                     </v-card-title>
                 </v-col>
