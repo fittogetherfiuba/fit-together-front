@@ -1,7 +1,12 @@
 <template>
-  <v-card class="pb-4 mt-4" elevation="10">
-    <v-card-title class="mb-4 text-center font-weight-bold bg-secondary" style="font-size: 1.4rem;">
-      <v-icon start icon="mdi-note-text-outline"></v-icon>
+  <v-card class="pb-4" elevation="10">
+      <v-img
+        :src="recipe.pic"
+        height="200"
+        cover
+      ></v-img>
+
+    <v-card-title class="mb-4 font-weight-bold bg-primary" style="font-size: 1.4rem;">
       {{ recipe.name }}
     </v-card-title>
     <v-card-text>
