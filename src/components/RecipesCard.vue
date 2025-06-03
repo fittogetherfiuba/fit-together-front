@@ -1,7 +1,7 @@
 <template>
   <v-card class="pb-4" elevation="10">
       <v-img
-        :src="recipe.pic"
+        :src="recipe.pic ? recipe.pic : 'https://media.istockphoto.com/id/962353378/es/vector/icono-de-la-l%C3%ADnea-de-comida-r%C3%A1pida.jpg?s=612x612&w=0&k=20&c=Cwpt-q18AddBFbP0QXPrECC9VlUYK1CDtnXnr6k7a5A='"
         height="200"
         cover
       ></v-img>
