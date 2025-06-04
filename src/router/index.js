@@ -6,6 +6,7 @@ import ProfileView from '../views/ProfileView.vue'
 import MetricsView from '../views/MetricsView.vue'
 import RecipesView from '@/views/RecipesView.vue'
 import FriendsProfileView from '@/views/FriendsProfileView.vue'
+import CommunitiesView from '@/views/CommunitiesView.vue'
 
 const routes = [
   {
@@ -59,11 +60,16 @@ const routes = [
     component: () => import('@/components/FoodsMetricCard.vue')
   },
   {
+    path: '/communities',
+    name: 'CommunitiesView',
+    component: CommunitiesView
+  },
+  {
     path: '/verify-email',
     name: 'EmailVerificationView',
     component: () => import('../views/EmailVerificationView.vue'),
     meta: { requiresAuth: true }
-  }  
+  },
 ]
 
 const router = createRouter({

@@ -5,7 +5,6 @@
         height="200"
         cover
       ></v-img>
-
     <v-card-title class="mb-4 font-weight-bold bg-primary" style="font-size: 1.4rem;">
       {{ recipe.name }}
     </v-card-title>

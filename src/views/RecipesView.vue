@@ -46,7 +46,6 @@
                 variant="tonal"
                 @click="nextPage"
               ></v-btn>
-            
           
                 </v-col>
             </v-row>

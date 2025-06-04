@@ -52,11 +52,11 @@
       }],
       items: [
         { title: 'Dashboard', icon: 'mdi-view-dashboard', route: '/' },
-        { title: 'Usuarios', icon: 'mdi-account-group', route: '/users' },
         //{ title: 'Planes', icon: 'mdi-dumbbell', route: '/plans' },
         //{ title: 'Servicios', icon: 'mdi-wrench-cog', route: '/services' },
         { title: 'Métricas', icon: 'mdi-poll', route: '/metrics' },
         { title: 'Recetas', icon: 'mdi-food-apple', route: '/recipes'},
+        { title: 'Comunidades', icon: 'mdi-account-group', route: '/communities' },
         //{ title: 'Registro de nuevos admins', icon: 'mdi-account-tie', route: '/register' }
       ],
       fullname: '',
