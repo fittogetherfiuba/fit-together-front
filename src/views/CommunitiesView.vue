@@ -37,9 +37,17 @@
           </v-card>
         </v-dialog>
         
-        <v-dialog v-model="showDialogSubscribe" max-width="650px" style="overflow-y: auto; max-height: 70vh;" @after-leave="closeDialogSubscribe">
+        <v-dialog v-model="showDialogSubscribe" max-width="550px" style="overflow-y: auto; max-height: 70vh;" @after-leave="closeDialogSubscribe">
           <v-card class="d-flex align-center">
-            <v-card-title class="pa-3"><span class="text-h6 font-weight-bold">Suscribirse a Comunidad</span></v-card-title>
+            <v-card-title class="pa-0 w-100">
+              <v-row no-gutters class="text-center pa-2 bg-secondary w-100">
+                <v-col class="d-flex justify-center align-center">
+                  <v-icon start icon="mdi-account-group"></v-icon>
+                  <span class="text-h6 font-weight-bold">Suscribirse a comunidad</span>
+                </v-col>
+              </v-row>
+            </v-card-title>
+            <span class="d-flex text-h6 pa-6 justify-center font-weight-bold" v-if="communitiesList.length === 0">No hay comunidades nuevas disponibles</span>
             <v-card-text class="w-75" v-for="(community, index) in communitiesList" :key="index">
                 <v-card class="border-sm">
                     <v-card-title class="mb-4 text-center font-weight-bold">
@@ -121,6 +129,7 @@ export default {
           }
           await axios.post('http://localhost:3000/api/communities/create', community)
           this.fetchSubscribedCommunities()
+          this.fetchCommunities()
         } catch (error) {
           console.error('Error al crear comunidad:', error)
         }
@@ -135,14 +144,19 @@ export default {
         }
         await axios.post('http://localhost:3000/api/communities/subscribe', communitySuscription)
         this.fetchSubscribedCommunities()
+        this.fetchCommunities()
       } catch (error) {
         console.error('Error al suscribirse a la comunidad:', error)
       }
     },
     async fetchCommunities() {
       try {
-        const response = await axios.get('http://localhost:3000/api/communities/')
-        this.communitiesList = response.data.communities
+        const response = await axios.get('http://localhost:3000/api/communities/all')    
+        this.communitiesList = response.data.communities.filter(
+          community => !this.subscribedCommunitiesList.some(
+            subscribed => subscribed.communityId === community.id
+          )
+        );
       } catch (error) {
         console.error('Error al obtener comunidades:', error)
       }
@@ -158,8 +172,8 @@ export default {
   },
 
   async created () {
-    //await this.fetchCommunities()
     await this.fetchSubscribedCommunities()
+    await this.fetchCommunities()
   }
 }
 

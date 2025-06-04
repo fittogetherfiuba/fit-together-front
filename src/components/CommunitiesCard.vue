@@ -5,7 +5,8 @@
       {{ community.name }}
     </v-card-title>
     <v-card-text>
-      {{ community.description }}
+      <span class="font-weight-bold">Descripción:</span>
+      <p>{{ community.description }}</p>
     </v-card-text>
   </v-card>
 </template>
