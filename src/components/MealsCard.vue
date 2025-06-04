@@ -1,11 +1,9 @@
-<!-- src/components/MealsCard.vue -->
 <template>
   <v-card class="pb-4 mt-4" elevation="10">
     <v-card-title class="mb-4 text-center font-weight-bold bg-secondary" style="font-size: 1.4rem;">
       <v-icon start icon="mdi-food-drumstick" />
       Alimentos consumidos
     </v-card-title>
-
     <v-card-text>
       <v-list>
         <span
@@ -30,7 +28,6 @@
         </v-list-item>
       </v-list>
     </v-card-text>
-
     <v-card-actions class="justify-center">
       <v-btn class="border-sm bg-warning font-weight-bold" @click="showDialog = true">
         Agregar comida
@@ -39,7 +36,6 @@
 
     <v-dialog v-model="showDialog" max-width="450px" @after-leave="closeDialog">
       <v-card>
-        <!-- Título -->
         <v-card-title class="pa-0">
           <v-row no-gutters class="text-center pa-2 bg-secondary w-100">
             <v-col class="d-flex justify-center align-center">
@@ -48,8 +44,6 @@
             </v-col>
           </v-row>
         </v-card-title>
-
-        <!-- Contenido del formulario -->
         <v-card-text class="pt-6 pb-3 d-flex justify-center">
           <v-form class="w-75" ref="form">
             <v-row dense>
@@ -94,7 +88,6 @@
             </v-row>
           </v-form>
         </v-card-text>
-        <!-- Botones de acción -->
         <v-card-actions class="pb-4">
           <v-row justify="center" class="w-100">
             <v-col cols="auto">
@@ -111,7 +104,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
 
     <v-dialog v-model="showFoodInfo" max-width="450px" @after-leave="closeFoodInfo">
       <v-card class="d-flex align-center">
@@ -141,112 +133,96 @@
   </v-card>
 </template>
 
-<script setup>
-import { ref } from 'vue';
-import axios from 'axios';
-import { useStore } from 'vuex';
-import eventBus from '../eventBus'; // <-- IMPORTA el bus
+<script>
+import { ref } from 'vue'
+import axios from 'axios'
+import eventBus from '../eventBus';
 
-const store = useStore();
-
-const mealList = ref([]);
-const mealHistory = ref([]);
-const mealPeriods = [
-  { name: 'Desayuno' },
-  { name: 'Almuerzo' },
-  { name: 'Merienda' },
-  { name: 'Cena' },
-];
-const showDialog = ref(false);
-const showFoodInfo = ref(false);
-const selectedPeriod = ref(null);
-const selectedMeal = ref(null);
-const selectedMealInfo = ref(null);
-const grams = ref('');
-const formRef = ref(null);
-
-const headers = [
-  { title: 'Nutriente', value: 'name' },
-  { title: 'Cantidad', value: 'amount' },
-];
-
-const rules = {
-  required: (value) => !!value || 'Debe ingresar una comida',
-  foodRequired: (value) => !!value || 'Debe ingresar una cantidad de comida',
-};
-
-const closeDialog = () => {
-  showDialog.value = false;
-  selectedMeal.value = null;
-  selectedPeriod.value = null;
-  grams.value = '';
-};
-const closeFoodInfo = () => {
-  selectedMealInfo.value = null;
-  showFoodInfo.value = false;
-};
-
-const fetchMeals = async () => {
-  try {
-    const response = await axios.get('http://localhost:3000/api/foods');
-    mealList.value = response.data;
-  } catch (error) {
-    console.error('Error al obtener comidas:', error);
-  }
-};
-
-const fetchEatenMeals = async () => {
-  try {
-    const userId = store.state.main.user.userId;
-    const response = await axios.get(
-      `http://localhost:3000/api/foods/entry/${userId}`
-    );
-    mealHistory.value = response.data.entries;
-  } catch (error) {
-    console.error('Error al obtener comidas consumidas:', error);
-    mealHistory.value = [];
-  }
-};
-
-const handleAddMeal = async () => {
-  // Validar formulario
-  const isValid = formRef.value?.validate();
-  if (!isValid) return;
-
-  if (selectedMeal.value && grams.value) {
-    try {
-      const userId = store.state.main.user.userId;
-      await axios.post('http://localhost:3000/api/foods/entry', {
-        userId,
-        foodName: selectedMeal.value.name,
-        grams: Number(grams.value),
-        period: selectedPeriod.value.name,
-        consumedAt: new Date().toISOString(),
-      });
-
-      // 1) Actualiza histórico local
-      await fetchEatenMeals();
-
-      // 2) Emite evento global para actualizar GoalsCard
-      eventBus.emit('progress-updated');
-      console.log('[MealsCard] Emitido progress-updated tras agregar comida');
-    } catch (error) {
-      console.error('Error al agregar comida:', error);
+export default {
+  name: 'MealsCard',
+  data () {
+    return {
+      mealList: ref(null),
+      mealHistory: ref([]),
+      mealPeriods: ['Desayuno', 'Almuerzo', 'Merienda', 'Cena'],
+      showDialog: ref(false),
+      showFoodInfo: ref(false),
+      selectedPeriod: ref(null),
+      selectedMeal: ref(null),
+      selectedMealInfo: ref(null),
+      grams: ref(''),
+      form: ref(null),
+      headers: [{title: 'Name', value: 'name'}, {title: 'Amount', value: 'amount'}],
+      rules: {
+        required: value => !!value || 'Debe ingresar una comida',
+        foodRequired: value => !!value || 'Debe ingresar una cantidad de comida',
+      }
     }
-    closeDialog();
+  },
+
+  methods: {
+    closeDialog() {
+      this.showDialog = false
+      this.selectedMeal = null
+      this.selectedPeriod = null
+      this.grams = ''
+    },
+    closeFoodInfo() {
+      this.selectedMealInfo = null
+      this.showFoodInfo = false
+    },
+    async handleMealInfo(meal) {
+      this.selectedMealInfo = meal;
+      this.showFoodInfo = true;
+    },
+    async handleAddMeal() {
+      const isValid = this.$refs.form.validate()
+      if (!isValid) {
+        return
+      }
+
+      if (this.selectedMeal && this.grams) {
+        try {
+          const meal = {
+            "userId": this.$store.state.main.user.userId,
+            "foodName": this.selectedMeal.name,
+            "grams": parseInt(this.grams),
+            "period": this.selectedPeriod,
+            "consumedAt": new Date().toISOString()
+          }
+          await axios.post('http://localhost:3000/api/foods/entry', meal)
+          this.fetchEatenMeals()
+          eventBus.emit('progress-updated');
+          console.log('[MealsCard] Emitido progress-updated tras agregar comida');
+        } catch (error) {
+          console.error('Error al obtener comidas:', error)
+        }
+        this.closeDialog()
+      }
+    },
+    async fetchMeals() {
+      try {
+        const response = await axios.get('http://localhost:3000/api/foods')
+        this.mealList = response.data
+      } catch (error) {
+        console.error('Error al obtener comidas:', error)
+      }
+    },
+    async fetchEatenMeals() {
+      try {
+        const response = await axios.get('http://localhost:3000/api/foods/entry/' + this.$store.state.main.user.userId.toString())
+        this.mealHistory = response.data.entries
+      } catch (error) {
+        console.error('Error al obtener comidas:', error)
+      }
+    }
+  },
+
+  async created () {
+    await this.fetchEatenMeals()
+    await this.fetchMeals()
   }
-};
 
-const handleMealInfo = (meal) => {
-  selectedMealInfo.value = meal;
-  showFoodInfo.value = true;
-};
+}
 
-// Carga inicial
-fetchMeals();
-fetchEatenMeals();
 </script>
-
-<style scoped>
-/* Estilos opcionales */
-</style>
