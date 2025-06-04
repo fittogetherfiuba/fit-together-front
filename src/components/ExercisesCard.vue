@@ -126,7 +126,7 @@ export default {
           console.log(this.selectedExercise)
           const newExercise = {
             userId: this.$store.state.main.user.userId,
-            /*type: this.selectedType,*/
+            type: this.selectedType,
             activityName: this.selectedExercise.name,
             durationMinutes: this.duration,
             distanceKm: this.distance,
@@ -148,8 +148,11 @@ export default {
       if(this.selectedType){
         try {
           //const response = await axios.get('http://localhost:3000/api/activities')
-          const response = await axios.get('http://localhost:3000/api/activities/type/' + this.selectedType)
+          const response = await axios.get(
+            'http://localhost:3000/api/activities/' + this.selectedType
+          );
           this.exerciseList = response.data
+          console.log (typeof(this.selectedType))
         } catch (error) {
           console.error('Error al obtener actividades:', error)
         }
