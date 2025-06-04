@@ -1,112 +1,82 @@
 <template>
-  <v-card
-    class="mx-auto my-4"
-    elevation="10"
-    max-width="550"
-  >    <v-card-title class="text-h5 text-center font-weight-bold bg-secondary">
+  <v-card class="mx-auto my-4" elevation="10">
+   
+    <v-card-title class="text-h6 text-center font-weight-bold bg-secondary">
       <v-icon left>mdi-run</v-icon>
-      Actividades realizadas esta semana
+      Ejercicios realizados esta semana
     </v-card-title>
 
-    <v-divider />
 
-    <v-card-text class="metrics-content">
-      <div v-if="entries.length">
-        <div
-          v-for="entry in entries"
-          :key="entry.id"
-          class="entry-block"
-        >
-          <div class="entry-name">{{ entry.activityName }}</div>
-          <ul class="entry-details-list">
-            <li v-if="entry.durationMinutes != null">
-              Duración: {{ entry.durationMinutes }} min
-            </li>
-            <li v-if="entry.distanceKm != null">
-              Distancia: {{ entry.distanceKm }} km
-            </li>
-            <li v-if="entry.series != null">
-              Series: {{ entry.series }}
-            </li>
-            <li v-if="entry.repetitions != null">
-              Repeticiones: {{ entry.repetitions }}
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div v-else class="no-entries">
-        No hay actividades esta semana
-      </div>
+    <v-card-text class="d-flex flex-column" style="gap: 24px; flex:1">
+      <v-row justify="center" align="center">
+        
+        <v-col cols="12" sm="6" class="mb-4">
+          <CaloriesBurnedBarChart :entries="entries" />
+        </v-col>
+
+        <v-col cols="12" sm="6" class="mb-4">
+          <ActivitiesTypePieChart :entries="entries" />
+        </v-col>
+      </v-row>
     </v-card-text>
   </v-card>
 </template>
 
 <script>
 import axios from 'axios';
+import { defineComponent } from 'vue';
 
-export default {
-  name: 'ExercisesMetricsCard',
+import CaloriesBurnedBarChart   from '@/components/Charts/CaloriesBurnedBar.vue';
+import ActivitiesTypePieChart   from '@/components/Charts/ActivitiesTypePie.vue';
+
+export default defineComponent({
+  name: 'ExercisesMetricCard',
+
+  components: {
+    CaloriesBurnedBarChart,
+    ActivitiesTypePieChart
+  },
+
+  props: {
+    userId: {
+      type: [String, Number],
+      required: true
+    }
+  },
+
   data() {
     return {
       entries: []
     };
   },
-  props: {
-    userId: {
-      type: [String, Number],
-      required: true,
-    }
-  },
-  watch: {
-    userId(newVal) {
-      console.log(newVal)
-      this.fetchEntries()
-    }
-  },
+
   mounted() {
-    this.fetchEntries()
+    this.fetchEntries();
   },
+
+  watch: {
+    userId() {
+      this.fetchEntries();
+    }
+  },
+
   methods: {
     async fetchEntries() {
       if (!this.userId) {
         console.warn('userId no disponible');
         return;
       }
+
       try {
-        const { data } = await axios.get(
-          `${import.meta.env.VITE_APP_API_URL}activities/since-last-monday`,
-          { params: { userId: this.userId } }
+        const resp = await axios.get(
+          `http://localhost:3000/api/activities/since-last-monday?userId=${this.userId}`
         );
-        this.entries = data.entries;
-      } catch (e) {
-        console.error('Error al cargar actividades semanales:', e);
+
+        this.entries = resp.data?.entries ?? [];
+      } catch (err) {
+        console.error(err);
       }
     }
   }
-};
+});
 </script>
-
-<style scoped>
-.metrics-content {
-  background-color: #e8f5e9; /* verde muy claro */
-  color: #000;
-  padding: 16px !important;
-}
-.entry-block {
-  margin-bottom: 16px;
-}
-.entry-name {
-  font-weight: bold;
-  font-size: 1.1rem;
-  margin-bottom: 4px;
-}
-.entry-details-list {
-  list-style-type: disc;
-  padding-left: 1.2rem;
-  margin: 0;
-}
-.no-entries {
-  text-align: center;
-  font-style: italic;
-}
-</style>

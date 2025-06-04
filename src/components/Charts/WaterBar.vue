@@ -20,7 +20,7 @@ import {
 Chart.register(BarElement, CategoryScale, LinearScale, Title, Tooltip);
 
 const props = defineProps({
-  entries: { type: Array, required: true } // array crudo de la API
+  entries: { type: Array, required: true } 
 });
 
 const chartData        = ref(null);
@@ -28,7 +28,7 @@ const isChartDataReady = ref(false);
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
-  scales: { y: { beginAtZero: true, max: 4 } } // 4 L máx. por día
+  scales: { y: { beginAtZero: true, max: 4 } } 
 };
 
 function buildChart() {
@@ -37,7 +37,7 @@ function buildChart() {
     return;
   }
 
-  const totalsByDay = new Map();          // yyyy-mm-dd → litros
+  const totalsByDay = new Map();         
   props.entries.forEach(e => {
     const day = e.consumedAt.slice(0, 10);
     totalsByDay.set(day, (totalsByDay.get(day) || 0) + Number(e.liters));

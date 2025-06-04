@@ -39,7 +39,7 @@ const chartOptions = {
 const PERIODS = ['desayuno', 'almuerzo', 'merienda', 'cena', 'Sin período definido'];
 
 function buildChart() {
-	const map = {}; // period -> Map(day->kcal)
+	const map = {};
 	PERIODS.forEach(p => (map[p] = new Map()));
 
 	props.entries.forEach(e => {
@@ -57,15 +57,17 @@ function buildChart() {
 	for (let d = new Date(monday); d <= today; d.setDate(d.getDate() + 1)) {
 		labels.push(d.toLocaleDateString('es-AR', { weekday: 'short' }));
 	}
-	const PALETTE = [
-		'#4CAF50', // verde
-		'#2196F3', // azul
-		'#FF9800', // naranja
-		'#9C27B0', // violeta
-		'#FFC107', // amarillo
-		'#009688', // turquesa
-		'#E91E63'  // rosa
-		];
+    const PALETTE = [
+	'#81C784', // verde atenuado
+	'#64B5F6', // azul atenuado
+	'#FFB74D', // naranja atenuado
+	'#BA68C8', // violeta atenuado
+	'#FFD54F', // amarillo atenuado
+	'#4DB6AC', // turquesa atenuado
+	'#EC407A', // rosa atenuado
+	'#9575CD', // lavanda intermedia 
+	'#FF8A65'  // coral intermedio 
+	];
 	const NULL_COLOR = '#9E9E9E';// gris para “Sin período definido”
 
 	const colorByPeriod = new Map();

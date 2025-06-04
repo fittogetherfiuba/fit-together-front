@@ -1,34 +1,41 @@
 <template>
   <div class="pa-4 d-flex flex-column align-center">
-    <v-row justify="center" aling="center">
-      <v-col cols="12" sm="8" md="10">
-        <v-row justify="center" align="start">
-          <v-col cols="12" sm="12" class="mb-4">
-            <FoodsMetricCard :userId="$store.state.main.user.userId"  />
-          </v-col>
-          <v-col cols="12" sm="6" class="mb-4" >
-            <WaterMetricsCard :userId="$store.state.main.user.userId" />
-          </v-col>
-          <v-col cols="12" sm="6" class="mb-4">
-            <ActivitiesMetricsCard :userId="$store.state.main.user.userId" />
-          </v-col>
-        </v-row>
-      </v-col>
-    </v-row>
+    <v-tabs v-model="tab" align-tabs="center">
+      <v-tab value="foods">Alimentos</v-tab>
+      <v-tab value="water">Agua</v-tab>
+      <v-tab value="activities">Ejercicios</v-tab>
+    </v-tabs>
+
+    <v-window v-model="tab" class="mt-6" style="width:100%;">
+      <!-- Foods -->
+      <v-window-item value="foods">
+        <FoodsMetricCard :userId="userId" />
+      </v-window-item>
+
+      <!-- Water -->
+      <v-window-item value="water">
+        <WaterMetricsCard :userId="userId" />
+      </v-window-item>
+
+      <!-- Activities -->
+      <v-window-item value="activities">
+        <ActivitiesMetricsCard :userId="userId" />
+      </v-window-item>
+    </v-window>
   </div>
 </template>
 
 <script>
-import WaterMetricsCard      from '../components/WaterMetricsCard.vue'
-import ActivitiesMetricsCard from '../components/ExercisesMetricsCard.vue'
-import FoodsMetricCard from '../components/FoodsMetricCard.vue';
+import WaterMetricsCard      from '@/components/WaterMetricsCard.vue';
+import ActivitiesMetricsCard from '@/components/ExercisesMetricsCard.vue';
+import FoodsMetricCard       from '@/components/FoodsMetricCard.vue';
 
 export default {
   name: 'MetricsView',
-  components: {
-    WaterMetricsCard,
-    FoodsMetricCard,
-    ActivitiesMetricsCard
+  components: { WaterMetricsCard, FoodsMetricCard, ActivitiesMetricsCard },
+  data: () => ({ tab: 'foods' }),
+  computed: {
+    userId () { return this.$store.state.main.user.userId; }
   }
-}
+};
 </script>

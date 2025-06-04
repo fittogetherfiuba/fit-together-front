@@ -1,16 +1,13 @@
 <template>
-  <div class="text-center mt-4">
-    Calorías consumidas esta semana (kcal)
-  </div>
+  <div class="text-center mt-4">Calorías quemadas esta semana (kcal)</div>
 
-  <div class="chart-wrapper" style="min-height: 250px;">
+  <div class="chart-wrapper" style="min-height: 300px;">
     <Bar v-if="isChartDataReady" :data="chartData" :options="chartOptions" />
-    <div v-else class="text-center py-4">Cargando gráfico de calorías…</div>
+    <div v-else class="text-center py-4">Cargando gráfico…</div>
   </div>
-
 
   <div class="text-center mt-2 font-weight-medium">
-    Total consumido: {{ totalWeekly }} kcal
+    Total quemado: {{ totalWeekly }} kcal
   </div>
 </template>
 
@@ -23,18 +20,19 @@ import {
   CategoryScale,
   LinearScale,
   Title,
-  Tooltip
+  Tooltip,
+  Legend
 } from 'chart.js';
 
-Chart.register(BarElement, CategoryScale, LinearScale, Title, Tooltip);
+Chart.register(BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
 
 const props = defineProps({
-  entries: { type: Array, required: true }   
+  entries: { type: Array, required: true }
 });
 
-const chartData        = ref(null);
+const chartData        = ref({ labels: [], datasets: [] });
 const isChartDataReady = ref(false);
-const totalWeekly      = ref(0);       
+const totalWeekly      = ref(0);           
 
 const chartOptions = {
   responsive: true,
@@ -45,16 +43,16 @@ const chartOptions = {
 
 function buildChart () {
   const totalsByDay = new Map();
-  let weeklySum = 0;                
+  let weeklySum = 0;                       
 
   props.entries.forEach(e => {
-    const day  = e.consumedAt.slice(0, 10);
-    const kcal = Number(e.calories) || 0;
+    const day = e.performedAt.slice(0, 10);
+    const kcal = Number(e.caloriesBurned) || 0;
     totalsByDay.set(day, (totalsByDay.get(day) || 0) + kcal);
-    weeklySum += kcal;
+    weeklySum += kcal;                      
   });
 
-  totalWeekly.value = weeklySum;
+  totalWeekly.value = weeklySum;           
 
   const labels = [];
   const data   = [];
@@ -75,7 +73,7 @@ function buildChart () {
     datasets: [{
       label: 'Calorías (kcal)',
       data,
-      backgroundColor: '#FFB74D'
+      backgroundColor: '#FF7043'
     }]
   };
   isChartDataReady.value = true;

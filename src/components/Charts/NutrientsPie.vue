@@ -46,7 +46,7 @@ const PALETTE = [
   '#FF8A65'  // coral intermedio 
     ];
     
-    const totals = new Map(); // nutrientName -> gramos (o mg)
+    const totals = new Map(); 
     props.entries.forEach(e => {
         (e.nutrients || []).forEach(n => {
         totals.set(n.name, (totals.get(n.name) || 0) + Number(n.amount));
