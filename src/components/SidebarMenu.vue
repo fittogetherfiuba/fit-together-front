@@ -46,7 +46,7 @@
     data: () => ({
       drawer: null,
       user_info: [{
-        prependAvatar: '/user-icon-white-background.png',
+        prependAvatar: '',
         title: null,
         subtitle: null
       }],
@@ -67,6 +67,7 @@
       this.user_info[0].title = response.data.fullname
       console.log(response.data)
       this.user_info[0].subtitle = response.data.username
+      this.user_info[0].prependAvatar = response.data.image_url
       //this.user_info[0].prependAvatar = await generateMediaURL('users/' + response.data.profileimage)
     }
   }

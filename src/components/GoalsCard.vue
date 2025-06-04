@@ -20,8 +20,7 @@
         >
           <div class="d-flex justify-space-between align-center mb-2">
             <span class="font-weight-bold">
-              {{ goalItem.type === 'calories' ? 'Calorías' : 'Agua' }}:
-              {{ goalItem.goal }}
+              {{ goalItem.type === 'calories' ? 'Calorías' : 'Agua' }}: {{ goalItem.goal }}
               <span v-if="goalItem.type === 'water'"> litros</span>
               <span v-else> kcal</span>
             </span>
@@ -30,9 +29,11 @@
             </v-btn>
           </div>
 
+          <!-- PASAMOS `:goalType="goalItem.type"` -->
           <PieChart
             :filled="goalItem.currentProgress"
             :total="goalItem.goal"
+            :goalType="goalItem.type"
             class="mx-auto my-4"
             style="max-width: 160px;"
           />
@@ -98,84 +99,98 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 import axios from 'axios';
 import PieChart from './PieChart.vue';
+import eventBus from '../eventBus';
 
 const store = useStore();
+
 const userId = ref(null);
 const goalsHistory = ref([]);
 const showDialog = ref(false);
 const selectedType = ref(null);
 const selectedGoal = ref(null);
+const formRef = ref(null);
 
 const typeOptions = [
   { label: 'Calorías', value: 'calories' },
   { label: 'Agua', value: 'water' }
 ];
 
-const valueRule = v => v > 0 || 'El valor debe ser mayor a 0';
+const valueRule = (v) => v > 0 || 'El valor debe ser mayor a 0';
+
 const availableTypeOptions = computed(() =>
   typeOptions.filter(opt => !goalsHistory.value.some(g => g.type === opt.value))
 );
-const canAdd = computed(
-  () =>
-    selectedType.value &&
-    selectedGoal.value > 0 &&
-    !goalsHistory.value.some(g => g.type === selectedType.value)
+
+const canAdd = computed(() =>
+  selectedType.value &&
+  selectedGoal.value > 0 &&
+  !goalsHistory.value.some(g => g.type === selectedType.value)
 );
 
-const fetchProgress = async goalItem => {
+const fetchProgress = async (goalItem) => {
   try {
     const date = new Date().toISOString().slice(0, 10);
+
     if (goalItem.type === 'calories') {
       const { data } = await axios.get(
         'http://localhost:3000/api/foods/calories/daily',
         { params: { userId: userId.value, date } }
       );
-      goalItem.currentProgress = data.totalCalories;
+      goalItem.currentProgress = data.totalCalories || 0;
     } else {
+      // Cambié aquí: uso /api/water/entries (mismo endpoint de WaterCard)
       const { data } = await axios.get(
-        'http://localhost:3000/api/water/daily',
-        { params: { userId: userId.value, date } }
+        `http://localhost:3000/api/water/entries?userId=${userId.value}`
       );
-      goalItem.currentProgress = data.totalLiters;
+      const entries = data.entries || [];
+      goalItem.currentProgress = entries.reduce(
+        (sum, item) => sum + Number(item.liters),
+        0
+      );
     }
   } catch (err) {
-    console.error('Error al obtener progreso:', err);
+    console.error('[GoalsCard] Error al obtener progreso:', err);
+    goalItem.currentProgress = 0;
   }
 };
 
 const fetchGoals = async () => {
   userId.value = store.state.main.user.userId;
   if (!userId.value) return;
+
   try {
-    const res = await axios.get(
-      `http://localhost:3000/api/goals/${userId.value}`
-    );
+    const res = await axios.get(`http://localhost:3000/api/goals/${userId.value}`);
     const data = res.data.goals || {};
     goalsHistory.value = Object.keys(data).map(key => ({
       type: key,
       goal: data[key],
       currentProgress: 0
     }));
+
     for (const item of goalsHistory.value) {
       await fetchProgress(item);
     }
+    console.log('[GoalsCard] Progreso recargado:', goalsHistory.value);
   } catch (err) {
-    console.error('Error al obtener objetivos:', err);
+    console.error('[GoalsCard] Error al obtener objetivos:', err);
+    goalsHistory.value = [];
   }
 };
 
 const handleAddGoal = async () => {
   if (!canAdd.value) return;
+
   try {
     await axios.post('http://localhost:3000/api/goals', {
       userId: userId.value,
       type: selectedType.value,
       goal: selectedGoal.value
     });
+
     const newItem = {
       type: selectedType.value,
       goal: selectedGoal.value,
@@ -183,17 +198,33 @@ const handleAddGoal = async () => {
     };
     goalsHistory.value.unshift(newItem);
     await fetchProgress(newItem);
+
+    eventBus.emit('progress-updated');
   } catch (err) {
-    console.error('Error al guardar objetivo:', err);
+    console.error('[GoalsCard] Error al guardar objetivo:', err);
   }
+
+  closeDialog();
+};
+
+const deleteGoal = (idx) => {
+  goalsHistory.value.splice(idx, 1);
+};
+
+const closeDialog = () => {
   showDialog.value = false;
   selectedType.value = null;
   selectedGoal.value = null;
 };
 
-const deleteGoal = idx => goalsHistory.value.splice(idx, 1);
+onMounted(() => {
+  fetchGoals();
+  eventBus.on('progress-updated', fetchGoals);
+});
 
-onMounted(fetchGoals);
+onBeforeUnmount(() => {
+  eventBus.off('progress-updated', fetchGoals);
+});
 </script>
 
 <style scoped>

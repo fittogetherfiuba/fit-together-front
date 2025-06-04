@@ -64,7 +64,12 @@ const routes = [
     name: 'CommunitiesView',
     component: CommunitiesView
   },
-
+  {
+    path: '/verify-email',
+    name: 'EmailVerificationView',
+    component: () => import('../views/EmailVerificationView.vue'),
+    meta: { requiresAuth: true }
+  },
 ]
 
 const router = createRouter({

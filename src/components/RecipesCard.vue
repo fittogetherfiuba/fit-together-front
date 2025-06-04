@@ -1,7 +1,11 @@
 <template>
-  <v-card class="pb-4 mt-4" elevation="10">
-    <v-card-title class="mb-4 text-center d-flex justify-center align-center font-weight-bold bg-secondary" style="font-size: 1.4rem;">
-      <v-icon start icon="mdi-note-text-outline"></v-icon>
+  <v-card class="pb-4" elevation="10">
+      <v-img
+        :src="recipe.pic ? recipe.pic : 'https://media.istockphoto.com/id/962353378/es/vector/icono-de-la-l%C3%ADnea-de-comida-r%C3%A1pida.jpg?s=612x612&w=0&k=20&c=Cwpt-q18AddBFbP0QXPrECC9VlUYK1CDtnXnr6k7a5A='"
+        height="200"
+        cover
+      ></v-img>
+    <v-card-title class="mb-4 font-weight-bold bg-primary" style="font-size: 1.4rem;">
       {{ recipe.name }}
     </v-card-title>
     <v-card-text>

@@ -88,7 +88,7 @@ export default {
             this.users_info[i] = {
                 title: response.data.friends[i].fullname,
                 subtitle: response.data.friends[i].username,
-                prependAvatar: '/user-icon-white-background.png'
+                prependAvatar: response.data.friends[i].image_url,
             }
         }
     },
