@@ -106,8 +106,12 @@ export default {
   methods: {
     closeDialog() {
       this.showDialog = false
-      this.selectedExercise = null
       this.selectedType = null
+      this.restartValues()
+    },
+
+    restartValues(){
+      this.selectedExercise = null
       this.duration = ''
       this.distance = ''
       this.sets = ''
@@ -146,6 +150,7 @@ export default {
 
     async fetchExercises() {
       if(this.selectedType){
+        this.restartValues()
         try {
           //const response = await axios.get('http://localhost:3000/api/activities')
           const response = await axios.get(
