@@ -1,74 +1,211 @@
 <template>
-  <v-container fluid class="d-flex align-center justify-center fill-height">
-    <v-row justify="center" align="start">
-      <v-col cols="12" class="text-center mb-4 text-h6">
-        <v-btn class="border-sm bg-secondary text-h5 w-25 mb-4 font-weight-bold" @click="showDialog = true">Agregar Receta</v-btn>
-        <span class="d-flex text-h5 justify-center font-weight-bold" v-if="recipesList.length === 0">No hay recetas registradas</span>
-        <v-dialog v-model="showDialog" max-width="650px" style="overflow-y: auto; max-height: 70vh;" @after-leave="closeDialog">
-          <v-card class="d-flex align-center">
-            <v-card-title class="pa-3"><span class="text-h6 font-weight-bold">Agregar Receta</span></v-card-title>
-            <v-card-text class="w-75">
-              <v-form ref="form">
-                <v-text-field v-model="name" :rules="[rules.nameRequired]" variant="outlined" label="Nombre" />
-                <span class="font-weight-bold">Ingredientes:</span>
-                <div class="d-flex ga-3 mt-2" v-for="(ingredient, index) in ingredients" :key="index">
-                  <v-autocomplete
-                    v-model="ingredient.selectedMeal"
-                    :items="mealList"
-                    class="flex-grow-1"
-                    label="Comida"
-                    variant="outlined"
-                    return-object
-                    :rules="[rules.required]"
-                    clearable
-                    item-title="name"
-                    :menu-props="{ maxHeight: '200px' }"
-                  />
-                  <v-text-field v-model="ingredient.grams" 
-                    :rules="[rules.foodRequired]"
-                    class="flex-grow-0 w-33"
-                    variant="outlined" 
-                    label="Cantidad (g)"
-                    type="number" 
-                    min="0" 
-                  />
-                </div>
-                <v-col cols="12" class="d-flex justify-center pa-0">
-                  <v-btn class="border-sm bg-secondary w-25 text-h5 font-weight-bold" @click="addIngredient">+</v-btn>
+  <v-card class="mx-5 my-8">
+    <v-data-iterator
+      :items="recipesList"
+      :items-per-page="itemsPerPage"
+    >
+      <template v-slot:header="{ page, pageCount, prevPage, nextPage }">
+          <v-card color="secondary rounded-0" style="width:100%" flat>
+            <v-row justify="center">
+                <v-col>
+                  <v-card-title class="my-1 font-weight-bold bg-secondary" style="font-size: 1.8rem;">
+                    <v-icon start class="mb-1" icon="mdi-note-text-outline" style="font-size: 2.2rem;"></v-icon>
+                    Recetas
+                  </v-card-title>
                 </v-col>
-                <br/>
-                <span class="font-weight-bold">Pasos:</span>
-                <v-textarea v-model="steps" 
-                  class="mt-3" 
-                  :rules="[rules.stepsRequired]" 
-                  variant="outlined"
-                  :placeholder="'Escribe los pasos de la receta de esta forma: \n1. Paso uno. \n2. Paso dos. \n3. Paso tres.'"
-                />
-              </v-form>
-            </v-card-text>
-            <v-card-actions class="justify-end">
-              <v-btn class="border-sm bg-error font-weight-bold" text @click="closeDialog">Cancelar</v-btn>
-              <v-btn class="border-sm bg-warning font-weight-bold" @click="handleAddRecipe">Agregar</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </v-col>
+                <v-col class="my-4 mr-3" align="end">
+                  <v-btn
+                    class="me-8"
+                    variant="text"
+                    @click="onClickSeeAll"
+                  >
+                    <span class="text-decoration-underline text-none">Ver todas</span>
+                  </v-btn>
 
-      <v-col cols="12" sm="8" md="10">
-        <v-row justify="center" align="start">
-          <v-col cols="12" sm="4" v-for="(recipe, index) in recipesList" :key="index">
-            <Recipes :recipe="recipe" />
+              <v-btn 
+                class="mr-5"
+                icon="mdi-plus"
+                size="small"
+                variant="tonal"
+                @click="showDialog = true"
+              ></v-btn>
+
+              <v-btn
+                :disabled="page === 1"
+                class="me-2"
+                icon="mdi-arrow-left"
+                size="small"
+                variant="tonal"
+                @click="prevPage"
+              ></v-btn>
+
+              <v-btn
+                :disabled="page === pageCount"
+                icon="mdi-arrow-right"
+                size="small"
+                variant="tonal"
+                @click="nextPage"
+              ></v-btn>
+            
+          
+                </v-col>
+            </v-row>
+          </v-card>
+      </template>
+
+      <template v-slot:no-data>
+        <v-row justify="center" class="ma-4">
+          <v-col cols="12" class="text-center">
+            <v-icon color="grey" size="60">mdi-food-off</v-icon>
+            <div class="font-weight-bold mt-2">No hay recetas disponibles</div>
           </v-col>
         </v-row>
-      </v-col>
-    </v-row>
-  </v-container>
+      </template>
+
+      <template v-slot:default="{ items }">
+        
+        <v-row class="mx-2 my-2">
+          <v-col
+            v-for="(item, i) in items"
+            :key="i"
+            cols="12"
+            sm="6"
+            xl="3"
+          >
+            <v-sheet border>
+              <Recipes :recipe="item.raw" />              
+            </v-sheet>
+          </v-col>
+        </v-row>
+      </template>
+
+      <template v-slot:footer="{ page, pageCount }">
+        <v-footer
+          class="justify-space-between mt-2"
+          color="surface-variant"
+        >
+          Total de recetas: {{ recipesList.length }}
+
+          <div>
+            Página {{ page }} de {{ pageCount }}
+          </div>
+        </v-footer>
+      </template>
+    </v-data-iterator>
+  </v-card>
+
+  <v-dialog v-model="showDialog" max-width="650px" style="max-height: 80vh;" @after-leave="closeDialog">
+    <v-card class="" color="secondary">
+
+      <v-row justify="center">
+          <v-col>
+              <v-card-title class="my-1 font-weight-bold bg-secondary" style="font-size: 1.4rem;">
+                  <v-icon start icon="mdi-food-outline"></v-icon>
+                  Agregar nueva receta
+              </v-card-title>
+          </v-col>
+          <v-col align="end">
+              
+              <v-btn
+              class="mr-1 mt-1"
+              icon
+              color="secondary"
+              @click="showDialog = false"
+              size="medium"
+              elevation="0"
+              >
+                  <v-icon>
+                  mdi-close
+                  </v-icon>
+              </v-btn>
+          </v-col>
+      </v-row>
+
+      <v-card class="mx-5 mb-3 pa-5"  style="overflow-y: auto;">
+        <v-form ref="form">
+          <v-text-field class="mb-4" v-model="name" :rules="[rules.nameRequired]" variant="outlined" label="Nombre" />
+          <span class="font-weight-bold">Ingredientes:</span>
+          <div class="d-flex ga-3 mt-2 mb-3" v-for="(ingredient, index) in ingredients" :key="index">
+            <v-autocomplete
+              v-model="ingredient.selectedMeal"
+              :items="mealList"
+              class="flex-grow-1"
+              label="Comida"
+              variant="outlined"
+              return-object
+              :rules="[rules.required]"
+              clearable
+              item-title="name"
+              :menu-props="{ maxHeight: '200px' }"
+            />
+            <v-text-field v-model="ingredient.grams" 
+              :rules="[rules.foodRequired]"
+              class="flex-grow-0 w-33"
+              variant="outlined" 
+              label="Cantidad (g)"
+              type="number" 
+              min="0" 
+            />
+          </div>
+          <v-col cols="12" class="d-flex justify-center pa-0">
+            <v-btn class="border-sm bg-secondary w-25 text-h5 font-weight-bold" @click="addIngredient">+</v-btn>
+          </v-col>
+          <br/>
+          <span class="font-weight-bold">Pasos:</span>
+          <v-textarea v-model="steps" 
+            class="mt-3 mb-4" 
+            :rules="[rules.stepsRequired]" 
+            variant="outlined"
+            :placeholder="'Escribe los pasos de la receta de esta forma: \n1. Paso uno. \n2. Paso dos. \n3. Paso tres.'"
+          />
+          <span class="font-weight-bold">Foto del plato:</span>
+          <v-text-field
+            class="mt-3"
+            :rules="[rules.picRequired]" 
+            v-model="picUrl"
+            label="Introducí el URL de la foto"
+            placeholder="https://..."
+            append-inner-icon="mdi-link-variant"
+            @click:append="searchPicUrl"
+            @keydown.enter="searchPicUrl"
+          ></v-text-field>
+
+          <v-img v-if="showPic"
+            @error="handlePicError"
+            :src="picUrl"
+            class="mx-auto mb-4"
+            max-width="350"
+            max-height="350"
+            cover
+          ></v-img>
+
+          <v-alert
+          v-if="picError"
+          text
+          type="error"
+          class="mx-auto mt-2 mb-1"
+          density="compact"
+          >
+          La URL introducida no es correcta.
+          </v-alert>
+        </v-form>
+      </v-card>
+    
+      <v-card-actions class="justify-end">
+        <v-btn class="border-sm bg-error font-weight-bold" text @click="closeDialog">Cancelar</v-btn>
+        <v-btn class="border-sm bg-warning font-weight-bold" @click="handleAddRecipe">Agregar</v-btn>
+      </v-card-actions>
+
+    </v-card>
+  </v-dialog>
+
 </template>
 
 
 <script>
 import Recipes from '../components/RecipesCard.vue'
 import axios from 'axios'
+
 
 export default {
   name: 'RecipesView',
@@ -88,17 +225,33 @@ export default {
           grams: ''
         }
       ],
+      picUrl: '',
+      picError: false,
+      showPic: false,
       form: null,
       recipesList: [],
       rules: {
         required: value => !!value || 'Debe ingresar una comida',
         nameRequired: value => !!value || 'Debe ingresar un nombre',
         foodRequired: value => !!value || 'Ingrese un valor',
-        stepsRequired: value => !!value || 'Debe ingresar los pasos de la receta'
+        stepsRequired: value => !!value || 'Debe ingresar los pasos de la receta',
+      },
+
+      itemsPerPage: 4,
+    }
+  },
+  watch: {
+    picUrl() {
+      if (this.showPic) {
+        console.log("cambie")
+        this.showPic = false
+
+      }
+      if (this.picError) {
+        this.picError = false
       }
     }
   },
-
   methods: {
     addIngredient() {
       this.ingredients.push({ selectedMeal: null, grams: '' });
@@ -108,6 +261,7 @@ export default {
       this.ingredients = [{ selectedMeal: null, grams: '' }];
       this.name = '';
       this.steps = '';
+      this.picUrl = '';
     },
     async handleAddRecipe(){
       const isValid = this.$refs.form.validate()
@@ -125,6 +279,9 @@ export default {
               grams: parseInt(ingredient.grams)
             })),
             "steps": this.steps,
+          }
+          if (!this.picError && this.showPic) {
+            recipe["pic"] = this.picUrl
           }
           await axios.post('http://localhost:3000/api/recipes/create', recipe)
           this.fetchRecipes()
@@ -150,6 +307,16 @@ export default {
         console.error('Error al obtener recetas:', error)
       }
     },
+    searchPicUrl () {
+      this.showPic = true
+    },
+    handlePicError () {
+      this.picError = true;
+      this.showPic = false;
+    },
+    onClickSeeAll () {
+      this.itemsPerPage = this.itemsPerPage === 4 ? this.recipesList.length : 4
+    }
   },
 
   async created () {
