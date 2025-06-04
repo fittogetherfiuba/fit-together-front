@@ -1,30 +1,34 @@
 <template>
-  <div class="text-center mt-4">
-    Calorías quemadas por actividad
-  </div>
+  <div class="text-center mt-4">Calorías quemadas por actividad</div>
 
   <div
     class="d-flex flex-column flex-md-row justify-center align-start"
     style="gap: 32px;"
   >
-    <!-- Pie Cardio -->
     <div class="chart-container">
       <div class="chart-title">Cardio</div>
       <Pie v-if="cardioReady" :data="cardioData" :options="pieOpts" />
       <div v-else class="chart-empty">Sin datos de cardio</div>
+
+      <div class="text-center mt-2 font-weight-medium">
+        Total quemado: {{ cardioTotal }} kcal
+      </div>
     </div>
 
-    <!-- Pie Musculación -->
     <div class="chart-container">
       <div class="chart-title">Musculación</div>
       <Pie v-if="muscleReady" :data="muscleData" :options="pieOpts" />
       <div v-else class="chart-empty">Sin datos de musculación</div>
+
+      <div class="text-center mt-2 font-weight-medium">
+        Total quemado: {{ muscleTotal }} kcal
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { reactive, watch } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import { Pie } from 'vue-chartjs';
 import {
   Chart,
@@ -40,41 +44,29 @@ const props = defineProps({
   entries: { type: Array, required: true }
 });
 
-/* ----------------------------- state reactivo ---------------------------- */
-const cardioData = reactive({
-  labels: [],
-  datasets: [{ data: [], backgroundColor: [] }]
-});
-const muscleData = reactive({
-  labels: [],
-  datasets: [{ data: [], backgroundColor: [] }]
-});
-let cardioReady = false;
-let muscleReady = false;
+const cardioData  = reactive({ labels: [], datasets: [{ data: [], backgroundColor: [] }] });
+const muscleData  = reactive({ labels: [], datasets: [{ data: [], backgroundColor: [] }] });
+const cardioReady = ref(false);
+const muscleReady = ref(false);
 
-/* ---------------------------- chart options ------------------------------ */
+const cardioTotal = ref(0);   
+const muscleTotal = ref(0);
+
 const pieOpts = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
-    legend: {
-      position: 'bottom',
-      labels: { boxWidth: 12, padding: 10 }
-    },
-    tooltip: {
-      callbacks: {
-        label: ctx => `${ctx.label}: ${ctx.parsed} kcal`
-      }
-    }
+    legend: { position: 'bottom', labels: { boxWidth: 12, padding: 10 } },
+    tooltip: { callbacks: { label: ctx => `${ctx.label}: ${ctx.parsed} kcal` } }
   }
 };
 
-/* -------------------------- builder principal --------------------------- */
 function buildChart () {
-  const cardioMap  = new Map();
-  const muscleMap  = new Map();
+  const cardioMap = new Map();
+  const muscleMap = new Map();
 
-  // acumula kcals por nombre de ejercicio y por tipo
+  let cTotal = 0, mTotal = 0;
+
   for (const { activityType, activityName, caloriesBurned } of props.entries) {
     const kcal = Number(caloriesBurned) || 0;
     if (!kcal) continue;
@@ -82,22 +74,25 @@ function buildChart () {
     const type = (activityType || '').toLowerCase();
     if (type === 'cardio') {
       cardioMap.set(activityName, (cardioMap.get(activityName) || 0) + kcal);
+      cTotal += kcal;
     } else if (type === 'musculacion') {
       muscleMap.set(activityName, (muscleMap.get(activityName) || 0) + kcal);
+      mTotal += kcal;
     }
   }
 
-  updateReactivePie(cardioData, cardioMap);
-  updateReactivePie(muscleData, muscleMap);
+  cardioTotal.value = cTotal;
+  muscleTotal.value = mTotal;
 
-  cardioReady  = cardioData.labels.length  > 0;
-  muscleReady  = muscleData.labels.length  > 0;
+  updatePie(cardioData, cardioMap);
+  updatePie(muscleData, muscleMap);
+
+  cardioReady.value = cardioData.labels.length > 0;
+  muscleReady.value = muscleData.labels.length > 0;
 }
 
-/* ----------------------- helper para rellenar pies ----------------------- */
-function updateReactivePie (target, map) {
-
-    const PALETTE = [
+function updatePie (target, map) {
+      const PALETTE = [
   '#81C784', // verde atenuado
   '#64B5F6', // azul atenuado
   '#FFB74D', // naranja atenuado
@@ -109,46 +104,21 @@ function updateReactivePie (target, map) {
   '#FF8A65'  // coral intermedio 
     ];
 
-  // 1) sanitizamos las claves → arrays ordenados
+  
   const labels = [...map.keys()];
   const data   = [...map.values()];
 
-  // 2) generamos colores reproducibles pero variados
   const colors = Array.from(labels).map((_, index) => PALETTE[index % PALETTE.length]);
 
-  // 3) actualizamos *in-place* para no perder la referencia reactiva
   target.labels.splice(0, target.labels.length, ...labels);
   Object.assign(target.datasets[0], { data, backgroundColor: colors });
 }
 
-/* ----------------------- disparar el cálculo ---------------------------- */
-watch(
-  () => props.entries,          // sólo cuando cambia la referencia (no deep)
-  buildChart,
-  { immediate: true }
-);
+watch(() => props.entries, buildChart, { immediate: true, deep: true });
 </script>
 
 <style scoped>
-.chart-container {
-  position: relative;
-  width: 100%;
-  max-width: 340px;   /* evita ensanchamiento infinito en pantallas grandes */
-  height: 260px;      /* altura fija → no crece más */
-  display: flex;
-  flex-direction: column;
-}
-.chart-title {
-  text-align: center;
-  font-weight: 500;
-  margin-bottom: 4px;
-}
-.chart-empty {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  color: #888;
-}
+.chart-container { position: relative; width: 100%; max-width: 340px; height: 260px; display: flex; flex-direction: column; }
+.chart-title      { text-align: center; font-weight: 500; margin-bottom: 4px; }
+.chart-empty      { flex: 1; display: flex; align-items: center; justify-content: center; font-size: .9rem; color:#888; }
 </style>

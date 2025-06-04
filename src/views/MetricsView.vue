@@ -1,7 +1,5 @@
-<!-- MetricsView.vue  -->
 <template>
   <div class="pa-4 d-flex flex-column align-center">
-    <!-- ---------- SUB-MENÚ CON TABS ---------- -->
     <v-tabs v-model="tab" align-tabs="center">
       <v-tab value="foods">Alimentos</v-tab>
       <v-tab value="water">Agua</v-tab>

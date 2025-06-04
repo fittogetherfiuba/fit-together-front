@@ -39,7 +39,7 @@ const chartOptions = {
 const PERIODS = ['desayuno', 'almuerzo', 'merienda', 'cena', 'Sin período definido'];
 
 function buildChart() {
-	const map = {}; // period -> Map(day->kcal)
+	const map = {};
 	PERIODS.forEach(p => (map[p] = new Map()));
 
 	props.entries.forEach(e => {

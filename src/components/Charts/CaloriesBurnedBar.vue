@@ -1,11 +1,13 @@
 <template>
-  <div class="text-center mt-4">
-    Calorías quemadas esta semana (kcal)
+  <div class="text-center mt-4">Calorías quemadas esta semana (kcal)</div>
+
+  <div class="chart-wrapper" style="min-height: 300px;">
+    <Bar v-if="isChartDataReady" :data="chartData" :options="chartOptions" />
+    <div v-else class="text-center py-4">Cargando gráfico…</div>
   </div>
 
-  <div class="chart-wrapper" style="min-height: 250px;">
-    <Bar v-if="isChartDataReady" :data="chartData" :options="chartOptions" />
-    <div v-else class="text-center py-4">Cargando gráfico de calorías quemadas…</div>
+  <div class="text-center mt-2 font-weight-medium">
+    Total quemado: {{ totalWeekly }} kcal
   </div>
 </template>
 
@@ -25,11 +27,12 @@ import {
 Chart.register(BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
 
 const props = defineProps({
-  entries: { type: Array, required: true } // array crudo de user_activity_entries
+  entries: { type: Array, required: true }
 });
 
 const chartData        = ref({ labels: [], datasets: [] });
 const isChartDataReady = ref(false);
+const totalWeekly      = ref(0);           
 
 const chartOptions = {
   responsive: true,
@@ -39,12 +42,17 @@ const chartOptions = {
 };
 
 function buildChart () {
-  const totalsByDay = new Map();            // yyyy-mm-dd → kcal
+  const totalsByDay = new Map();
+  let weeklySum = 0;                       
 
   props.entries.forEach(e => {
     const day = e.performedAt.slice(0, 10);
-    totalsByDay.set(day, (totalsByDay.get(day) || 0) + Number(e.caloriesBurned));
+    const kcal = Number(e.caloriesBurned) || 0;
+    totalsByDay.set(day, (totalsByDay.get(day) || 0) + kcal);
+    weeklySum += kcal;                      
   });
+
+  totalWeekly.value = weeklySum;           
 
   const labels = [];
   const data   = [];
@@ -65,7 +73,7 @@ function buildChart () {
     datasets: [{
       label: 'Calorías (kcal)',
       data,
-      backgroundColor: '#FFB74D' 
+      backgroundColor: '#FF7043'
     }]
   };
   isChartDataReady.value = true;
