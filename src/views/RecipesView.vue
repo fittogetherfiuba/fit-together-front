@@ -14,6 +14,20 @@
                   </v-card-title>
                 </v-col>
                 <v-col class="my-4 mr-3" align="end">
+                  <v-autocomplete
+                    v-model="chips"
+                    :items="ingredientsList"
+                    label="Seleccioná ingredientes"
+                    prepend-icon="mdi-filter-variant"
+                    variant="solo"
+                    multiple
+                    chips
+                    clearable
+                    closable-chips
+                    item-title="name"
+                    item-value="id"
+                  ></v-autocomplete>
+
                   <v-btn
                     class="me-8"
                     variant="text"
@@ -22,30 +36,30 @@
                     <span class="text-decoration-underline text-none">Ver todas</span>
                   </v-btn>
 
-              <v-btn 
-                class="mr-5"
-                icon="mdi-plus"
-                size="small"
-                variant="tonal"
-                @click="showDialog = true"
-              ></v-btn>
+                  <v-btn 
+                    class="mr-5"
+                    icon="mdi-plus"
+                    size="small"
+                    variant="tonal"
+                    @click="showDialog = true"
+                  ></v-btn>
 
-              <v-btn
-                :disabled="page === 1"
-                class="me-2"
-                icon="mdi-arrow-left"
-                size="small"
-                variant="tonal"
-                @click="prevPage"
-              ></v-btn>
+                  <v-btn
+                    :disabled="page === 1"
+                    class="me-2"
+                    icon="mdi-arrow-left"
+                    size="small"
+                    variant="tonal"
+                    @click="prevPage"
+                  ></v-btn>
 
-              <v-btn
-                :disabled="page === pageCount"
-                icon="mdi-arrow-right"
-                size="small"
-                variant="tonal"
-                @click="nextPage"
-              ></v-btn>
+                  <v-btn
+                    :disabled="page === pageCount"
+                    icon="mdi-arrow-right"
+                    size="small"
+                    variant="tonal"
+                    @click="nextPage"
+                  ></v-btn>
           
                 </v-col>
             </v-row>
@@ -226,6 +240,8 @@ export default {
           grams: ''
         }
       ],
+      chips: [],
+      ingredientsList: [],
       picUrl: '',
       picError: false,
       showPic: false,
@@ -242,6 +258,9 @@ export default {
     }
   },
   watch: {
+    chips() {
+      console.log('pegada axios')
+    },
     picUrl() {
       if (this.showPic) {
         console.log("cambie")
@@ -274,6 +293,7 @@ export default {
         try {
           const recipe = {
             "userId": this.$store.state.main.user.userId,
+            "username": this.$store.state.main.user.username,
             "name": this.name,
             "items": this.ingredients.map(ingredient => ({
               foodId: ingredient.selectedMeal.id,
@@ -308,6 +328,15 @@ export default {
         console.error('Error al obtener recetas:', error)
       }
     },
+    async fetchIngredients() {
+      try {
+        const response = await axios.get('http://localhost:3000/api/foods')
+        this.ingredientsList = response.data
+        console.log(this.ingredientsList)
+      } catch (error) {
+        console.error('Error al obtener comidas:', error)
+      }
+    },
     searchPicUrl () {
       this.showPic = true
     },
@@ -323,6 +352,7 @@ export default {
   async created () {
     await this.fetchMeals()
     await this.fetchRecipes()
+    await this.fetchIngredients()
   }
 }
 
