@@ -6,18 +6,24 @@
     >
       <template v-slot:header="{ page, pageCount, prevPage, nextPage }">
           <v-card color="secondary rounded-0" style="width:100%" flat>
-            <v-row justify="center">
-                <v-col>
+            <v-row class="align-center" justify="center">
+                <v-col class="d-flex align-center" cols="5">
                   <v-card-title class="my-1 font-weight-bold bg-secondary" style="font-size: 1.8rem;">
                     <v-icon start class="mb-1" icon="mdi-note-text-outline" style="font-size: 2.2rem;"></v-icon>
                     Recetas
                   </v-card-title>
                 </v-col>
-                <v-col class="my-4 mr-3" align="end">
+                <v-col class="d-flex align-center justify-end flex-wrap mr-6" align="end">
+                  <v-row justify="end">
+
+                  
                   <v-autocomplete
+                    class="mr-8 text-truncate chip-scroll"
+                    density="compact"
+                    style="max-width:620px; max-height:40px; overflow-y: auto;"
                     v-model="chips"
                     :items="ingredientsList"
-                    label="Seleccioná ingredientes"
+                    placeholder="Seleccioná ingredientes para filtrar..."
                     prepend-icon="mdi-filter-variant"
                     variant="solo"
                     multiple
@@ -27,7 +33,7 @@
                     item-title="name"
                     item-value="id"
                   ></v-autocomplete>
-
+              
                   <v-btn
                     class="me-8"
                     variant="text"
@@ -46,7 +52,7 @@
 
                   <v-btn
                     :disabled="page === 1"
-                    class="me-2"
+                    class="mr-3"
                     icon="mdi-arrow-left"
                     size="small"
                     variant="tonal"
@@ -54,13 +60,14 @@
                   ></v-btn>
 
                   <v-btn
+                    class="mr-1"
                     :disabled="page === pageCount"
                     icon="mdi-arrow-right"
                     size="small"
                     variant="tonal"
                     @click="nextPage"
                   ></v-btn>
-          
+                  </v-row>
                 </v-col>
             </v-row>
           </v-card>
@@ -258,8 +265,8 @@ export default {
     }
   },
   watch: {
-    chips() {
-      console.log('pegada axios')
+    async chips() {
+      await this.fetchRecipes()
     },
     picUrl() {
       if (this.showPic) {
@@ -322,8 +329,11 @@ export default {
     },
     async fetchRecipes() {
       try {
-        const response = await axios.get('http://localhost:3000/api/recipes/get?userId=' + this.$store.state.main.user.userId.toString())
+        const response = await axios.post('http://localhost:3000/api/recipes', {
+          filterIngredients: this.chips
+        })
         this.recipesList = response.data.recipes
+        console.log(this.recipesList)
       } catch (error) {
         console.error('Error al obtener recetas:', error)
       }
@@ -357,3 +367,7 @@ export default {
 }
 
 </script>
+
+<style scoped>
+
+</style>
