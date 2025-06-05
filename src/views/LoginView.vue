@@ -46,6 +46,20 @@
                     <v-btn type="submit" variant="elevated" color="primary" :disabled="!valid">
                       Ingresar
                     </v-btn>
+
+                                                                                          <v-btn
+                      icon
+                      elevation="2"
+                      class="google-icon-btn ml-7"
+                      @click="googleLogin"
+                    >
+                      <v-img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png"
+                        width="34"
+                        height="34"
+                        cover
+                      />
+                    </v-btn>
                   </v-card-actions>
 
                 </v-form>
@@ -53,10 +67,11 @@
               </v-card-text>
   
               <v-card-actions class="justify-center">
-                <button @click="googleLogin">Login Using Google</button>
+
                 <v-btn variant="elevated" color="primary" @click="handleRegister">
                   Crear una cuenta
                 </v-btn>
+
               </v-card-actions>     
               
             </v-col>
@@ -192,4 +207,14 @@
   background-color: #f8d7da;
   color: #721c24;
 }
+
+.google-icon-btn {
+  background-color: white;
+  padding: 10px;
+}
+
+.google-icon-btn:hover {
+  background-color: #f5f5f5;
+}
+
 </style>

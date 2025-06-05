@@ -53,12 +53,14 @@
       </template>
 
       <template v-slot:no-data>
-        <v-row justify="center" class="ma-4">
-          <v-col cols="12" class="text-center">
-            <v-icon color="grey" size="60">mdi-food-off</v-icon>
-            <div class="font-weight-bold mt-2">No hay recetas disponibles</div>
-          </v-col>
-        </v-row>
+        <v-card elevation="0" height="480"  class="d-flex align-center justify-center">
+          <v-row justify="center">
+            <v-col cols="12" class="text-center">
+              <v-icon color="grey" size="90">mdi-food-off</v-icon>
+              <div style="font-size: 20px;" class="font-weight-bold mt-2">No hay recetas disponibles</div>
+            </v-col>
+          </v-row>
+        </v-card>
       </template>
 
       <template v-slot:default="{ items }">
