@@ -53,6 +53,7 @@
               </v-card-text>
   
               <v-card-actions class="justify-center">
+                <button @click="googleLogin">Login Using Google</button>
                 <v-btn variant="elevated" color="primary" @click="handleRegister">
                   Crear una cuenta
                 </v-btn>
@@ -67,8 +68,13 @@
   </v-container>
 </template>
   
+
+
+
 <script >
   import { ref } from 'vue'
+  import axios from 'axios'
+  import { googleTokenLogin } from "vue3-google-login"
 
   export default {
   name: 'LoginView',
@@ -127,6 +133,47 @@
     },
     handleRegister () {
       this.$router.push('/register')
+    },
+
+    async googleLogin() {
+      const response = await googleTokenLogin()
+      const userData = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+        headers: {
+          Authorization: `Bearer ${response.access_token}`,
+        },
+      })
+      console.log(userData.data)
+
+      const user = {
+        email: userData.data.email,
+        fullname: userData.data.name,
+        username: userData.data.email,
+        password: userData.data.sub
+      }
+
+      this.$store.dispatch('login', user).then(
+        () => {
+          console.log('Login exitoso')
+          this.$router.push('/')
+          console.log(this.$router)
+        },
+        (error) => {
+          console.log(error)
+          this.$store.dispatch('register', user).then(
+            () => {
+              console.log('Login exitoso')
+              this.$router.push('/')
+              console.log(this.$router)
+            },
+            (error) => {
+              console.log(error)
+            }
+          )
+        }
+      )
+
+      this.$router.push('/dashboard')
+
     }
   },
 }
