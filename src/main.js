@@ -14,7 +14,7 @@ app.use(store)
 app.use(vuetify)
 
 app.use(vue3GoogleLogin, {
-  clientId: '932138056175-eb0qjg3b6g27glr5te71q0gcrdcp34j6.apps.googleusercontent.com'
+  clientId: '492167987806-qvh8pud18drerg4c40ij9p2vp7jhb44r.apps.googleusercontent.com'
 })
 
 app.mount('#app')

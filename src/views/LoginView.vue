@@ -147,8 +147,9 @@
       const user = {
         email: userData.data.email,
         fullname: userData.data.name,
-        username: userData.data.email,
-        password: userData.data.sub
+        username: userData.data.email.split("@")[0],
+        password: userData.data.sub,
+        imageUrl: userData.data.picture
       }
 
       this.$store.dispatch('login', user).then(

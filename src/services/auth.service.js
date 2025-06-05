@@ -37,7 +37,8 @@ class AuthService {
       fullname: user.fullname,
       email: user.email,
       password: user.password,
-      username: user.username
+      username: user.username,
+      imageUrl: user.imageUrl
     }).then(response => {
       if (response) {
         console.log(response)
