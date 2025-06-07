@@ -14,38 +14,31 @@
                   </v-card-title>
                 </v-col>
                 <v-col class="my-4 mr-3" align="end">
+
+                  <v-btn 
+                    class="mr-5"
+                    
+                    size="small"
+                    variant="tonal"
+                    @click="showDialog = true"
+                  >Nueva comunidad</v-btn>
+
                   <v-btn
-                    class="me-8"
-                    variant="text"
-                    @click="onClickSeeAll"
-                  >
-                    <span class="text-decoration-underline text-none">Ver todas</span>
-                  </v-btn>
+                    :disabled="page === 1"
+                    class="me-2"
+                    icon="mdi-arrow-left"
+                    size="small"
+                    variant="tonal"
+                    @click="prevPage"
+                  ></v-btn>
 
-              <v-btn 
-                class="mr-5"
-                icon="mdi-plus"
-                size="small"
-                variant="tonal"
-                @click="showDialog = true"
-              ></v-btn>
-
-              <v-btn
-                :disabled="page === 1"
-                class="me-2"
-                icon="mdi-arrow-left"
-                size="small"
-                variant="tonal"
-                @click="prevPage"
-              ></v-btn>
-
-              <v-btn
-                :disabled="page === pageCount"
-                icon="mdi-arrow-right"
-                size="small"
-                variant="tonal"
-                @click="nextPage"
-              ></v-btn>
+                  <v-btn
+                    :disabled="page === pageCount"
+                    icon="mdi-arrow-right"
+                    size="small"
+                    variant="tonal"
+                    @click="nextPage"
+                  ></v-btn>
           
                 </v-col>
             </v-row>
@@ -53,7 +46,7 @@
       </template>
 
       <template v-slot:no-data>
-        <v-card elevation="0" height="480"  class="d-flex align-center justify-center">
+        <v-card elevation="0" height="440" class="d-flex align-center justify-center">
           <v-row justify="center">
             <v-col cols="12" class="text-center">
               <v-icon color="grey" size="90">mdi-account-group</v-icon>
@@ -64,21 +57,41 @@
       </template>
 
       <template v-slot:default="{ items }">
-        <v-row class="mx-2 my-2">
-          <v-col v-for="(item, i) in items" :key="i"
-          cols="9"
-          sm="6"
-          xl="3">
-            <v-sheet class="w-100" border>
-              <Communities :community="item.raw" />              
-            </v-sheet>
-          </v-col>
-        </v-row>
+        <v-card style="min-height: 440px;">
+          <v-row class="mx-3 my-3" style="min-height: 400px;">
+            <v-col v-for="(community, i) in items" :key="i"
+            cols="9"
+            sm="3"
+            xl="3"
+            class="d-flex">
+              <v-sheet class="w-100 d-flex flex-column flex-grow-1" border>
+                <v-card class="pb-4 d-flex flex-column h-100" elevation="10">
+                  <v-card-title class="mb-4 text-center d-flex justify-center align-center font-weight-bold bg-secondary" style="font-size: 1.4rem;">
+                    <v-icon start icon="mdi-account-group"></v-icon>
+                    {{ community.raw.name }}
+                  </v-card-title>
+                  <v-card-text>
+                    <span class="font-weight-bold text-h6">Descripción</span>
+                    <p class="text-h6">{{ community.raw.description }}</p>
+                  </v-card-text>
+                  <v-card-actions class="justify-center">
+                    <v-btn
+                      class="border-sm bg-secondary font-weight-bold"
+                      @click="handleCommunityPosts(community.raw)"
+                    >
+                      Ver posteos
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-sheet>
+            </v-col>
+          </v-row>
+        </v-card>
       </template>
 
       <template v-slot:footer="{ page, pageCount }">
         <v-footer
-          class="justify-space-between mt-2"
+          class="justify-space-between"
           color="surface-variant"
         >
           Total de comunidades: {{ subscribedCommunitiesList.length }}
@@ -90,7 +103,99 @@
       </template>
     </v-data-iterator>
   </v-card>
+  
+  <v-card class="mx-5 my-8">
+    <v-data-iterator
+      :items="communitiesList"
+      :items-per-page="itemsPerPage"
+    >
+      <template v-slot:header="{ page, pageCount, prevPage, nextPage }">
+          <v-card color="secondary rounded-0" style="width:100%" flat>
+            <v-row justify="center">
+                <v-col>
+                  <v-card-title class="my-1 font-weight-bold bg-secondary" style="font-size: 1.8rem;">
+                    <v-icon start class="mb-1" icon="mdi-account-group" style="font-size: 2.2rem;"></v-icon>
+                    Comunidades disponibles
+                  </v-card-title>
+                </v-col>
+                <v-col class="my-4 mr-3" align="end">
 
+                  <v-btn
+                    :disabled="page === 1"
+                    class="me-2"
+                    icon="mdi-arrow-left"
+                    size="small"
+                    variant="tonal"
+                    @click="prevPage"
+                  ></v-btn>
+
+                  <v-btn
+                    :disabled="page === pageCount"
+                    icon="mdi-arrow-right"
+                    size="small"
+                    variant="tonal"
+                    @click="nextPage"
+                  ></v-btn>
+          
+                </v-col>
+            </v-row>
+          </v-card>
+      </template>
+
+      <template v-slot:no-data>
+        <v-card elevation="0" height="440" class="d-flex align-center justify-center">
+          <v-row justify="center">
+            <v-col cols="12" class="text-center">
+              <v-icon color="grey" size="90">mdi-account-group</v-icon>
+              <div style="font-size: 20px;" class="font-weight-bold mt-2">No hay comunidades nuevas disponibles</div>
+            </v-col>
+          </v-row>
+        </v-card>
+      </template>
+
+      <template v-slot:default="{ items }">
+        <v-card style="min-height: 440px;">
+          <v-row class="mx-3 my-3" style="min-height: 400px;">
+            <v-col v-for="(community, i) in items" :key="i"
+            cols="9"
+            sm="3"
+            xl="3"
+            class="d-flex">
+              <v-sheet class="w-100 d-flex flex-column flex-grow-1" border>
+                <v-card class="pb-4 d-flex flex-column h-100" elevation="10">
+                  <v-card-title class="mb-4 text-center d-flex justify-center align-center font-weight-bold bg-secondary" style="font-size: 1.4rem;">
+                    <v-icon start icon="mdi-account-group"></v-icon>
+                    {{ community.raw.name }}
+                  </v-card-title>
+                  <v-card-text>
+                    <span class="font-weight-bold text-h6">Descripción</span>
+                    <p class="text-h6">{{ community.raw.description }}</p>
+                  </v-card-text>
+                  <v-card-actions class="justify-center">
+                    <v-btn class="border-sm bg-secondary font-weight-bold" @click="handleSubscribeCommunity(community.raw)">Suscribirse</v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-sheet>
+            </v-col>
+          </v-row>
+        </v-card>
+      </template>
+
+      <template v-slot:footer="{ page, pageCount }">
+        <v-footer
+          class="justify-space-between"
+          color="surface-variant"
+        >
+          Total de comunidades: {{ communitiesList.length }}
+
+          <div>
+            Página {{ page }} de {{ pageCount }}
+          </div>
+        </v-footer>
+      </template>
+    </v-data-iterator>
+  </v-card>
+  
   <v-dialog v-model="showDialog" max-width="550px" style="overflow-y: auto; max-height: 70vh;" @after-leave="closeDialog">
     <v-card class="d-flex align-center">
       <v-card-title class="pa-0 w-100">
@@ -120,46 +225,14 @@
     </v-card>
   </v-dialog>
   
-  <v-dialog v-model="showDialogSubscribe" max-width="550px" style="overflow-y: auto; max-height: 70vh;" @after-leave="closeDialogSubscribe">
-    <v-card class="d-flex align-center">
-      <v-card-title class="pa-0 w-100">
-        <v-row no-gutters class="text-center pa-2 bg-secondary w-100">
-          <v-col class="d-flex justify-center align-center">
-            <v-icon start icon="mdi-account-group"></v-icon>
-            <span class="text-h6 font-weight-bold">Suscribirse a comunidad</span>
-          </v-col>
-        </v-row>
-      </v-card-title>
-      <span class="d-flex text-h6 pa-6 justify-center font-weight-bold" v-if="communitiesList.length === 0">No hay comunidades nuevas disponibles</span>
-      <v-card-text class="w-75" v-for="(community, index) in communitiesList" :key="index">
-          <v-card class="border-sm">
-              <v-card-title class="mb-4 text-center font-weight-bold">
-                  <v-icon start icon="mdi-account-group"></v-icon>
-                  {{ community.name }}
-              </v-card-title>
-              <v-card-text>
-                  <span class="font-weight-bold">Descripción:</span>
-                  <p>{{ community.description }}</p>
-              </v-card-text>
-              <v-card-actions class="justify-end">
-                  <v-btn class="border-sm bg-secondary font-weight-bold" @click="handleSubscribeCommunity(community)">Suscribirse</v-btn>
-              </v-card-actions>
-          </v-card>
-      </v-card-text>
-    </v-card>
-  </v-dialog>
 </template>
 
 
 <script>
-import Communities from '../components/CommunitiesCard.vue'
 import axios from 'axios'
 
 export default {
   name: 'CommunitiesView',
-  components: {
-    Communities
-  },
 
   data () {
     return {
@@ -170,7 +243,7 @@ export default {
       name: '',
       description: '',
       form: null,
-      itemsPerPage: 3,
+      itemsPerPage: 4,
       rules: {
         nameRequired: value => !!value || 'Debe ingresar un nombre',
         descriptionRequired: value => !!value || 'Debe ingresar una descripcion'
