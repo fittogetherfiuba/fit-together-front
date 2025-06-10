@@ -5,8 +5,11 @@
         height="200"
         cover
       ></v-img>
-    <v-card-title class="mb-4 font-weight-bold bg-primary" style="font-size: 1.4rem;">
+    <v-card-title class="mb-4 font-weight-bold bg-primary d-flex flex-column" style="font-size: 1.4rem;">
       {{ recipe.name }}
+        <span class="font-weight-bold font-weight-regular" style="font-size: 0.9rem;">
+          Autor: {{ recipe.username }}
+        </span>
     </v-card-title>
     <v-card-text>
       <span class="font-weight-bold text-h6">Calorias totales: {{ recipe.totalCalories }}</span>

@@ -6,14 +6,34 @@
     >
       <template v-slot:header="{ page, pageCount, prevPage, nextPage }">
           <v-card color="secondary rounded-0" style="width:100%" flat>
-            <v-row justify="center">
-                <v-col>
+            <v-row class="align-center" justify="center">
+                <v-col class="d-flex align-center" cols="5">
                   <v-card-title class="my-1 font-weight-bold bg-secondary" style="font-size: 1.8rem;">
                     <v-icon start class="mb-1" icon="mdi-note-text-outline" style="font-size: 2.2rem;"></v-icon>
                     Recetas
                   </v-card-title>
                 </v-col>
-                <v-col class="my-4 mr-3" align="end">
+                <v-col class="d-flex align-center justify-end flex-wrap mr-6" align="end">
+                  <v-row justify="end">
+
+                  
+                  <v-autocomplete
+                    class="mr-8 text-truncate chip-scroll"
+                    density="compact"
+                    style="max-width:620px; max-height:40px; overflow-y: auto;"
+                    v-model="chips"
+                    :items="ingredientsList"
+                    placeholder="Seleccioná ingredientes para filtrar..."
+                    prepend-icon="mdi-filter-variant"
+                    variant="solo"
+                    multiple
+                    chips
+                    clearable
+                    closable-chips
+                    item-title="name"
+                    item-value="id"
+                  ></v-autocomplete>
+              
                   <v-btn
                     class="me-8"
                     variant="text"
@@ -22,31 +42,32 @@
                     <span class="text-decoration-underline text-none">Ver todas</span>
                   </v-btn>
 
-              <v-btn 
-                class="mr-5"
-                icon="mdi-plus"
-                size="small"
-                variant="tonal"
-                @click="showDialog = true"
-              ></v-btn>
+                  <v-btn 
+                    class="mr-5"
+                    icon="mdi-plus"
+                    size="small"
+                    variant="tonal"
+                    @click="showDialog = true"
+                  ></v-btn>
 
-              <v-btn
-                :disabled="page === 1"
-                class="me-2"
-                icon="mdi-arrow-left"
-                size="small"
-                variant="tonal"
-                @click="prevPage"
-              ></v-btn>
+                  <v-btn
+                    :disabled="page === 1"
+                    class="mr-3"
+                    icon="mdi-arrow-left"
+                    size="small"
+                    variant="tonal"
+                    @click="prevPage"
+                  ></v-btn>
 
-              <v-btn
-                :disabled="page === pageCount"
-                icon="mdi-arrow-right"
-                size="small"
-                variant="tonal"
-                @click="nextPage"
-              ></v-btn>
-          
+                  <v-btn
+                    class="mr-1"
+                    :disabled="page === pageCount"
+                    icon="mdi-arrow-right"
+                    size="small"
+                    variant="tonal"
+                    @click="nextPage"
+                  ></v-btn>
+                  </v-row>
                 </v-col>
             </v-row>
           </v-card>
@@ -226,6 +247,8 @@ export default {
           grams: ''
         }
       ],
+      chips: [],
+      ingredientsList: [],
       picUrl: '',
       picError: false,
       showPic: false,
@@ -242,6 +265,9 @@ export default {
     }
   },
   watch: {
+    async chips() {
+      await this.fetchRecipes()
+    },
     picUrl() {
       if (this.showPic) {
         console.log("cambie")
@@ -274,6 +300,7 @@ export default {
         try {
           const recipe = {
             "userId": this.$store.state.main.user.userId,
+            "username": this.$store.state.main.user.username,
             "name": this.name,
             "items": this.ingredients.map(ingredient => ({
               foodId: ingredient.selectedMeal.id,
@@ -302,10 +329,22 @@ export default {
     },
     async fetchRecipes() {
       try {
-        const response = await axios.get('http://localhost:3000/api/recipes/get?userId=' + this.$store.state.main.user.userId.toString())
+        const response = await axios.post('http://localhost:3000/api/recipes', {
+          filterIngredients: this.chips
+        })
         this.recipesList = response.data.recipes
+        console.log(this.recipesList)
       } catch (error) {
         console.error('Error al obtener recetas:', error)
+      }
+    },
+    async fetchIngredients() {
+      try {
+        const response = await axios.get('http://localhost:3000/api/foods')
+        this.ingredientsList = response.data
+        console.log(this.ingredientsList)
+      } catch (error) {
+        console.error('Error al obtener comidas:', error)
       }
     },
     searchPicUrl () {
@@ -323,7 +362,12 @@ export default {
   async created () {
     await this.fetchMeals()
     await this.fetchRecipes()
+    await this.fetchIngredients()
   }
 }
 
 </script>
+
+<style scoped>
+
+</style>
