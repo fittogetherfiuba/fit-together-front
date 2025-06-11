@@ -223,7 +223,7 @@
     </v-card>
   </v-dialog>
 
-  <v-dialog v-model="showDialogPosts" max-width="650px" style="overflow-y: auto; max-height: 70vh;" @after-leave="closeDialogPosts">
+  <v-dialog v-model="showDialogPosts" max-width="650px" style="overflow-y: auto; max-height: 95vh;" @after-leave="closeDialogPosts">
     <v-card class="d-flex align-center">
       <v-card-title class="pa-0 w-100">
         <v-row no-gutters class="text-center pa-2 bg-secondary w-100">
@@ -499,7 +499,7 @@ export default {
         try{
           const post = {
             userId: this.$store.state.main.user.userId,
-            communityId: community.id,
+            communityId: community.communityId,
             title: this.postTitle,
             body: this.postBody,
             topic: this.postTopic,
@@ -557,14 +557,13 @@ export default {
       try {
         const response = await axios.get('http://localhost:3000/api/communities?userId=' + this.$store.state.main.user.userId.toString())
         this.subscribedCommunitiesList = response.data.communities
-        console.log('Comunidades suscriptas:', this.subscribedCommunitiesList)
       } catch (error) {
         console.error('Error al obtener comunidades suscriptas:', error)
       }
     },
     async fetchCommunityPosts(community) {
       try {
-        const response = await axios.get('http://localhost:3000/api/communities/' + community.id + '/posts')
+        const response = await axios.get('http://localhost:3000/api/communities/' + community.communityId + '/posts')
         this.communityPosts = response.data.posts
         this.communityPosts.forEach(post => {
           this.fetchCommunityComments(post)
