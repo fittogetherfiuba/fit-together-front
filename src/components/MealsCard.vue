@@ -201,9 +201,14 @@ export default {
       }
     },
     async fetchMeals() {
-      try {
-        const response = await axios.get('http://localhost:3000/api/foods')
-        this.mealList = response.data
+        try {
+          const [mealsRes, restrictedRes] = await Promise.all([
+          axios.get('http://localhost:3000/api/foods'),
+          axios.get('http://localhost:3000/api/diet/restricted-foods/' + this.$store.state.main.user.userId.toString())
+        ]);
+
+        const restrictedNames = restrictedRes.data.map(f => f.name.toLowerCase());
+        this.mealList = mealsRes.data.filter(meal => !restrictedNames.includes(meal.name.toLowerCase()));
       } catch (error) {
         console.error('Error al obtener comidas:', error)
       }
