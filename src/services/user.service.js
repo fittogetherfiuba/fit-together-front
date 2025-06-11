@@ -32,6 +32,11 @@ class UserService {
   getAvailableDietProfiles() {
     return axios.get(API_URL + 'diet/')
   }
+
+  getUserDietProfiles(userId) {
+    return axios.get(`${API_URL}diet/${userId}`)
+  }
+
 }
 
 export default new UserService()

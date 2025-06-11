@@ -251,8 +251,29 @@
                           />
                         </v-col>
                       </v-row>
+                      <v-row v-if="userDietProfiles.length > 0 && !editing" class="mt-5">
+                        <v-col class="text-left">
+                          <div class="text-subtitle-1 font-weight-bold mb-2">
+                            Perfiles dietarios
+                          </div>
+                          <v-chip-group column>
+                            <v-chip
+                                v-for="(profile, index) in userDietProfiles"
+                                :key="index"
+                                color="primary"
+                                class="ma-1"
+                                label
+                                variant="elevated"
+                            >
+                              {{ profile }}
+                            </v-chip>
+                          </v-chip-group>
+                        </v-col>
+                      </v-row>
 
                     </v-row>
+
+
                   </v-col>
                 </v-row>
               </v-col>
@@ -302,6 +323,7 @@ export default {
       hasDietRestrictions: false,
       availableProfiles: [],
       selectedProfiles: [],
+      userDietProfiles: [],
       editingProfilePic: false,
       profilePicUrl: '',
       showEditingProfilePic: false,
@@ -339,6 +361,7 @@ export default {
   async mounted () {
     const response = await UserService.getCurrentUserInfo()
     this.user = response.data
+    this.fetchUserDietProfiles(this.user.id);
 
     console.log(this.user)
 
@@ -365,12 +388,15 @@ export default {
     },
     async handleEditButton() {
       if (this.editing) {
-        UserService.editCurrentUserInfo(this.user)
+        await UserService.editCurrentUserInfo(this.user)
 
         if (this.hasDietRestrictions && this.selectedProfiles.length > 0) {
           await this.applyDietProfiles()
         }
-      } else {
+
+        await this.fetchUserDietProfiles(this.user.id)
+      }
+      else {
         await this.fetchAvailableProfiles()
       }
 
@@ -423,6 +449,16 @@ export default {
         }
       }
     },
+    async fetchUserDietProfiles(userId) {
+      try {
+        const res = await UserService.getUserDietProfiles(userId)
+        this.userDietProfiles = res.data.map(p => p.profile_name)
+      } catch (err) {
+        console.error('Error al obtener perfiles del usuario:', err)
+        this.userDietProfiles = []
+      }
+    }
+
 
 
   }
