@@ -1,106 +1,409 @@
 <template>
-  <v-container fluid class="d-flex align-start justify-center fill-height">
-    <v-row justify="center" align="start">
-      <v-col cols="12" class="text-center mt-10 mb-4 text-h6">
-        <span class="d-flex text-h4 justify-center font-weight-bold">Comunidades suscriptas</span>
-        <v-divider :thickness="2"></v-divider>
-        <v-btn class="border-sm bg-secondary text-h5 w-25 mt-4 mr-4 mb-4 font-weight-bold" @click="showDialog = true">Crear Comunidad</v-btn>
-        <v-btn class="border-sm bg-secondary text-h5 w-25 mt-4 mb-4 font-weight-bold" @click="showDialogSubscribe = true">Suscribirse a comunidad</v-btn>
-        <span class="d-flex text-h5 justify-center font-weight-bold" v-if="subscribedCommunitiesList.length === 0">No estas suscripto a ninguna comunidad</span>
+  <v-card class="mx-5 my-8">
+    <v-data-iterator
+      :items="subscribedCommunitiesList"
+      :items-per-page="itemsPerPage"
+    >
+      <template v-slot:header="{ page, pageCount, prevPage, nextPage }">
+          <v-card color="secondary rounded-0" style="width:100%" flat>
+            <v-row justify="center">
+                <v-col>
+                  <v-card-title class="my-1 font-weight-bold bg-secondary" style="font-size: 1.8rem;">
+                    <v-icon start class="mb-1" icon="mdi-account-group" style="font-size: 2.2rem;"></v-icon>
+                    Comunidades suscriptas
+                  </v-card-title>
+                </v-col>
+                <v-col class="my-4 mr-3" align="end">
 
-        <v-dialog v-model="showDialog" max-width="550px" style="overflow-y: auto; max-height: 70vh;" @after-leave="closeDialog">
-          <v-card class="d-flex align-center">
-            <v-card-title class="pa-0 w-100">
-              <v-row no-gutters class="text-center pa-2 bg-secondary w-100">
-                <v-col class="d-flex justify-center align-center">
-                  <v-icon start icon="mdi-account-group"></v-icon>
-                  <span class="text-h6 font-weight-bold">Crear comunidad</span>
+                  <v-btn 
+                    class="mr-5"
+                    variant="tonal"
+                    @click="showDialog = true"
+                  >Nueva comunidad</v-btn>
+
+                  <v-btn
+                    :disabled="page === 1"
+                    class="me-2"
+                    icon="mdi-arrow-left"
+                    size="small"
+                    variant="tonal"
+                    @click="prevPage"
+                  ></v-btn>
+
+                  <v-btn
+                    :disabled="page === pageCount"
+                    icon="mdi-arrow-right"
+                    size="small"
+                    variant="tonal"
+                    @click="nextPage"
+                  ></v-btn>
+          
                 </v-col>
-              </v-row>
-            </v-card-title>
-            <v-card-text class="pt-8 w-75">
-              <v-form ref="form">
-                <v-text-field v-model="name" :rules="[rules.nameRequired]" variant="outlined" label="Nombre" />
-                <span class="font-weight-bold">Descripcion:</span>
-                <v-textarea v-model="description" 
-                  class="mt-3" 
-                  :rules="[rules.descriptionRequired]" 
-                  variant="outlined"
-                  placeholder="Escribe una descripcion sobre la comunidad"
-                />
-              </v-form>
-            </v-card-text>
-            <v-card-actions class="pb-3 justify-end">
-              <v-btn class="border-sm bg-error font-weight-bold" text @click="closeDialog">Cancelar</v-btn>
-              <v-btn class="border-sm bg-warning font-weight-bold" @click="handleCreateCommunity">Crear</v-btn>
-            </v-card-actions>
+            </v-row>
           </v-card>
-        </v-dialog>
-        
-        <v-dialog v-model="showDialogSubscribe" max-width="550px" style="overflow-y: auto; max-height: 70vh;" @after-leave="closeDialogSubscribe">
-          <v-card class="d-flex align-center">
-            <v-card-title class="pa-0 w-100">
-              <v-row no-gutters class="text-center pa-2 bg-secondary w-100">
-                <v-col class="d-flex justify-center align-center">
-                  <v-icon start icon="mdi-account-group"></v-icon>
-                  <span class="text-h6 font-weight-bold">Suscribirse a comunidad</span>
-                </v-col>
-              </v-row>
-            </v-card-title>
-            <span class="d-flex text-h6 pa-6 justify-center font-weight-bold" v-if="communitiesList.length === 0">No hay comunidades nuevas disponibles</span>
-            <v-card-text class="w-75" v-for="(community, index) in communitiesList" :key="index">
-                <v-card class="border-sm">
-                    <v-card-title class="mb-4 text-center font-weight-bold">
-                        <v-icon start icon="mdi-account-group"></v-icon>
-                        {{ community.name }}
-                    </v-card-title>
-                    <v-card-text>
-                        <span class="font-weight-bold">Descripción:</span>
-                        <p>{{ community.description }}</p>
-                    </v-card-text>
-                    <v-card-actions class="justify-end">
-                        <v-btn class="border-sm bg-secondary font-weight-bold" @click="handleSubscribeCommunity(community)">Suscribirse</v-btn>
-                    </v-card-actions>
+      </template>
+
+      <template v-slot:no-data>
+        <v-card elevation="0" height="440" class="d-flex align-center justify-center">
+          <v-row justify="center">
+            <v-col cols="12" class="text-center">
+              <v-icon color="grey" size="90">mdi-account-group</v-icon>
+              <div style="font-size: 20px;" class="font-weight-bold mt-2">No estas suscripto a ninguna comunidad</div>
+            </v-col>
+          </v-row>
+        </v-card>
+      </template>
+
+      <template v-slot:default="{ items }">
+        <v-card style="min-height: 440px;">
+          <v-row class="mx-3 my-3" style="min-height: 400px;">
+            <v-col v-for="(community, i) in items" :key="i"
+            cols="9"
+            sm="3"
+            xl="3"
+            class="d-flex">
+              <v-sheet class="w-100 d-flex flex-column flex-grow-1" border>
+                <v-card class="pb-4 d-flex flex-column h-100" elevation="10">
+                  <v-card-title class="mb-4 text-center d-flex justify-center align-center font-weight-bold bg-secondary" style="font-size: 1.4rem;">
+                    <v-icon start icon="mdi-account-group"></v-icon>
+                    {{ community.raw.name }}
+                  </v-card-title>
+                  <v-card-text>
+                    <span class="font-weight-bold text-h6">Descripción</span>
+                    <p class="text-h6">{{ community.raw.description }}</p>
+                  </v-card-text>
+                  <v-card-actions class="justify-center">
+                    <v-btn
+                      class="border-sm bg-secondary font-weight-bold"
+                      @click="handleViewPosts(community.raw)"
+                    >
+                      Ver posteos
+                    </v-btn>
+                  </v-card-actions>
                 </v-card>
-            </v-card-text>
-          </v-card>
-        </v-dialog>
-      </v-col>
+              </v-sheet>
+            </v-col>
+          </v-row>
+        </v-card>
+      </template>
 
-      <v-col cols="12" sm="8" md="10">
-        <v-row justify="center" align="start">
-          <v-col cols="12" sm="4" v-for="(community, index) in subscribedCommunitiesList" :key="index">
-            <Communities :community="community" />
+      <template v-slot:footer="{ page, pageCount }">
+        <v-footer
+          class="justify-space-between"
+          color="surface-variant"
+        >
+          Total de comunidades: {{ subscribedCommunitiesList.length }}
+
+          <div>
+            Página {{ page }} de {{ pageCount }}
+          </div>
+        </v-footer>
+      </template>
+    </v-data-iterator>
+  </v-card>
+  
+  <v-card class="mx-5 my-8">
+    <v-data-iterator
+      :items="communitiesList"
+      :items-per-page="itemsPerPage"
+    >
+      <template v-slot:header="{ page, pageCount, prevPage, nextPage }">
+          <v-card color="secondary rounded-0" style="width:100%" flat>
+            <v-row justify="center">
+                <v-col>
+                  <v-card-title class="my-1 font-weight-bold bg-secondary" style="font-size: 1.8rem;">
+                    <v-icon start class="mb-1" icon="mdi-account-group" style="font-size: 2.2rem;"></v-icon>
+                    Comunidades disponibles
+                  </v-card-title>
+                </v-col>
+                <v-col class="my-4 mr-3" align="end">
+
+                  <v-btn
+                    :disabled="page === 1"
+                    class="me-2"
+                    icon="mdi-arrow-left"
+                    size="small"
+                    variant="tonal"
+                    @click="prevPage"
+                  ></v-btn>
+
+                  <v-btn
+                    :disabled="page === pageCount"
+                    icon="mdi-arrow-right"
+                    size="small"
+                    variant="tonal"
+                    @click="nextPage"
+                  ></v-btn>
+          
+                </v-col>
+            </v-row>
+          </v-card>
+      </template>
+
+      <template v-slot:no-data>
+        <v-card elevation="0" height="440" class="d-flex align-center justify-center">
+          <v-row justify="center">
+            <v-col cols="12" class="text-center">
+              <v-icon color="grey" size="90">mdi-account-group</v-icon>
+              <div style="font-size: 20px;" class="font-weight-bold mt-2">No hay comunidades nuevas disponibles</div>
+            </v-col>
+          </v-row>
+        </v-card>
+      </template>
+
+      <template v-slot:default="{ items }">
+        <v-card style="min-height: 440px;">
+          <v-row class="mx-3 my-3" style="min-height: 400px;">
+            <v-col v-for="(community, i) in items" :key="i"
+            cols="9"
+            sm="3"
+            xl="3"
+            class="d-flex">
+              <v-sheet class="w-100 d-flex flex-column flex-grow-1" border>
+                <v-card class="pb-4 d-flex flex-column h-100" elevation="10">
+                  <v-card-title class="mb-4 text-center d-flex justify-center align-center font-weight-bold bg-secondary" style="font-size: 1.4rem;">
+                    <v-icon start icon="mdi-account-group"></v-icon>
+                    {{ community.raw.name }}
+                  </v-card-title>
+                  <v-card-text>
+                    <span class="font-weight-bold text-h6">Descripción</span>
+                    <p class="text-h6">{{ community.raw.description }}</p>
+                  </v-card-text>
+                  <v-card-actions class="justify-center">
+                    <v-btn class="border-sm bg-secondary font-weight-bold" @click="handleSubscribeCommunity(community.raw)">Suscribirse</v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-sheet>
+            </v-col>
+          </v-row>
+        </v-card>
+      </template>
+
+      <template v-slot:footer="{ page, pageCount }">
+        <v-footer
+          class="justify-space-between"
+          color="surface-variant"
+        >
+          Total de comunidades: {{ communitiesList.length }}
+
+          <div>
+            Página {{ page }} de {{ pageCount }}
+          </div>
+        </v-footer>
+      </template>
+    </v-data-iterator>
+  </v-card>
+  
+  <v-dialog v-model="showDialog" max-width="550px" style="overflow-y: auto; max-height: 70vh;" @after-leave="closeDialog">
+    <v-card class="d-flex align-center">
+      <v-card-title class="pa-0 w-100">
+        <v-row no-gutters class="text-center pa-2 bg-secondary w-100">
+          <v-col class="d-flex justify-center align-center">
+            <v-icon start icon="mdi-account-group"></v-icon>
+            <span class="text-h6 font-weight-bold">Crear comunidad</span>
           </v-col>
         </v-row>
-      </v-col>
-    </v-row>
-  </v-container>
+      </v-card-title>
+      <v-card-text class="pt-8 w-75">
+        <v-form ref="form">
+          <v-text-field v-model="name" :rules="[rules.nameRequired]" variant="outlined" label="Nombre" />
+          <span class="font-weight-bold">Descripcion:</span>
+          <v-textarea v-model="description" 
+            class="mt-3" 
+            :rules="[rules.descriptionRequired]" 
+            variant="outlined"
+            placeholder="Escribe una descripcion sobre la comunidad"
+          />
+        </v-form>
+      </v-card-text>
+      <v-card-actions class="pb-3 justify-end">
+        <v-btn class="border-sm bg-error font-weight-bold" text @click="closeDialog">Cancelar</v-btn>
+        <v-btn class="border-sm bg-warning font-weight-bold" @click="handleCreateCommunity">Crear</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <v-dialog v-model="showDialogPosts" max-width="650px" style="overflow-y: auto; max-height: 70vh;" @after-leave="closeDialogPosts">
+    <v-card class="d-flex align-center">
+      <v-card-title class="pa-0 w-100">
+        <v-row no-gutters class="text-center pa-2 bg-secondary w-100">
+          <v-col class="d-flex justify-center align-center">
+            <v-icon start icon="mdi-account-group"></v-icon>
+            <span class="text-h6 font-weight-bold">Posteos de {{this.selectedCommunity.name}}</span>
+          </v-col>
+        </v-row>
+      </v-card-title>
+      <span class="d-flex text-h6 pa-6 pb-0 justify-center font-weight-bold" v-if="communityPosts.length === 0">No hay posteos en esta comunidad</span>
+      <v-card-actions class="mt-3 justify-end">
+        <v-btn class="border-sm bg-secondary font-weight-bold" @click="showDialogCreatePost = true">Crear post</v-btn>
+      </v-card-actions>
+      <v-card-text class="w-75" v-for="(post, index) in communityPosts" :key="index">
+          <v-card class="border-sm">
+              <v-card-subtitle class="pt-3">
+                <p>{{ post.topic }} | Usuario: {{ post.author }}</p>
+              </v-card-subtitle>
+              <v-card-title class="pt-0 font-weight-bold">
+                <p>{{ post.title }}</p>
+              </v-card-title>
+              <v-card-text>
+                <p class="mb-4">{{ post.body }}</p>
+                <v-data-iterator
+                  :items="parsePhotos(post.photos)"
+                  :items-per-page="1"
+                >
+                  <template v-slot:default="{ items }">
+                    <v-row>
+                      <v-col v-for="(photo, i) in items" :key="i" cols="12" class="d-flex">
+                        <v-img
+                          :src="photo.raw.url"
+                          height="250"
+                          cover
+                          class="border-lg border-opacity-25"
+                        ></v-img>
+                      </v-col>
+                    </v-row>
+                  </template>
+
+                  <template v-slot:footer="{ page, pageCount, prevPage, nextPage }">
+                    <v-footer class="justify-center">
+                      <v-btn
+                        :disabled="page === 1"
+                        class="me-2"
+                        icon="mdi-arrow-left"
+                        size="x-small"
+                        variant="tonal"
+                        @click="prevPage"
+                      ></v-btn>
+
+                      <v-btn
+                        :disabled="page === pageCount"
+                        icon="mdi-arrow-right"
+                        size="x-small"
+                        variant="tonal"
+                        @click="nextPage"
+                      ></v-btn>
+                    </v-footer>
+                  </template>
+                </v-data-iterator>
+              </v-card-text>
+              <v-expansion-panels>
+                <v-expansion-panel @click="fetchCommunityComments(post)">
+                  <v-expansion-panel-title class="pb-0 font-weight-bold">
+                    Comentarios ({{ this.postComments[post.id]?.length || 0 }})
+                  </v-expansion-panel-title>
+                  <v-expansion-panel-text class="pt-0">
+                    <v-form :ref="el => commentForms[post.id] = el" class="d-flex flex-column">
+                      <v-textarea
+                        v-model="postCommentBody[post.id]"
+                        variant="outlined"
+                        placeholder="Escribe un comentario..."
+                        :rows="2"
+                        :rules="[rules.commentRequired]"
+                        hide-details
+                      ></v-textarea>
+                      <v-btn
+                        class="border-sm bg-secondary font-weight-bold mt-1 mb-2"
+                        @click="handleCreateComment(post)"
+                      >
+                        Comentar
+                      </v-btn>
+                    </v-form>
+                    <v-list>
+                      <v-list-item v-for="(comment, i) in this.postComments[post.id] || []" :key="i">
+                        <v-list-item-title>
+                          <span class="font-weight-bold">{{ comment.username }}</span> • {{ getRelativeTime(comment.createdAt) }}
+                        </v-list-item-title>
+                        <v-list-item-subtitle class="mb-1">{{ comment.body }}</v-list-item-subtitle>
+                        <v-divider></v-divider>
+                      </v-list-item>
+                    </v-list>
+                  </v-expansion-panel-text>
+                </v-expansion-panel>
+              </v-expansion-panels>
+          </v-card>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
+
+  <v-dialog v-model="showDialogCreatePost" max-width="550px" style="overflow-y: auto; max-height: 70vh;" @after-leave="closeDialogCreatePost">
+    <v-card class="d-flex align-center">
+      <v-card-title class="pa-0 w-100">
+        <v-row no-gutters class="text-center pa-2 bg-secondary w-100">
+          <v-col class="d-flex justify-center align-center">
+            <v-icon start icon="mdi-account-group"></v-icon>
+            <span class="text-h6 font-weight-bold">Crear post</span>
+          </v-col>
+        </v-row>
+      </v-card-title>
+      <v-card-text class="pt-8 w-75">
+        <v-form ref="postForm">
+          <v-text-field v-model="postTopic" :rules="[rules.nameRequired]" variant="outlined" label="Topico" />
+          <v-text-field v-model="postTitle" :rules="[rules.nameRequired]" variant="outlined" label="Titulo" />
+          <v-textarea v-model="postBody" 
+            class="mt-3" 
+            :rules="[rules.descriptionRequired]" 
+            variant="outlined"
+            placeholder="Escribe el texto del post"
+          />
+          <div v-for="(photo, index) in postPhotos" :key="index">
+            <v-text-field
+              class="mt-3"
+              :rules="[rules.picRequired]" 
+              v-model="photo.url"
+              label="Introducí el URL de la foto"
+              placeholder="https://..."
+              append-inner-icon="mdi-link-variant"
+              variant="outlined"
+            ></v-text-field>
+          </div>
+          <v-col cols="12" class="d-flex justify-center pa-0">
+            <v-btn class="border-sm bg-secondary w-25 text-h5 font-weight-bold" @click="addUrl">+</v-btn>
+          </v-col>
+        </v-form>
+      </v-card-text>
+      <v-card-actions class="pb-3 justify-end">
+        <v-btn class="border-sm bg-error font-weight-bold" text @click="closeDialogCreatePost">Cancelar</v-btn>
+        <v-btn class="border-sm bg-warning font-weight-bold" @click="handleCreatePost(this.selectedCommunity)">Crear</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  
 </template>
 
 
 <script>
-import Communities from '../components/CommunitiesCard.vue'
 import axios from 'axios'
 
 export default {
   name: 'CommunitiesView',
-  components: {
-    Communities
-  },
 
   data () {
     return {
       showDialog: false,
-      showDialogSubscribe: false,
+      showDialogPosts: false,
+      showDialogCreatePost: false,
       communitiesList: [],
       subscribedCommunitiesList: [],
+      selectedCommunity: null,
+      selectedPhoto: '',
+      communityPosts: [],
       name: '',
       description: '',
+      postTitle: '',
+      postBody: '',
+      postTopic: '',
+      postPhotos: [{url: ''}],
+      postComments: [],
+      postCommentBody: {},
       form: null,
+      postForm: null,
+      commentForms: [],
+      itemsPerPage: 4,
       rules: {
         nameRequired: value => !!value || 'Debe ingresar un nombre',
-        descriptionRequired: value => !!value || 'Debe ingresar una descripcion'
+        descriptionRequired: value => !!value || 'Debe ingresar un texto',
+        commentRequired: value => !!value || '',
+        picRequired: value => !!value || 'Debe ingresar una foto'
       }
     }
   },
@@ -111,8 +414,40 @@ export default {
       this.name = '';
       this.description = '';
     },
-    closeDialogSubscribe() {
-      this.showDialogSubscribe = false
+    closeDialogPosts() {
+      this.showDialogPosts = false
+    },
+    closeDialogCreatePost() {
+      this.showDialogCreatePost = false
+      this.postTitle = '';
+      this.postBody = '';
+      this.postTopic = '';
+      this.postPhotos = [];
+    },
+    addUrl(){
+      this.postPhotos.push({url: ''});
+    },
+    parsePhotos(photoStrings) {
+      return photoStrings.map(p => {
+        try {
+          return JSON.parse(p);
+        } catch (e) {
+          console.error("Foto inválida", e);
+          return {};
+        }
+      });
+    },
+    getRelativeTime(dateString) {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diff = Math.floor((now - date) / 1000); // diferencia en segundos
+
+      if (diff < 60) return `${diff} s`;
+      if (diff < 3600) return `${Math.floor(diff / 60)} min`;
+      if (diff < 86400) return `${Math.floor(diff / 3600)} h`;
+      if (diff < 2592000) return `${Math.floor(diff / 86400)} d`;
+      if (diff < 31104000) return `${Math.floor(diff / 2592000)} mes`;
+      return `${Math.floor(diff / 31104000)} a`;
     },
     async handleCreateCommunity(){
       const isValid = this.$refs.form.validate()
@@ -149,6 +484,63 @@ export default {
         console.error('Error al suscribirse a la comunidad:', error)
       }
     },
+    async handleViewPosts(community) {
+      this.selectedCommunity = community
+      this.showDialogPosts = true
+      this.fetchCommunityPosts(community)
+    },
+    async handleCreatePost(community) {
+      const isValid = this.$refs.postForm.validate()
+      if (!isValid) {
+        return
+      }
+
+      if(this.postTitle && this.postBody && this.postTopic) {
+        try{
+          const post = {
+            userId: this.$store.state.main.user.userId,
+            communityId: community.id,
+            title: this.postTitle,
+            body: this.postBody,
+            topic: this.postTopic,
+            photos: this.postPhotos
+          }
+          await axios.post('http://localhost:3000/api/communities/posts', post)
+          this.fetchCommunityPosts(community)
+          this.closeDialogCreatePost()
+        } catch (error) {
+          console.error('Error al crear el post:', error)
+        }
+      }
+    },
+    async handleCreateComment(post) {
+      const formRef = this.commentForms[post.id];
+      if (!formRef) {
+        console.warn('No se encontró el formulario para el índice', post.id);
+        return;
+      }
+
+      const { valid } = await formRef.validate();
+      if (!valid) {
+        return;
+      }
+
+      const commentBody = this.postCommentBody[post.id]
+      if (commentBody) {
+        try {
+          const comment = {
+            userId: this.$store.state.main.user.userId,
+            postId: post.id,
+            body: commentBody
+          }
+          await axios.post('http://localhost:3000/api/communities/posts/' + post.id + '/comments', comment)
+          this.fetchCommunityComments(post)
+          this.postCommentBody[post.id] = ''
+        } catch (error) {
+          console.error('Error al crear el comentario:', error)
+        }
+      }
+    },
     async fetchCommunities() {
       try {
         const response = await axios.get('http://localhost:3000/api/communities/all')    
@@ -165,10 +557,30 @@ export default {
       try {
         const response = await axios.get('http://localhost:3000/api/communities?userId=' + this.$store.state.main.user.userId.toString())
         this.subscribedCommunitiesList = response.data.communities
+        console.log('Comunidades suscriptas:', this.subscribedCommunitiesList)
       } catch (error) {
         console.error('Error al obtener comunidades suscriptas:', error)
       }
     },
+    async fetchCommunityPosts(community) {
+      try {
+        const response = await axios.get('http://localhost:3000/api/communities/' + community.id + '/posts')
+        this.communityPosts = response.data.posts
+        this.communityPosts.forEach(post => {
+          this.fetchCommunityComments(post)
+        })
+      } catch (error) {
+        console.error('Error al obtener posteos de la comunidad:', error)
+      }
+    },
+    async fetchCommunityComments(post) {
+      try {
+        const response = await axios.get('http://localhost:3000/api/communities/posts/' + post.id + '/comments')
+        this.postComments[post.id] = response.data.comments
+      } catch (error) {
+        console.error('Error al obtener comentarios del post:', error)
+      }
+    }
   },
 
   async created () {
