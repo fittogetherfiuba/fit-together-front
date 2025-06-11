@@ -121,6 +121,8 @@
                   placeholder="Contanos un poco más sobre vos."
                   persistent-placeholder
                 ></v-textarea>
+
+
                 <v-row justify="center" class="mt-5" v-if="user.city || user.country">
                   <v-icon end icon="mdi-map-marker-outline" color="#8AB82D" class="mr-2"></v-icon>
                 </v-row>
@@ -230,7 +232,48 @@
                           persistent-placeholder
                         ></v-text-field>
                       </v-col>
+                      <v-row justify="center" class="mt-10" v-if="editing">
+                        <v-col cols="10">
+                          <v-checkbox
+                              v-model="hasDietRestrictions"
+                              label="¿Tenés restricciones alimenticias?"
+                          />
+                          <v-select
+                              v-if="hasDietRestrictions"
+                              v-model="selectedProfiles"
+                              :items="availableProfiles"
+                              item-title="profile_name"
+                              item-value="profile_name"
+                              label="Seleccioná tus perfiles dietarios"
+                              multiple
+                              chips
+                              return-object
+                          />
+                        </v-col>
+                      </v-row>
+                      <v-row v-if="userDietProfiles.length > 0 && !editing" class="mt-5">
+                        <v-col class="text-left">
+                          <div class="text-subtitle-1 font-weight-bold mb-2">
+                            Perfiles dietarios
+                          </div>
+                          <v-chip-group column>
+                            <v-chip
+                                v-for="(profile, index) in userDietProfiles"
+                                :key="index"
+                                color="primary"
+                                class="ma-1"
+                                label
+                                variant="elevated"
+                            >
+                              {{ profile }}
+                            </v-chip>
+                          </v-chip-group>
+                        </v-col>
+                      </v-row>
+
                     </v-row>
+
+
                   </v-col>
                 </v-row>
               </v-col>
@@ -263,7 +306,7 @@
 import UserService from '../services/user.service'
 //import generateMediaURL from '../services/firebase'
 export default {
-  name: 'UsersDetail',
+  name: 'UsersDetailuser',
   data () {
     return {
       user: {
@@ -277,6 +320,10 @@ export default {
         height: '',
         verified: '',
       },
+      hasDietRestrictions: false,
+      availableProfiles: [],
+      selectedProfiles: [],
+      userDietProfiles: [],
       editingProfilePic: false,
       profilePicUrl: '',
       showEditingProfilePic: false,
@@ -314,6 +361,7 @@ export default {
   async mounted () {
     const response = await UserService.getCurrentUserInfo()
     this.user = response.data
+    this.fetchUserDietProfiles(this.user.id);
 
     console.log(this.user)
 
@@ -338,13 +386,27 @@ export default {
     goToUsersList () {
       this.$router.push('/users')
     },
-    handleEditButton() {
+    async handleEditButton() {
       if (this.editing) {
-        console.log(this.user)
-        UserService.editCurrentUserInfo(this.user)
+        await UserService.editCurrentUserInfo(this.user)
+
+        await this.applyDietProfiles()
+
+
+        await this.fetchUserDietProfiles(this.user.id)
       }
+      else {
+        await this.fetchAvailableProfiles()
+        this.selectedProfiles = this.availableProfiles.filter(profile =>
+            this.userDietProfiles.includes(profile.profile_name)
+        )
+
+        this.hasDietRestrictions = this.selectedProfiles.length > 0
+      }
+
       this.editing = !this.editing
-    },
+    }
+    ,
     isWeightValid () {
       const weight = this.user.weight
       const isNumber = !isNaN(weight)
@@ -368,7 +430,75 @@ export default {
     handleEditPicError () {
       this.editPicError = true;
       this.showEditingProfilePic = false;
+    },
+    async fetchAvailableProfiles() {
+      try {
+        const res = await UserService.getAvailableDietProfiles()
+        this.availableProfiles = res.data
+      } catch (err) {
+        console.error('Error al obtener perfiles dietarios', err)
+      }
+    },
+    async applyDietProfiles() {
+      const userId = this.user.id
+
+      // 🔥 Si el usuario destildó el checkbox, eliminar todos los perfiles
+      if (!this.hasDietRestrictions) {
+        for (const name of this.userDietProfiles) {
+          const profile = this.availableProfiles.find(p => p.profile_name === name)
+          if (profile) {
+            try {
+              await UserService.deleteUserDietProfile(userId, profile.profile_id)
+            } catch (err) {
+              console.error('Error al eliminar perfil dietario', name, err)
+            }
+          }
+        }
+        return // salimos, no hay nada más que hacer
+      }
+
+      // ⚖️ Comparar selección actual con lo que ya tenía
+      const selectedNames = this.selectedProfiles.map(p => p.profile_name)
+      const previouslyAssigned = [...this.userDietProfiles]
+
+      const toAdd = selectedNames.filter(name => !previouslyAssigned.includes(name))
+      const toDelete = previouslyAssigned.filter(name => !selectedNames.includes(name))
+
+      // ➕ Agregar nuevos
+      for (const name of toAdd) {
+        try {
+          await UserService.addUserDietProfile(name, userId)
+        } catch (err) {
+          console.error('Error al asignar perfil dietario', name, err)
+        }
+      }
+
+      // ➖ Eliminar los deseleccionados
+      for (const name of toDelete) {
+        const profile = this.availableProfiles.find(p => p.profile_name === name)
+        if (profile) {
+          try {
+            await UserService.deleteUserDietProfile(userId, profile.profile_id)
+          } catch (err) {
+            console.error('Error al eliminar perfil dietario', name, err)
+          }
+        }
+      }
     }
+
+    ,
+    async fetchUserDietProfiles(userId) {
+      try {
+        const res = await UserService.getUserDietProfiles(userId)
+        this.userDietProfiles = res.data.map(p => p.profile_name)
+      } catch (err) {
+        console.error('Error al obtener perfiles del usuario:', err)
+        this.userDietProfiles = []
+      }
+    }
+
+
+
   }
 }
 
