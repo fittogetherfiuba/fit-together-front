@@ -390,14 +390,18 @@ export default {
       if (this.editing) {
         await UserService.editCurrentUserInfo(this.user)
 
-        if (this.hasDietRestrictions && this.selectedProfiles.length > 0) {
-          await this.applyDietProfiles()
-        }
+        await this.applyDietProfiles()
+
 
         await this.fetchUserDietProfiles(this.user.id)
       }
       else {
         await this.fetchAvailableProfiles()
+        this.selectedProfiles = this.availableProfiles.filter(profile =>
+            this.userDietProfiles.includes(profile.profile_name)
+        )
+
+        this.hasDietRestrictions = this.selectedProfiles.length > 0
       }
 
       this.editing = !this.editing
@@ -435,20 +439,54 @@ export default {
         console.error('Error al obtener perfiles dietarios', err)
       }
     },
-
     async applyDietProfiles() {
       const userId = this.user.id
-      for (const profile of this.selectedProfiles) {
-        try {
-          console.log(profile.profile_name);
-          console.log(userId);
 
-          await UserService.addUserDietProfile(profile.profile_name, userId)
+      // 🔥 Si el usuario destildó el checkbox, eliminar todos los perfiles
+      if (!this.hasDietRestrictions) {
+        for (const name of this.userDietProfiles) {
+          const profile = this.availableProfiles.find(p => p.profile_name === name)
+          if (profile) {
+            try {
+              await UserService.deleteUserDietProfile(userId, profile.profile_id)
+            } catch (err) {
+              console.error('Error al eliminar perfil dietario', name, err)
+            }
+          }
+        }
+        return // salimos, no hay nada más que hacer
+      }
+
+      // ⚖️ Comparar selección actual con lo que ya tenía
+      const selectedNames = this.selectedProfiles.map(p => p.profile_name)
+      const previouslyAssigned = [...this.userDietProfiles]
+
+      const toAdd = selectedNames.filter(name => !previouslyAssigned.includes(name))
+      const toDelete = previouslyAssigned.filter(name => !selectedNames.includes(name))
+
+      // ➕ Agregar nuevos
+      for (const name of toAdd) {
+        try {
+          await UserService.addUserDietProfile(name, userId)
         } catch (err) {
-          console.error('Error al asignar perfil dietario', profile.name, err)
+          console.error('Error al asignar perfil dietario', name, err)
         }
       }
-    },
+
+      // ➖ Eliminar los deseleccionados
+      for (const name of toDelete) {
+        const profile = this.availableProfiles.find(p => p.profile_name === name)
+        if (profile) {
+          try {
+            await UserService.deleteUserDietProfile(userId, profile.profile_id)
+          } catch (err) {
+            console.error('Error al eliminar perfil dietario', name, err)
+          }
+        }
+      }
+    }
+
+    ,
     async fetchUserDietProfiles(userId) {
       try {
         const res = await UserService.getUserDietProfiles(userId)

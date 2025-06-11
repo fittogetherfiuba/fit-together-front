@@ -36,6 +36,11 @@ class UserService {
   getUserDietProfiles(userId) {
     return axios.get(`${API_URL}diet/${userId}`)
   }
+  deleteUserDietProfile(userId, profileId) {
+    return axios.delete(`${API_URL}diet/${userId}`, {
+      data: { profileId }
+    })
+  }
 
 }
 
