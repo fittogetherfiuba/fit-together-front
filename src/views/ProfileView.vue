@@ -121,6 +121,8 @@
                   placeholder="Contanos un poco más sobre vos."
                   persistent-placeholder
                 ></v-textarea>
+
+
                 <v-row justify="center" class="mt-5" v-if="user.city || user.country">
                   <v-icon end icon="mdi-map-marker-outline" color="#8AB82D" class="mr-2"></v-icon>
                 </v-row>
@@ -230,6 +232,26 @@
                           persistent-placeholder
                         ></v-text-field>
                       </v-col>
+                      <v-row justify="center" class="mt-10" v-if="editing">
+                        <v-col cols="10">
+                          <v-checkbox
+                              v-model="hasDietRestrictions"
+                              label="¿Tenés restricciones alimenticias?"
+                          />
+                          <v-select
+                              v-if="hasDietRestrictions"
+                              v-model="selectedProfiles"
+                              :items="availableProfiles"
+                              item-title="profile_name"
+                              item-value="profile_name"
+                              label="Seleccioná tus perfiles dietarios"
+                              multiple
+                              chips
+                              return-object
+                          />
+                        </v-col>
+                      </v-row>
+
                     </v-row>
                   </v-col>
                 </v-row>
@@ -263,7 +285,7 @@
 import UserService from '../services/user.service'
 //import generateMediaURL from '../services/firebase'
 export default {
-  name: 'UsersDetail',
+  name: 'UsersDetailuser',
   data () {
     return {
       user: {
@@ -277,6 +299,9 @@ export default {
         height: '',
         verified: '',
       },
+      hasDietRestrictions: false,
+      availableProfiles: [],
+      selectedProfiles: [],
       editingProfilePic: false,
       profilePicUrl: '',
       showEditingProfilePic: false,
@@ -338,13 +363,20 @@ export default {
     goToUsersList () {
       this.$router.push('/users')
     },
-    handleEditButton() {
+    async handleEditButton() {
       if (this.editing) {
-        console.log(this.user)
         UserService.editCurrentUserInfo(this.user)
+
+        if (this.hasDietRestrictions && this.selectedProfiles.length > 0) {
+          await this.applyDietProfiles()
+        }
+      } else {
+        await this.fetchAvailableProfiles()
       }
+
       this.editing = !this.editing
-    },
+    }
+    ,
     isWeightValid () {
       const weight = this.user.weight
       const isNumber = !isNaN(weight)
@@ -368,7 +400,31 @@ export default {
     handleEditPicError () {
       this.editPicError = true;
       this.showEditingProfilePic = false;
-    }
+    },
+    async fetchAvailableProfiles() {
+      try {
+        const res = await UserService.getAvailableDietProfiles()
+        this.availableProfiles = res.data
+      } catch (err) {
+        console.error('Error al obtener perfiles dietarios', err)
+      }
+    },
+
+    async applyDietProfiles() {
+      const userId = this.user.id
+      for (const profile of this.selectedProfiles) {
+        try {
+          console.log(profile.profile_name);
+          console.log(userId);
+
+          await UserService.addUserDietProfile(profile.profile_name, userId)
+        } catch (err) {
+          console.error('Error al asignar perfil dietario', profile.name, err)
+        }
+      }
+    },
+
+
   }
 }
 

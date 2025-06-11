@@ -21,6 +21,17 @@ class UserService {
   getUserInfoByUsername (username) {
     return axios.get(API_URL + 'users/' + username)
   }
+
+  addUserDietProfile(dietProfileName, userId) {
+    return axios.post(API_URL + 'diet/', {
+      dietProfileName,
+      userId
+    })
+  }
+
+  getAvailableDietProfiles() {
+    return axios.get(API_URL + 'diet/')
+  }
 }
 
 export default new UserService()
