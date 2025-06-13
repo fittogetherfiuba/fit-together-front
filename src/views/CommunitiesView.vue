@@ -223,49 +223,6 @@
     </v-card>
   </v-dialog>
 
-  <v-dialog v-model="showDialogCreatePost" max-width="550px" style="overflow-y: auto; max-height: 70vh;" @after-leave="closeDialogCreatePost">
-    <v-card class="d-flex align-center">
-      <v-card-title class="pa-0 w-100">
-        <v-row no-gutters class="text-center pa-2 bg-secondary w-100">
-          <v-col class="d-flex justify-center align-center">
-            <v-icon start icon="mdi-account-group"></v-icon>
-            <span class="text-h6 font-weight-bold">Crear post</span>
-          </v-col>
-        </v-row>
-      </v-card-title>
-      <v-card-text class="pt-8 w-75">
-        <v-form ref="postForm">
-          <v-text-field v-model="postTopic" :rules="[rules.nameRequired]" variant="outlined" label="Topico" />
-          <v-text-field v-model="postTitle" :rules="[rules.nameRequired]" variant="outlined" label="Titulo" />
-          <v-textarea v-model="postBody" 
-            class="mt-3" 
-            :rules="[rules.descriptionRequired]" 
-            variant="outlined"
-            placeholder="Escribe el texto del post"
-          />
-          <div v-for="(photo, index) in postPhotos" :key="index">
-            <v-text-field
-              class="mt-3"
-              :rules="[rules.picRequired]" 
-              v-model="photo.url"
-              label="Introducí el URL de la foto"
-              placeholder="https://..."
-              append-inner-icon="mdi-link-variant"
-              variant="outlined"
-            ></v-text-field>
-          </div>
-          <v-col cols="12" class="d-flex justify-center pa-0">
-            <v-btn class="border-sm bg-secondary w-25 text-h5 font-weight-bold" @click="addUrl">+</v-btn>
-          </v-col>
-        </v-form>
-      </v-card-text>
-      <v-card-actions class="pb-3 justify-end">
-        <v-btn class="border-sm bg-error font-weight-bold" text @click="closeDialogCreatePost">Cancelar</v-btn>
-        <v-btn class="border-sm bg-warning font-weight-bold" @click="handleCreatePost(this.selectedCommunity)">Crear</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-  
 </template>
 
 
@@ -278,24 +235,11 @@ export default {
   data () {
     return {
       showDialog: false,
-      showDialogPosts: false,
-      showDialogCreatePost: false,
       communitiesList: [],
       subscribedCommunitiesList: [],
-      selectedCommunity: null,
-      selectedPhoto: '',
-      communityPosts: [],
       name: '',
       description: '',
-      postTitle: '',
-      postBody: '',
-      postTopic: '',
-      postPhotos: [{url: ''}],
-      postComments: [],
-      postCommentBody: {},
       form: null,
-      postForm: null,
-      commentForms: [],
       itemsPerPage: 4,
       rules: {
         nameRequired: value => !!value || 'Debe ingresar un nombre',
@@ -311,31 +255,6 @@ export default {
       this.showDialog = false;
       this.name = '';
       this.description = '';
-    },
-    closeDialogPosts() {
-      this.showDialogPosts = false
-    },
-    closeDialogCreatePost() {
-      this.showDialogCreatePost = false
-      this.postTitle = '';
-      this.postBody = '';
-      this.postTopic = '';
-      this.postPhotos = [];
-    },
-    addUrl(){
-      this.postPhotos.push({url: ''});
-    },
-    getRelativeTime(dateString) {
-      const date = new Date(dateString);
-      const now = new Date();
-      const diff = Math.floor((now - date) / 1000); // diferencia en segundos
-
-      if (diff < 60) return `${diff} s`;
-      if (diff < 3600) return `${Math.floor(diff / 60)} min`;
-      if (diff < 86400) return `${Math.floor(diff / 3600)} h`;
-      if (diff < 2592000) return `${Math.floor(diff / 86400)} d`;
-      if (diff < 31104000) return `${Math.floor(diff / 2592000)} mes`;
-      return `${Math.floor(diff / 31104000)} a`;
     },
     async handleCreateCommunity(){
       const isValid = this.$refs.form.validate()
@@ -373,62 +292,7 @@ export default {
       }
     },
     async handleViewPosts(community) {
-      //this.selectedCommunity = community
-      //this.showDialogPosts = true
-      //this.fetchCommunityPosts(community)
       this.$router.push('/communities/' + community.id)
-    },
-    async handleCreatePost(community) {
-      const isValid = this.$refs.postForm.validate()
-      if (!isValid) {
-        return
-      }
-
-      if(this.postTitle && this.postBody && this.postTopic) {
-        try{
-          const post = {
-            userId: this.$store.state.main.user.userId,
-            communityId: community.communityId,
-            title: this.postTitle,
-            body: this.postBody,
-            topic: this.postTopic,
-            photos: this.postPhotos
-          }
-          await axios.post('http://localhost:3000/api/communities/posts', post)
-          this.fetchCommunityPosts(community)
-          this.closeDialogCreatePost()
-        } catch (error) {
-          console.error('Error al crear el post:', error)
-        }
-      }
-    },
-    async handleCreateComment(post) {
-      const formRef = this.commentForms[post.id];
-      if (!formRef) {
-        console.warn('No se encontró el formulario para el índice', post.id);
-        return;
-      }
-
-      const { valid } = await formRef.validate();
-      if (!valid) {
-        return;
-      }
-
-      const commentBody = this.postCommentBody[post.id]
-      if (commentBody) {
-        try {
-          const comment = {
-            userId: this.$store.state.main.user.userId,
-            postId: post.id,
-            body: commentBody
-          }
-          await axios.post('http://localhost:3000/api/communities/posts/' + post.id + '/comments', comment)
-          this.fetchCommunityComments(post)
-          this.postCommentBody[post.id] = ''
-        } catch (error) {
-          console.error('Error al crear el comentario:', error)
-        }
-      }
     },
     async fetchCommunities() {
       try {
@@ -450,25 +314,6 @@ export default {
         console.error('Error al obtener comunidades suscriptas:', error)
       }
     },
-    async fetchCommunityPosts(community) {
-      try {
-        const response = await axios.get('http://localhost:3000/api/communities/' + community.communityId + '/posts')
-        this.communityPosts = response.data.posts
-        this.communityPosts.forEach(post => {
-          this.fetchCommunityComments(post)
-        })
-      } catch (error) {
-        console.error('Error al obtener posteos de la comunidad:', error)
-      }
-    },
-    async fetchCommunityComments(post) {
-      try {
-        const response = await axios.get('http://localhost:3000/api/communities/posts/' + post.id + '/comments')
-        this.postComments[post.id] = response.data.comments
-      } catch (error) {
-        console.error('Error al obtener comentarios del post:', error)
-      }
-    }
   },
 
   async created () {

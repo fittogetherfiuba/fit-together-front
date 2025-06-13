@@ -54,7 +54,7 @@
                         clearable
                         closable-chips
                         item-title="name"
-                        item-value="id"
+                        item-value="name"
                         ></v-autocomplete>
                     </v-col>
                     <v-col>
@@ -242,7 +242,7 @@
               v-model="postTopic"
               :items="topicList"
               label="Tópico"
-              :rules="[rules.nameRequired]"
+              :rules="[rules.topicRequired]"
               variant="outlined"
               clearable
               item-title="name"
@@ -282,8 +282,8 @@
   
   
   <script>
-    import axios from 'axios'
-    import UserService from '../services/user.service'
+  import axios from 'axios'
+  import UserService from '../services/user.service'
   export default {
     name: 'CommunityView',
     data () {
@@ -293,11 +293,11 @@
         topicFilters: [],
         postTitle: '',
         postBody: '',
-        postTopic: '',
+        postTopic: null,
         postPhotos: [{url: ''}],
         showFilters: false,
-        sinceFilter: '',
-        untilFilter: '',
+        sinceFilter: null,
+        untilFilter: null,
         communityInfo: {
             name: '',
             description: '',
@@ -314,15 +314,26 @@
         commentForms: [],
         rules: {
             nameRequired: value => !!value || 'Debe ingresar un nombre',
+            topicRequired: value => !!value || 'Debe ingresar un tópico',
             descriptionRequired: value => !!value || 'Debe ingresar un texto',
             commentRequired: value => !!value || '',
             picRequired: value => !!value || 'Debe ingresar una foto'
         }
       }
     },
+    watch: {
+        async topicFilters() {
+            await this.fetchCommunityPosts(this.$route.params.id)
+        },
+        async untilFilter() {
+            await this.fetchCommunityPosts(this.$route.params.id)
+        },
+        async sinceFilter() {
+            await this.fetchCommunityPosts(this.$route.params.id)
+        }
+    },
     async mounted () { 
         await this.fetchCommunityInfo();
-        console.log(this.communityInfo)
         const response = await UserService.getUserInfoByUsername(this.communityInfo.creatorUsername)
         this.creatorInfo[0].title = response.data.fullname
         this.creatorInfo[0].subtitle = response.data.username
@@ -331,8 +342,6 @@
         await this.fetchCommunityPosts(this.$route.params.id)
         await this.fetchTopicList()
         this.membersAmount = 200
-        console.log(this.communityPosts)
-        console.log(this.postComments)
     },
 
     methods: {
@@ -340,14 +349,12 @@
             this.showDialogCreatePost = false
             this.postTitle = '';
             this.postBody = '';
-            this.postTopic = '';
-            this.postPhotos = [];
+            this.postTopic = null;
+            this.postPhotos = [{url: ''}];
         },
         async fetchCommunityInfo() {
             try {
                 const response = await axios.get('http://localhost:3000/api/communities/all') 
-                console.log(response.data.communities)
-
                 this.communityInfo = response.data.communities.find(community => community.id.toString() === this.$route.params.id)  
             } catch (error) {
                 console.error('Error al obtener comunidades:', error)
@@ -356,7 +363,16 @@
 
         async fetchCommunityPosts(communityId) {
             try {
-                const response = await axios.post('http://localhost:3000/api/communities/' + communityId + '/posts', {
+                const params = new URLSearchParams();
+
+                if (this.sinceFilter) {
+                    params.append('since', this.sinceFilter.toISOString().split('T')[0]); 
+                }
+                if (this.untilFilter) {
+                    params.append('until', this.untilFilter.toISOString().split('T')[0]);
+                }
+
+                const response = await axios.post('http://localhost:3000/api/communities/' + communityId + '/posts?' + params.toString(), {
                     topics: this.topicFilters
                 })
                 this.communityPosts = response.data.posts
@@ -386,8 +402,8 @@
             }
         },
 
-        async handleCreatePost(community) {
-        const isValid = this.$refs.postForm.validate()
+        async handleCreatePost() {
+            const isValid = this.$refs.postForm.validate()
             if (!isValid) {
                 return
             }
@@ -403,7 +419,7 @@
                         photos: this.postPhotos
                     }
                     await axios.post('http://localhost:3000/api/communities/posts', post)
-                    this.fetchCommunityPosts(community)
+                    this.fetchCommunityPosts(this.$route.params.id)
                     this.closeDialogCreatePost()
                 } catch (error) {
                     console.error('Error al crear el post:', error)
