@@ -7,6 +7,7 @@ import MetricsView from '../views/MetricsView.vue'
 import RecipesView from '@/views/RecipesView.vue'
 import FriendsProfileView from '@/views/FriendsProfileView.vue'
 import CommunitiesView from '@/views/CommunitiesView.vue'
+import CommunityView from '@/views/CommunityView.vue'
 
 const routes = [
   {
@@ -63,6 +64,12 @@ const routes = [
     path: '/communities',
     name: 'CommunitiesView',
     component: CommunitiesView
+  },
+  {
+    path: '/communities/:id',
+    name: 'CommunityView',
+    component: CommunityView,
+    meta: { requiresAuth: true }
   },
   {
     path: '/verify-email',

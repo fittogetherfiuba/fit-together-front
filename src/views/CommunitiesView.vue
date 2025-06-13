@@ -223,108 +223,6 @@
     </v-card>
   </v-dialog>
 
-  <v-dialog v-model="showDialogPosts" max-width="650px" style="overflow-y: auto; max-height: 95vh;" @after-leave="closeDialogPosts">
-    <v-card class="d-flex align-center">
-      <v-card-title class="pa-0 w-100">
-        <v-row no-gutters class="text-center pa-2 bg-secondary w-100">
-          <v-col class="d-flex justify-center align-center">
-            <v-icon start icon="mdi-account-group"></v-icon>
-            <span class="text-h6 font-weight-bold">Posteos de {{this.selectedCommunity.name}}</span>
-          </v-col>
-        </v-row>
-      </v-card-title>
-      <span class="d-flex text-h6 pa-6 pb-0 justify-center font-weight-bold" v-if="communityPosts.length === 0">No hay posteos en esta comunidad</span>
-      <v-card-actions class="mt-3 justify-end">
-        <v-btn class="border-sm bg-secondary font-weight-bold" @click="showDialogCreatePost = true">Crear post</v-btn>
-      </v-card-actions>
-      <v-card-text class="w-75" v-for="(post, index) in communityPosts" :key="index">
-          <v-card class="border-sm">
-              <v-card-subtitle class="pt-3">
-                <p>{{ post.topic }} | Usuario: {{ post.author }}</p>
-              </v-card-subtitle>
-              <v-card-title class="pt-0 font-weight-bold">
-                <p>{{ post.title }}</p>
-              </v-card-title>
-              <v-card-text>
-                <p class="mb-4">{{ post.body }}</p>
-                <v-data-iterator
-                  :items="parsePhotos(post.photos)"
-                  :items-per-page="1"
-                >
-                  <template v-slot:default="{ items }">
-                    <v-row>
-                      <v-col v-for="(photo, i) in items" :key="i" cols="12" class="d-flex">
-                        <v-img
-                          :src="photo.raw.url"
-                          height="250"
-                          cover
-                          class="border-lg border-opacity-25"
-                        ></v-img>
-                      </v-col>
-                    </v-row>
-                  </template>
-
-                  <template v-slot:footer="{ page, pageCount, prevPage, nextPage }">
-                    <v-footer class="justify-center">
-                      <v-btn
-                        :disabled="page === 1"
-                        class="me-2"
-                        icon="mdi-arrow-left"
-                        size="x-small"
-                        variant="tonal"
-                        @click="prevPage"
-                      ></v-btn>
-
-                      <v-btn
-                        :disabled="page === pageCount"
-                        icon="mdi-arrow-right"
-                        size="x-small"
-                        variant="tonal"
-                        @click="nextPage"
-                      ></v-btn>
-                    </v-footer>
-                  </template>
-                </v-data-iterator>
-              </v-card-text>
-              <v-expansion-panels>
-                <v-expansion-panel @click="fetchCommunityComments(post)">
-                  <v-expansion-panel-title class="pb-0 font-weight-bold">
-                    Comentarios ({{ this.postComments[post.id]?.length || 0 }})
-                  </v-expansion-panel-title>
-                  <v-expansion-panel-text class="pt-0">
-                    <v-form :ref="el => commentForms[post.id] = el" class="d-flex flex-column">
-                      <v-textarea
-                        v-model="postCommentBody[post.id]"
-                        variant="outlined"
-                        placeholder="Escribe un comentario..."
-                        :rows="2"
-                        :rules="[rules.commentRequired]"
-                        hide-details
-                      ></v-textarea>
-                      <v-btn
-                        class="border-sm bg-secondary font-weight-bold mt-1 mb-2"
-                        @click="handleCreateComment(post)"
-                      >
-                        Comentar
-                      </v-btn>
-                    </v-form>
-                    <v-list>
-                      <v-list-item v-for="(comment, i) in this.postComments[post.id] || []" :key="i">
-                        <v-list-item-title>
-                          <span class="font-weight-bold">{{ comment.username }}</span> • {{ getRelativeTime(comment.createdAt) }}
-                        </v-list-item-title>
-                        <v-list-item-subtitle class="mb-1">{{ comment.body }}</v-list-item-subtitle>
-                        <v-divider></v-divider>
-                      </v-list-item>
-                    </v-list>
-                  </v-expansion-panel-text>
-                </v-expansion-panel>
-              </v-expansion-panels>
-          </v-card>
-      </v-card-text>
-    </v-card>
-  </v-dialog>
-
   <v-dialog v-model="showDialogCreatePost" max-width="550px" style="overflow-y: auto; max-height: 70vh;" @after-leave="closeDialogCreatePost">
     <v-card class="d-flex align-center">
       <v-card-title class="pa-0 w-100">
@@ -427,16 +325,6 @@ export default {
     addUrl(){
       this.postPhotos.push({url: ''});
     },
-    parsePhotos(photoStrings) {
-      return photoStrings.map(p => {
-        try {
-          return JSON.parse(p);
-        } catch (e) {
-          console.error("Foto inválida", e);
-          return {};
-        }
-      });
-    },
     getRelativeTime(dateString) {
       const date = new Date(dateString);
       const now = new Date();
@@ -485,9 +373,10 @@ export default {
       }
     },
     async handleViewPosts(community) {
-      this.selectedCommunity = community
-      this.showDialogPosts = true
-      this.fetchCommunityPosts(community)
+      //this.selectedCommunity = community
+      //this.showDialogPosts = true
+      //this.fetchCommunityPosts(community)
+      this.$router.push('/communities/' + community.id)
     },
     async handleCreatePost(community) {
       const isValid = this.$refs.postForm.validate()
