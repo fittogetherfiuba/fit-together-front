@@ -1,9 +1,9 @@
 <template>
     <div>
 
-        <v-row align="" justify="center" >
+        <v-row justify="center" >
 
-        <v-col cols="7" class="pl-7 mt-10 pa-0">
+        <v-col cols="6" class="pl-7 mt-10">
             <v-card class="">
                 <v-card-title class="pa-0 w-100">
                     <v-row no-gutters class="text-center pa-2 bg-secondary w-100">
@@ -16,23 +16,37 @@
             </v-card>
 
         </v-col>
-        <v-col class="mt-6" cols="1">
-            <v-card-actions class="justify-end">
-                <v-btn class="border-sm bg-secondary font-weight-bold" @click="showDialogCreatePost = true">Crear post</v-btn>
+        <v-col class="pa-0 mt-12" cols="2">
+            <v-card-actions>
+                <v-btn class="border-sm bg-secondary" size="small" @click="showFilters = !showFilters" style="height: 38px; flex: 1 1 48%; min-width: 0">
+                    <v-icon
+                    class="mr-1"
+                    size="x-large"
+                    icon="mdi-filter"
+                    ></v-icon>
+                    Filtrar
+                </v-btn>
+                <v-btn class="border-sm bg-secondary" size="small" block @click="showDialogCreatePost = true" style="height: 38px; flex: 1 1 60%; min-width: 0">
+                    <v-icon
+                    size="x-large"
+                    class="mr-1"
+                    icon="mdi-plus"
+                    ></v-icon>
+                    Crear post
+                </v-btn>
             </v-card-actions>
         </v-col>
 
-        <v-col cols="8" class="pl-7 mt-0 pa-0">
-            <v-card class="text-center bg-secondary">
-                <v-row no-gutters class="text-center bg-secondary" align="start">
-                    <v-col>
+        <v-col v-if="showFilters" cols="8" class="mt-1 pl-7 pa-0">
+            <v-card class="text-center bg-primary px-5 pt-5">
+                <v-row no-gutters class="text-center pa-0" align="start">
+                    <v-col cols="6">
                         <v-autocomplete
-                        class="text-truncate chip-scroll"
+                        class="text-truncate chip-scroll pa-0 ml-3 mr-5"
                         density="compact"
-                        style="max-width:620px; max-height:40px; overflow-y: auto;"
-                        v-model="chips"
-                        :items="ingredientsList"
-                        placeholder="Seleccioná ingredientes para filtrar..."
+                        v-model="topicFilters"
+                        :items="topicList"
+                        placeholder="Seleccioná tópicos para filtrar..."
                         prepend-icon="mdi-filter-variant"
                         variant="solo"
                         multiple
@@ -46,8 +60,9 @@
                     <v-col>
                         <v-date-input
                           v-model="sinceFilter"
+                          placeholder="Ver posteos desde..."
+                          class="ml-5"
                           density="compact"
-                          prepend-icon="mdi-cake-variant-outline"
                           variant="solo"
                           persistent-placeholder
                         ></v-date-input>
@@ -55,8 +70,10 @@
                     <v-col>
                         <v-date-input
                           v-model="untilFilter"
+                          placeholder="Ver posteos hasta..."
+                          class="ml-9 mr-3"
+                          prepend-icon=""
                           density="compact"
-                          prepend-icon="mdi-cake-variant-outline"
                           variant="solo"
                           persistent-placeholder
                         ></v-date-input>
@@ -68,8 +85,18 @@
 
         </v-col>
 
-        <v-col cols="6" sm="6" class="mt-1 py-0 mb-0">
-            <span class="d-flex text-h6 pa-6 pb-0 justify-center font-weight-bold" v-if="communityPosts.length === 0">No hay posteos en esta comunidad</span>
+        <v-col cols="6" sm="6" class="py-0 pr-1">
+            <v-card-text  v-if="communityPosts.length === 0">
+                <v-card elevation="0" height="460"  class="d-flex align-center justify-center border-sm">
+                    <v-row justify="center" class="ml-5">
+                        <v-col cols="12" class="text-center">
+                        <v-icon color="grey" size="90">mdi-note-off-outline</v-icon>
+                        <div style="font-size: 20px;" class="font-weight-bold mt-2">Todavía no hay posteos en esta comunidad</div>
+                        </v-col>
+                    </v-row>
+                </v-card>
+
+            </v-card-text>
             <v-card-text v-for="(post, index) in communityPosts" :key="index">
                 <v-card class="border-sm">
                     <v-card-subtitle class="pt-3">
@@ -158,13 +185,13 @@
         
 
         </v-col>
-        <v-col cols="2" class="my-5 pa-0 ">
+        <v-col cols="2" class="mt-4 pa-0">
             <v-card class="border-sm mb-3">
                 <v-card-text class="pt-0">
                     <p class="mt-4 font-weight-bold">Sobre esta comunidad... </p>
                 </v-card-text>
                 <v-card-text class="pt-0 my-2">
-                    <p class="mb-2">{{ description }}</p>
+                    <p class="mb-2">{{ communityInfo.description }}</p>
                 </v-card-text>
             </v-card>
             <v-card class="border-sm mb-3">
@@ -197,6 +224,59 @@
         </v-col>
       </v-row>
     </div>
+
+    <v-dialog v-model="showDialogCreatePost" max-width="550px" style="overflow-y: auto; max-height: 70vh;" @after-leave="closeDialogCreatePost">
+        <v-card class="d-flex align-center">
+        <v-card-title class="pa-0 w-100">
+            <v-row no-gutters class="text-center pa-2 bg-secondary w-100">
+            <v-col class="d-flex justify-center align-center">
+                <v-icon start icon="mdi-account-group"></v-icon>
+                <span class="text-h6 font-weight-bold">Crear post</span>
+            </v-col>
+            </v-row>
+        </v-card-title>
+        <v-card-text class="pt-8 w-75">
+            <v-form ref="postForm">
+            <v-text-field class="mb-3" v-model="postTitle" :rules="[rules.nameRequired]" variant="outlined" label="Título" />
+            <v-autocomplete
+              v-model="postTopic"
+              :items="topicList"
+              label="Tópico"
+              :rules="[rules.nameRequired]"
+              variant="outlined"
+              clearable
+              item-title="name"
+              :menu-props="{ maxHeight: '200px' }"
+            />
+            <v-textarea v-model="postBody" 
+                class="mt-3" 
+                :rules="[rules.descriptionRequired]" 
+                variant="outlined"
+                placeholder="Escribe el texto del post"
+            />
+            <div v-for="(photo, index) in postPhotos" :key="index">
+                <v-text-field
+                class="mt-3"
+                :rules="[rules.picRequired]" 
+                v-model="photo.url"
+                label="Introducí el URL de la foto"
+                placeholder="https://..."
+                append-inner-icon="mdi-link-variant"
+                variant="outlined"
+                ></v-text-field>
+            </div>
+            <v-col cols="12" class="d-flex justify-center pa-0">
+                <v-btn class="border-sm bg-secondary w-25 text-h5 font-weight-bold" @click="addUrl">+</v-btn>
+            </v-col>
+            </v-form>
+        </v-card-text>
+        <v-card-actions class="pb-3 justify-end">
+            <v-btn class="border-sm bg-error font-weight-bold" text @click="closeDialogCreatePost">Cancelar</v-btn>
+            <v-btn class="border-sm bg-warning font-weight-bold" @click="handleCreatePost(this.selectedCommunity)">Crear</v-btn>
+        </v-card-actions>
+        </v-card>
+    </v-dialog>
+
   </template>
   
   
@@ -208,10 +288,19 @@
     name: 'CommunityView',
     data () {
       return {
+        showDialogCreatePost: false,
+        topicList: [],
+        topicFilters: [],
+        postTitle: '',
+        postBody: '',
+        postTopic: '',
+        postPhotos: [{url: ''}],
+        showFilters: false,
         sinceFilter: '',
         untilFilter: '',
         communityInfo: {
-            name: ''
+            name: '',
+            description: '',
         },
         membersAmount: null,
         creatorInfo: [{
@@ -220,8 +309,6 @@
             subtitle: null
         }],
         communityPosts: [],
-        name: 'Tetas',
-        description: 'En esta comunidad hablamos pura y exclusivamente de Tomi nuestro amo',
         postComments: [],
         postCommentBody: {},
         commentForms: [],
@@ -242,11 +329,20 @@
         this.creatorInfo[0].prependAvatar = response.data.image_url
 
         await this.fetchCommunityPosts(this.$route.params.id)
+        await this.fetchTopicList()
         this.membersAmount = 200
         console.log(this.communityPosts)
         console.log(this.postComments)
     },
+
     methods: {
+        closeDialogCreatePost() {
+            this.showDialogCreatePost = false
+            this.postTitle = '';
+            this.postBody = '';
+            this.postTopic = '';
+            this.postPhotos = [];
+        },
         async fetchCommunityInfo() {
             try {
                 const response = await axios.get('http://localhost:3000/api/communities/all') 
@@ -260,7 +356,9 @@
 
         async fetchCommunityPosts(communityId) {
             try {
-                const response = await axios.get('http://localhost:3000/api/communities/' + communityId + '/posts')
+                const response = await axios.post('http://localhost:3000/api/communities/' + communityId + '/posts', {
+                    topics: this.topicFilters
+                })
                 this.communityPosts = response.data.posts
                 this.communityPosts.forEach(post => {
                     this.fetchCommunityComments(post)
@@ -279,33 +377,71 @@
             }
         },
 
-    async handleCreateComment(post) {
-        const formRef = this.commentForms[post.id];
-        if (!formRef) {
-            console.warn('No se encontró el formulario para el índice', post.id);
-            return;
-        }
-
-        const { valid } = await formRef.validate();
-        if (!valid) {
-            return;
-        }
-
-        const commentBody = this.postCommentBody[post.id]
-        if (commentBody) {
+        async fetchTopicList() {
             try {
-                const comment = {
-                    userId: this.$store.state.main.user.userId,
-                    postId: post.id,
-                    body: commentBody
-                }
-                await axios.post('http://localhost:3000/api/communities/posts/' + post.id + '/comments', comment)
-                this.fetchCommunityComments(post)
-                this.postCommentBody[post.id] = ''
+                const response = await axios.get('http://localhost:3000/api/communities/topics')
+                this.topicList = response.data.topics
             } catch (error) {
-                console.error('Error al crear el comentario:', error)
+                console.error('Error al obtener comentarios del post:', error)
             }
-        }
+        },
+
+        async handleCreatePost(community) {
+        const isValid = this.$refs.postForm.validate()
+            if (!isValid) {
+                return
+            }
+
+            if (this.postTitle && this.postBody && this.postTopic) {
+                try {
+                    const post = {
+                        userId: this.$store.state.main.user.userId,
+                        communityId: this.communityInfo.id,
+                        title: this.postTitle,
+                        body: this.postBody,
+                        topic: this.postTopic,
+                        photos: this.postPhotos
+                    }
+                    await axios.post('http://localhost:3000/api/communities/posts', post)
+                    this.fetchCommunityPosts(community)
+                    this.closeDialogCreatePost()
+                } catch (error) {
+                    console.error('Error al crear el post:', error)
+                }
+            }
+        },
+
+        async handleCreateComment(post) {
+            const formRef = this.commentForms[post.id];
+            if (!formRef) {
+                console.warn('No se encontró el formulario para el índice', post.id);
+                return;
+            }
+
+            const { valid } = await formRef.validate();
+            if (!valid) {
+                return;
+            }
+
+            const commentBody = this.postCommentBody[post.id]
+            if (commentBody) {
+                try {
+                    const comment = {
+                        userId: this.$store.state.main.user.userId,
+                        postId: post.id,
+                        body: commentBody
+                    }
+                    await axios.post('http://localhost:3000/api/communities/posts/' + post.id + '/comments', comment)
+                    this.fetchCommunityComments(post)
+                    this.postCommentBody[post.id] = ''
+                } catch (error) {
+                    console.error('Error al crear el comentario:', error)
+                }
+            }
+        },
+
+        addUrl(){
+        this.postPhotos.push({url: ''});
         },
 
         getRelativeTime(dateString) {

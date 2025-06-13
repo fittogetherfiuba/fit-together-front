@@ -77,7 +77,7 @@
                       class="border-sm bg-secondary font-weight-bold"
                       @click="handleViewPosts(community.raw)"
                     >
-                      Ver posteos
+                      Ingresar
                     </v-btn>
                   </v-card-actions>
                 </v-card>
@@ -351,8 +351,8 @@ export default {
             "description": this.description,
           }
           await axios.post('http://localhost:3000/api/communities/create', community)
-          this.fetchSubscribedCommunities()
-          this.fetchCommunities()
+          await this.fetchSubscribedCommunities()
+          await this.fetchCommunities()
         } catch (error) {
           console.error('Error al crear comunidad:', error)
         }
@@ -366,8 +366,8 @@ export default {
             communityId: community.id
         }
         await axios.post('http://localhost:3000/api/communities/subscribe', communitySuscription)
-        this.fetchSubscribedCommunities()
-        this.fetchCommunities()
+        await this.fetchSubscribedCommunities()
+        await this.fetchCommunities()
       } catch (error) {
         console.error('Error al suscribirse a la comunidad:', error)
       }
