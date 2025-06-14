@@ -292,9 +292,11 @@ export default {
       }
     },
     async handleViewPosts(community) {
-      this.$router.push('/communities/' + community.id)
+      console.log(community)
+      this.$router.push('/communities/' + community.communityId)
     },
     async fetchCommunities() {
+      
       try {
         const response = await axios.get('http://localhost:3000/api/communities/all')    
         this.communitiesList = response.data.communities.filter(
@@ -310,6 +312,7 @@ export default {
       try {
         const response = await axios.get('http://localhost:3000/api/communities?userId=' + this.$store.state.main.user.userId.toString())
         this.subscribedCommunitiesList = response.data.communities
+        console.log(this.subscribedCommunitiesList)
       } catch (error) {
         console.error('Error al obtener comunidades suscriptas:', error)
       }

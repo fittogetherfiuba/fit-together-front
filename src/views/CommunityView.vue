@@ -100,13 +100,27 @@
             <v-card-text v-for="(post, index) in communityPosts" :key="index">
                 <v-card class="border-sm">
                     <v-card-subtitle class="pt-3">
-                        <p>{{ post.topic }} | Usuario: {{ post.author }}</p>
+                        <div class="d-flex align-center">
+                            <v-img
+                            :src="post.avatar"
+                            cover
+                            :max-width="30"
+                            :height="30"
+                            class="rounded-circle mr-2"
+                            ></v-img>
+                            <span class="font-weight-bold mr-1"> {{ post.author }} </span>
+                            <span> | {{ post.createdAt.split('T')[0] }} </span>
+                        </div>
                     </v-card-subtitle>
-                    <v-card-title class="pt-0 font-weight-bold">
-                        <p>{{ post.title }}</p>
+
+                    <v-card-title class="pt-0 font-weight-bold mt-2 mb-2">
+                        <p class="ml-1">{{ post.title }}</p>
+                        <v-chip color="secondary" size="small">
+                            {{ post.topic }}
+                        </v-chip>
                     </v-card-title>
                     <v-card-text>
-                        <p class="mb-4">{{ post.body }}</p>
+                        <p class="ml-1 mb-4">{{ post.body }}</p>
                         <v-data-iterator
                         :items="parsePhotos(post.photos)"
                         :items-per-page="1"
@@ -215,7 +229,7 @@
                     <p class="mt-4 font-weight-bold">Fitters suscritos </p>
                 </v-card-text>
                 <v-card-title class="pt-0">
-                    <p class="mb-3"> {{ membersAmount }} </p>
+                    <p class="mb-3"> {{ communityInfo.subscribers }} </p>
                 </v-card-title>
                     <!--<v-card-subtitle class="pt-3">
                         <p>Fitters suscritos</p>
@@ -225,7 +239,79 @@
       </v-row>
     </div>
 
-    <v-dialog v-model="showDialogCreatePost" max-width="550px" style="overflow-y: auto; max-height: 70vh;" @after-leave="closeDialogCreatePost">
+    <v-dialog v-model="showDialogCreatePost" max-width="650px" style="max-height: 80vh;" @after-leave="closeDialogCreatePost">
+        <v-card class="" color="secondary">
+
+        <v-row justify="center">
+            <v-col>
+                <v-card-title class="my-1 font-weight-bold bg-secondary" style="font-size: 1.4rem;">
+                    <v-icon start icon="mdi-account-group"></v-icon>
+                    Crear post
+                </v-card-title>
+            </v-col>
+            <v-col align="end">
+                
+                <v-btn
+                class="mr-1 mt-1"
+                icon
+                color="secondary"
+                @click="showDialog = false"
+                size="medium"
+                elevation="0"
+                >
+                    <v-icon>
+                    mdi-close
+                    </v-icon>
+                </v-btn>
+            </v-col>
+        </v-row>
+
+        <v-card class="mx-5 mb-3 pa-5"  style="overflow-y: auto;">
+            <v-form ref="postForm">
+            <v-text-field class="mb-3" v-model="postTitle" :rules="[rules.nameRequired]" variant="outlined" label="Título" />
+            <v-autocomplete
+              v-model="postTopic"
+              :items="topicList"
+              label="Tópico"
+              :rules="[rules.topicRequired]"
+              variant="outlined"
+              clearable
+              item-title="name"
+              :menu-props="{ maxHeight: '200px' }"
+            />
+            <v-textarea v-model="postBody" 
+                class="mt-3" 
+                :rules="[rules.descriptionRequired]" 
+                variant="outlined"
+                placeholder="Escribe el texto del post"
+            />
+            <div v-for="(photo, index) in postPhotos" :key="index">
+                <v-text-field
+                class="mt-3"
+                :rules="[rules.picRequired]" 
+                v-model="photo.url"
+                label="Introducí el URL de la foto"
+                placeholder="https://..."
+                append-inner-icon="mdi-link-variant"
+                variant="outlined"
+                ></v-text-field>
+            </div>
+            <v-col cols="12" class="d-flex justify-center pa-0">
+                <v-btn class="border-sm bg-secondary w-25 text-h5 font-weight-bold" @click="addUrl">+</v-btn>
+            </v-col>
+            </v-form>
+        </v-card>
+        
+        <v-card-actions class="pb-3 justify-end">
+            <v-btn class="border-sm bg-error font-weight-bold" text @click="closeDialogCreatePost">Cancelar</v-btn>
+            <v-btn class="border-sm bg-warning font-weight-bold" @click="handleCreatePost(this.selectedCommunity)">Crear</v-btn>
+        </v-card-actions>
+
+        </v-card>
+    </v-dialog>
+
+
+    <v-dialog v-model="a" max-width="550px" style="overflow-y: auto; max-height: 70vh;" @after-leave="closeDialogCreatePost">
         <v-card class="d-flex align-center">
         <v-card-title class="pa-0 w-100">
             <v-row no-gutters class="text-center pa-2 bg-secondary w-100">
@@ -342,6 +428,7 @@
         await this.fetchCommunityPosts(this.$route.params.id)
         await this.fetchTopicList()
         this.membersAmount = 200
+        console.log(this.communityPosts)
     },
 
     methods: {
@@ -376,6 +463,12 @@
                     topics: this.topicFilters
                 })
                 this.communityPosts = response.data.posts
+
+                for (const post of this.communityPosts) {
+                    const response = await UserService.getUserInfoByUsername(post.author)
+                    post.avatar = response.data.image_url
+                }
+
                 this.communityPosts.forEach(post => {
                     this.fetchCommunityComments(post)
                 })
