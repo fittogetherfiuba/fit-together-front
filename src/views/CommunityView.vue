@@ -3,7 +3,7 @@
 
         <v-row justify="center" >
 
-        <v-col cols="6" class="pl-7 mt-10">
+        <v-col cols="5" class="pl-7 mt-10">
             <v-card class="">
                 <v-card-title class="pa-0 w-100">
                     <v-row no-gutters class="text-center pa-2 bg-secondary w-100">
@@ -37,7 +37,7 @@
             </v-card-actions>
         </v-col>
 
-        <v-col v-if="showFilters" cols="8" class="mt-1 pl-7 pa-0">
+        <v-col v-if="showFilters" cols="7" class="mt-1 pl-7 pa-0">
             <v-card class="text-center bg-primary px-5 pt-5">
                 <v-row no-gutters class="text-center pa-0" align="start">
                     <v-col cols="6">
@@ -81,11 +81,12 @@
                 </v-row>
             </v-card>
 
-
+    
+        </v-col>
+        <v-col class="py-0" cols="12">
 
         </v-col>
-
-        <v-col cols="6" sm="6" class="py-0 pr-1">
+        <v-col cols="5" class="py-0 pr-1">
             <v-card-text  v-if="communityPosts.length === 0">
                 <v-card elevation="0" height="460"  class="d-flex align-center justify-center border-sm">
                     <v-row justify="center" class="ml-5">
