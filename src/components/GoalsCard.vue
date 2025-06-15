@@ -198,6 +198,10 @@ const fetchGoals = async () => {
       await fetchProgress(item);
     }
     console.log('[GoalsCard] Progreso recargado:', goalsHistory.value);
+
+    if (sessionStorage.getItem('justLoggedIn') === 'true') {
+      sessionStorage.removeItem('justLoggedIn');
+    }
   } catch (err) {
     console.error('[GoalsCard] Error al obtener objetivos:', err);
     goalsHistory.value = [];
@@ -240,6 +244,15 @@ const fetchProgress = async (goalItem) => {
       goalItem.notified = true;
       notifyGoalCompleted(goalItem);
     }
+
+    const justLoggedIn = sessionStorage.getItem('justLoggedIn') === 'true';
+    if (
+      justLoggedIn &&
+      goalItem.currentProgress < goalItem.goal
+    ) {
+      notifyGoalPending(goalItem);
+    }
+
   } catch (err) {
     console.error('[GoalsCard] Error al obtener progreso:', err);
     goalItem.currentProgress = 0;
@@ -258,6 +271,16 @@ const notifyGoalCompleted = (goalItem) => {
   }
   snackbar.value = true;
 };
+
+const notifyGoalPending = (goalItem) => {
+  if (goalItem.type === 'calories') {
+    snackbarText.value = `⚠️ Tienes pendiente tu objetivo de ${goalItem.goal} kcal.`;
+  } else {
+    snackbarText.value = `⚠️ Aún no alcanzaste tu meta de ${goalItem.goal} L de agua.`;
+  }
+  snackbar.value = true;
+};
+
 
 /**
  * handleAddGoal(): Guarda un nuevo objetivo en el backend y lo agrega al arreglo
