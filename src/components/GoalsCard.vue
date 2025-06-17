@@ -49,7 +49,7 @@
 
         <!-- Mensaje cuando no hay objetivos -->
         <v-col cols="12" v-if="!goalsHistory.length">
-          <div class="text--disabled text-center">No hay objetivos aún</div>
+          <div class="text--disabled font-weight-bold text-h6 text-center">No hay objetivos aún</div>
         </v-col>
       </v-row>
     </v-card-text>
@@ -306,8 +306,21 @@ const handleAddGoal = async () => {
  * deleteGoal(idx): Elimina del arreglo local. No estamos llamando al backend,
  * asumo que la persistencia se maneja en otro lado si hace falta.
  */
-const deleteGoal = (idx) => {
-  goalsHistory.value.splice(idx, 1);
+const deleteGoal = async (idx) => {
+  const goalItem = goalsHistory.value[idx];
+  try {
+    await axios.delete('http://localhost:3000/api/goals', {
+      data: {
+        userId: userId.value,
+        type: goalItem.type
+      }
+    });
+
+    goalsHistory.value.splice(idx, 1);
+    eventBus.emit('progress-updated'); // opcional
+  } catch (err) {
+    console.error('[GoalsCard] Error al eliminar objetivo:', err);
+  }
 };
 
 const closeDialog = () => {
