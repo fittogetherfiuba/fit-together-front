@@ -79,6 +79,13 @@
                     >
                       Ver posteos
                     </v-btn>
+                    <v-btn
+                        class="border-sm bg-secondary font-weight-bold"
+                        @click="handleViewMembers(community.raw)"
+                    >
+                      Miembros
+                    </v-btn>
+
                   </v-card-actions>
                 </v-card>
               </v-sheet>
@@ -367,7 +374,56 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
-  
+  <v-dialog v-model="showDialogMembers" max-width="500px">
+    <v-card>
+      <v-card-title class="bg-secondary font-weight-bold d-flex justify-between align-center">
+        <span>Miembros de {{ selectedCommunityMembers.name }}</span>
+        <v-btn icon @click="showDialogMembers = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </v-card-title>
+      <v-card-text>
+        <v-list v-if="communityMembers.length">
+          <v-list-item
+              v-for="(member, index) in communityMembers"
+              :key="index"
+              class="px-3 py-2"
+          >
+            <v-row class="align-center w-100">
+              <!-- Avatar -->
+              <v-col cols="auto">
+                <v-avatar size="45">
+                  <v-img :src="member.image_url" cover />
+                </v-avatar>
+              </v-col>
+
+              <!-- Nombre y username -->
+              <v-col>
+                <div class="font-weight-medium">{{ member.fullname }}</div>
+                <div class="text-caption text-grey-darken-1">{{ member.username }}</div>
+              </v-col>
+
+              <!-- Botón de agregar amigo -->
+              <v-col cols="auto">
+                <v-btn
+                    icon
+                    color="info"
+                    @click="sendFriendRequest(member.username)"
+                    :disabled="member.username === $store.state.main.user.username"
+                >
+                  <v-icon>mdi-account-plus</v-icon>
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-list-item>
+
+
+        </v-list>
+        <v-alert v-else type="info">No hay miembros en esta comunidad</v-alert>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
+
 </template>
 
 
@@ -399,6 +455,9 @@ export default {
       postForm: null,
       commentForms: [],
       itemsPerPage: 4,
+      showDialogMembers: false,
+      communityMembers: [],
+      selectedCommunityMembers: null,
       rules: {
         nameRequired: value => !!value || 'Debe ingresar un nombre',
         descriptionRequired: value => !!value || 'Debe ingresar un texto',
@@ -436,6 +495,18 @@ export default {
           return {};
         }
       });
+    },
+    async sendFriendRequest(username) {
+      try {
+        await axios.post('http://localhost:3000/api/friends/requests', {
+          senderUsername: this.$store.state.main.user.username,
+          receiverUsername: username
+        });
+        this.$toast?.success('Solicitud enviada');
+      } catch (error) {
+        console.error(error);
+        this.$toast?.error('Error al enviar solicitud');
+      }
     },
     getRelativeTime(dateString) {
       const date = new Date(dateString);
@@ -488,6 +559,17 @@ export default {
       this.selectedCommunity = community
       this.showDialogPosts = true
       this.fetchCommunityPosts(community)
+    },
+
+    async handleViewMembers(community) {
+      this.selectedCommunityMembers = community;
+      this.showDialogMembers = true;
+      try {
+        const response = await axios.get(`http://localhost:3000/api/communities/${community.communityId}/members`);
+        this.communityMembers = response.data.members;
+      } catch (error) {
+        console.error('Error al obtener miembros:', error);
+      }
     },
     async handleCreatePost(community) {
       const isValid = this.$refs.postForm.validate()
@@ -581,6 +663,7 @@ export default {
       }
     }
   },
+
 
   async created () {
     await this.fetchSubscribedCommunities()
