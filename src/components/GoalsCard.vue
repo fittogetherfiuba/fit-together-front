@@ -171,42 +171,29 @@ const fetchGoals = async () => {
   userId.value = store.state.main.user.userId;
   if (!userId.value) return;
 
-  // 1) Construir un mapa con los flags notified que teníamos previamente:
-  const prevNotifiedMap = {};
-  for (const oldItem of goalsHistory.value) {
-    prevNotifiedMap[oldItem.type] = oldItem.notified;
-  }
-
   try {
-    // 2) Llamada al endpoint para obtener objetivos
     const res = await axios.get(`http://localhost:3000/api/goals/${userId.value}`);
     const data = res.data.goals || {};
 
-    // 3) Generar nuevo arreglo de objetivos, copiando “notified” si existía
-    const newArr = Object.keys(data).map((key) => ({
-      type: key,
-      goal: data[key],
-      currentProgress: 0,
-      // Si antes estaba notificado, lo mantenemos en true; si no, false.
-      notified: prevNotifiedMap[key] === true
+    // Ahora cada meta trae su value y notified
+    const newArr = Object.entries(data).map(([type, goalData]) => ({
+      type,
+      goal: goalData.value,
+      notified: goalData.notified,
+      currentProgress: 0
     }));
 
     goalsHistory.value = newArr;
 
-    // 4) Para cada meta, pedir progreso y disparar notificador si corresponde
     for (const item of goalsHistory.value) {
       await fetchProgress(item);
-    }
-    console.log('[GoalsCard] Progreso recargado:', goalsHistory.value);
-
-    if (sessionStorage.getItem('justLoggedIn') === 'true') {
-      sessionStorage.removeItem('justLoggedIn');
     }
   } catch (err) {
     console.error('[GoalsCard] Error al obtener objetivos:', err);
     goalsHistory.value = [];
   }
 };
+
 
 /**
  * fetchProgress(goalItem): Obtiene progreso diario de calorías o agua y
@@ -218,39 +205,37 @@ const fetchProgress = async (goalItem) => {
     const date = new Date().toISOString().slice(0, 10);
 
     if (goalItem.type === 'calories') {
-      // Llamada a endpoint de calorías diarias
       const { data } = await axios.get(
         'http://localhost:3000/api/foods/calories/daily',
         { params: { userId: userId.value, date } }
       );
       goalItem.currentProgress = data.totalCalories || 0;
     } else {
-      // Llamada a endpoint de entradas de agua
       const { data } = await axios.get(
         `http://localhost:3000/api/water/entries?userId=${userId.value}`
       );
       const entries = data.entries || [];
-      goalItem.currentProgress = entries.reduce(
-        (sum, item) => sum + Number(item.liters),
-        0
-      );
+      goalItem.currentProgress = entries.reduce((sum, item) => sum + Number(item.liters), 0);
     }
 
-    // Si el progreso alcanza o supera la meta Y no se había notificado antes:
     if (
       goalItem.currentProgress >= goalItem.goal &&
       goalItem.notified === false
     ) {
       goalItem.notified = true;
       notifyGoalCompleted(goalItem);
+
+      // Marcar como notificado en backend
+      await axios.post('http://localhost:3000/api/goals/mark-notified', {
+        userId: userId.value,
+        type: goalItem.type
+      });
     }
 
     const justLoggedIn = sessionStorage.getItem('justLoggedIn') === 'true';
-    if (
-      justLoggedIn &&
-      goalItem.currentProgress < goalItem.goal
-    ) {
+    if (justLoggedIn && goalItem.currentProgress < goalItem.goal) {
       notifyGoalPending(goalItem);
+      sessionStorage.removeItem('justLoggedIn');
     }
 
   } catch (err) {
