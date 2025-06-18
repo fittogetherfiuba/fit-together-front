@@ -299,8 +299,9 @@ export default {
     },
     resetAddDialog() {
 
+    },
+
     decorateAndSortMealList () {
-      // Añade la estrella y reordena: primero top‑foods, luego resto alfabético
       const topSet = new Set(this.topFoods.map(n => n.toLowerCase()))
 
       this.mealList.forEach(item => {
@@ -330,26 +331,7 @@ export default {
       }
     },
 
-    async fetchMeals () {
-      try {
-        const [mealsRes, restrictedRes] = await Promise.all([
-          axios.get('http://localhost:3000/api/foods'),
-          axios.get(`http://localhost:3000/api/diet/restricted-foods/${this.$store.state.main.user.userId}`)
-        ])
 
-        const restrictedNames = restrictedRes.data.map(f => f.name.toLowerCase())
-
-        // Construimos mealList básica (sin estrella todavía)
-        this.mealList = mealsRes.data
-          .filter(meal => !restrictedNames.includes(meal.name.toLowerCase()))
-          .map(meal => ({ ...meal, nameWithStar: meal.name }))
-
-        // Si ya hay período seleccionado, asegura que queden primero los top foods
-        this.decorateAndSortMealList()
-      } catch (error) {
-        console.error('Error al obtener comidas:', error)
-      }
-    },
 
     async fetchEatenMeals () {
       try {
@@ -382,6 +364,7 @@ export default {
         await this.addMealEntry()
       }
     },
+
     async addMealEntry() {
       if (!this.selectedMeal || !this.grams || this.grams <= 0 || !this.selectedPeriod) return
       const payload = {
@@ -397,6 +380,11 @@ export default {
           console.log('[MealsCard] Entrada guardada')
           await this.fetchEatenMeals()
           eventBus.emit('progress-updated')
+        }
+      } catch (error) {
+        console.error('Error al agregar entrada de comida:', error)
+      }
+    },
 
 
     async handleAddMeal () {
@@ -416,15 +404,13 @@ export default {
           await this.fetchEatenMeals()
           eventBus.emit('progress-updated')
           console.log('[MealsCard] Emitido progress-updated tras agregar comida')
+          this.closeAddDialog()
         } catch (error) {
           console.error('Error al registrar comida:', error)
-
         }
-      } catch (error) {
-        console.error('Error al agregar entrada de comida:', error.response?.status, error.response?.data)
       }
-      this.closeAddDialog()
     },
+    
     openCustomDialog() {
       this.resetCustomDialog()
       this.showCustomDialog = true
@@ -483,47 +469,55 @@ export default {
       this.selectedMealInfo = meal
       this.showFoodInfo = true
     },
-    async fetchMeals() {
-      try {
-        const userId = this.$store.state.main.user.userId
-        const [mealsRes, restrictedRes] = await Promise.all([
-          axios.get('http://localhost:3000/api/foods', { params: { userId } }),
-          axios.get(`http://localhost:3000/api/diet/restricted-foods/${userId}`)
-        ])
-        const restrictedNames = restrictedRes.data.map(f => f.name.toLowerCase())
-        // Mapear respuesta snake_case a camelCase y filtrar localmente si se desea
-        const foods = mealsRes.data.map(m => ({
-          id: m.id,
-          name: m.name,
-          createdByUserId: m.createdByUserId ?? m.created_by_user_id,
-          caloriesPer100g: m.caloriesPer100g ?? m.calories_per_100g
-        }))
-        const filtered = foods.filter(m => {
-          const nameLower = m.name.toLowerCase()
-          if (restrictedNames.includes(nameLower)) return false
-          if (m.createdByUserId == null) return true
-          return m.createdByUserId === userId
-        })
-        this.mealList = [...filtered, { name: 'Otra' }]
-      } catch (error) {
-        console.error('Error al obtener comidas:', error)
-      }
-    },
-    async fetchEatenMeals() {
-      try {
-        const userId = this.$store.state.main.user.userId
-        const res = await axios.get(`http://localhost:3000/api/foods/entry/${userId}`)
-        this.mealHistory = res.data.entries || []
-      } catch (error) {
-        console.error('Error al obtener comidas registradas:', error)
-      }
+
+
+  async fetchMeals () {
+    try {
+      const userId = this.$store.state.main.user.userId
+
+      const [mealsRes, restrictedRes] = await Promise.all([
+        axios.get('http://localhost:3000/api/foods'),
+        axios.get(`http://localhost:3000/api/diet/restricted-foods/${userId}`)
+      ])
+
+      const restrictedNames = restrictedRes.data.map(f => f.name.toLowerCase())
+
+      const foods = mealsRes.data.map(m => ({
+        id: m.id,
+        name: m.name,
+        createdByUserId: m.createdByUserId ?? m.created_by_user_id,
+        caloriesPer100g: m.caloriesPer100g ?? m.calories_per_100g
+      }))
+
+      const filtered = foods.filter(m => {
+        const nameLower = m.name.toLowerCase()
+        if (restrictedNames.includes(nameLower)) return false
+        if (m.createdByUserId == null) return true
+        return m.createdByUserId === userId
+      })
+
+      /* ---------- construir mealList ---------- */
+      const baseList = filtered.map(meal => ({
+        ...meal,
+        nameWithStar: meal.name           // todavía sin estrella
+      }))
+
+      // Añadimos el ítem “Otra” al final
+      this.mealList = [...baseList, { name: 'Otra' }]
+
+      // Ordenar/decorar si ya hay período seleccionado
+      this.decorateAndSortMealList()
+
+    } catch (error) {
+      console.error('Error al obtener comidas:', error)
     }
   },
+},
 
   async created () {
     await this.fetchMeals()
     await this.fetchEatenMeals()
-  }
+  },
 }
 </script>
 
