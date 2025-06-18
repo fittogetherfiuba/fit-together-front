@@ -101,20 +101,7 @@
       </v-card>
     </v-dialog>
 
-    <!-- Snackbar centrado en la parte superior -->
-    <v-snackbar
-      v-model="snackbar"
-      :duration="5000"
-      location="top"
-      vertical-transition="slide-y-reverse-transition"
-      class="mx-auto"
-      color="success"
-    >
-      {{ snackbarText }}
-      <template #actions>
-        <v-btn text @click="snackbar = false">Cerrar</v-btn>
-      </template>
-    </v-snackbar>
+    
   </v-card>
 </template>
 
@@ -131,10 +118,6 @@ const store = useStore();
 // Reactive refs
 const userId = ref(null);
 const goalsHistory = ref([]);
-
-// Snackbar
-const snackbar = ref(false);
-const snackbarText = ref('');
 
 // Dialog y campos para agregar objetivo
 const showDialog = ref(false);
@@ -249,21 +232,19 @@ const fetchProgress = async (goalItem) => {
  * y activa el snackbar.
  */
 const notifyGoalCompleted = (goalItem) => {
-  if (goalItem.type === 'calories') {
-    snackbarText.value = `¡Felicidades! Has alcanzado tu objetivo de ${goalItem.goal} kcal.`;
-  } else {
-    snackbarText.value = `¡Genial! Has bebido ${goalItem.goal} L de agua.`;
-  }
-  snackbar.value = true;
+  const message = goalItem.type === 'calories'
+    ? `✅ ¡Felicidades! Has alcanzado tu objetivo de ${goalItem.goal} kcal.`
+    : `✅ ¡Genial! Has bebido ${goalItem.goal} L de agua.`;
+
+  store.dispatch('notifications/addNotification', { message, timestamp: new Date() });
 };
 
 const notifyGoalPending = (goalItem) => {
-  if (goalItem.type === 'calories') {
-    snackbarText.value = `⚠️ Tienes pendiente tu objetivo de ${goalItem.goal} kcal.`;
-  } else {
-    snackbarText.value = `⚠️ Aún no alcanzaste tu meta de ${goalItem.goal} L de agua.`;
-  }
-  snackbar.value = true;
+  const message = goalItem.type === 'calories'
+    ? `⚠️ Tienes pendiente tu objetivo de ${goalItem.goal} kcal.`
+    : `⚠️ Aún no alcanzaste tu meta de ${goalItem.goal} L de agua.`;
+
+  store.dispatch('notifications/addNotification', { message, timestamp: new Date() });
 };
 
 
