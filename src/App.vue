@@ -5,11 +5,13 @@
     </div>
 
     <div v-if="currentUser && showSideBar">
-      <SideBarMenu class="font-semibold"/>
+      <SideBarMenu class="font-semibold" />
     </div>
 
     <v-main>
-      <router-view />
+      <v-container fluid class="bg-background">
+        <router-view />
+      </v-container>
     </v-main>
   </v-app>
 </template>
@@ -34,7 +36,9 @@ export default {
   }
 }
 </script>
+
 <style>
+
 body {
   font-family: 'Montserrat', sans-serif;
 }
