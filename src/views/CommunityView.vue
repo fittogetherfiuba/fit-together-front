@@ -1,4 +1,5 @@
 <template>
+    <v-container fluid class="bg-background">
     <div>
 
         <v-row justify="center" >
@@ -411,8 +412,9 @@
         <v-alert v-else type="info">No hay miembros en esta comunidad</v-alert>
       </v-card-text>
     </v-card>
-  </v-dialog>
 
+  </v-dialog>
+  </v-container>
 
 </template>
   

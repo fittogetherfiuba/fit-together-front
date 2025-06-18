@@ -1,4 +1,5 @@
 <template>
+  <v-container fluid class="bg-background">
   <v-card class="mx-5 my-8">
     <v-data-iterator
       :items="subscribedCommunitiesList"
@@ -222,6 +223,7 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+  </v-container>
 </template>
 
 

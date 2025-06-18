@@ -1,4 +1,5 @@
 <template>
+  <v-container fluid class="bg-background">
   <v-card class="mx-5 my-8">
     <v-data-iterator
       :items="recipesList"
@@ -220,7 +221,7 @@
 
     </v-card>
   </v-dialog>
-
+  </v-container>
 </template>
 
 

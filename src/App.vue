@@ -9,9 +9,7 @@
     </div>
 
     <v-main>
-      <v-container fluid class="bg-background">
-        <router-view />
-      </v-container>
+      <router-view />
     </v-main>
   </v-app>
 </template>
