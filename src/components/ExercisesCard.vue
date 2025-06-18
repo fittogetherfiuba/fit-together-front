@@ -62,25 +62,19 @@
               :menu-props="{ maxHeight: '200px' }"
             >
               <!-- ⭐ Misma estrella que en meals, sin texto duplicado -->
-              <template #item="{ props, item }">
-                <v-list-item
-                  :value="props.value"
-                  :active="props.active"
-                  :active-class="props.activeClass"
-                  class="px-4"
-                >
-                  <v-list-item-title>
-                    <v-icon
-                      v-if="item.raw.frequent"
-                      icon="mdi-star"
-                      color="warning"
-                      size="18"
-                      class="mr-1"
-                    />
-                    {{ item.raw.name }}
-                  </v-list-item-title>
-                </v-list-item>
-              </template>
+            <template #item="{ props, item }">
+              <!-- spread manual pero sin la prop title -->
+              <v-list-item v-bind="{ ...props, title: null }" class="px-4">
+                <v-icon
+                  v-if="item.raw.frequent"
+                  icon="mdi-star"
+                  color="warning"
+                  size="18"
+                  class="mr-1"
+                />
+                {{ item.raw.name }}
+              </v-list-item>
+            </template>
             </v-autocomplete>
             <v-text-field v-if="selectedType === 'Cardio'" variant="outlined" v-model="duration" @update:model-value="fetchCalories" label="Duración (minutos)" type="number" min="0" />
             <v-text-field v-if="selectedType === 'Cardio'" variant="outlined" v-model="distance" label="Distancia (km)" type="number" min="0" />
@@ -178,7 +172,7 @@ async fetchExercises () {
     // 1️⃣  llamadas en paralelo
     const [allRes, freqRes] = await Promise.all([
       axios.get(`http://localhost:3000/api/activities/${this.selectedType}`),
-      axios.get('http://localhost:3000/api/activities/frequent', {
+      axios.get('http://localhost:3000/api/activities/entries/frequent', {
         params: {
           userId: this.$store.state.main.user.userId,
           type:  this.selectedType.toLowerCase()   // backend espera "cardio" | "musculacion"
@@ -217,8 +211,6 @@ async fetchExercises () {
     console.error('Error al obtener actividades:', error)
   }
 },
-
-
     async fetchCalories(){
       if(this.selectedType){
 
