@@ -4,7 +4,7 @@
 
     <v-img
     max-width="40"
-    src="/logo-black.png"
+    src="/icon-white.png"
     alt="fittogether logo"
     class="ml-2 pointer"
     @click="redirect('DashboardView')"
@@ -12,7 +12,7 @@
 
     <v-img
     max-width="100"
-    src="/name-black.png"
+    src="/name-white.png"
     alt="kinetix name"
     class="ml-1 mt-1 pointer"
     @click="redirect('DashboardView')"
