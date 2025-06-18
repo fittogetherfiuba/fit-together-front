@@ -5,7 +5,7 @@
       Actividades Realizadas
     </v-card-title>
     <v-card-text>
-      <v-list>
+      <v-list style="overflow-y: auto; max-height: 400px;">
         <span class="d-flex text-h6 justify-center font-weight-bold" v-if="exerciseHistory.length === 0">No hay actividades registradas</span>
         <v-list-item class="border-b" v-for="(activity, index) in exerciseHistory" :key="index">
           <v-list-item-title class="font-weight-bold">

@@ -5,7 +5,7 @@
       Alimentos consumidos
     </v-card-title>
     <v-card-text>
-      <v-list>
+      <v-list style="overflow-y: auto; max-height: 400px;">
         <span
           class="d-flex text-h6 justify-center font-weight-bold"
           v-if="mealHistory.length === 0"
