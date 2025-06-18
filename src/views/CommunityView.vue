@@ -16,7 +16,7 @@
             </v-card>
 
         </v-col>
-        <v-col class="pa-0 mt-12" cols="2">
+        <v-col class="pa-0 mt-12" cols="3">
             <v-card-actions>
                 <v-btn class="border-sm bg-secondary" size="small" @click="showFilters = !showFilters" style="height: 38px; flex: 1 1 48%; min-width: 0">
                     <v-icon
@@ -34,6 +34,11 @@
                     ></v-icon>
                     Crear post
                 </v-btn>
+              <v-btn class="border-sm bg-secondary" size="small" block @click="showDialogMembers = true; fetchCommunityMembers()" style="height: 38px; flex: 1 1 48%; min-width: 0">
+                <v-icon size="x-large" class="mr-1" icon="mdi-account-multiple-outline" />
+                Miembros
+              </v-btn>
+
             </v-card-actions>
         </v-col>
 
@@ -200,7 +205,7 @@
         
 
         </v-col>
-        <v-col cols="2" class="mt-4 pa-0">
+        <v-col cols="3" class="mt-4 pa-0">
             <v-card class="border-sm mb-3">
                 <v-card-text class="pt-0">
                     <p class="mt-4 font-weight-bold">Sobre esta comunidad... </p>
@@ -363,8 +368,53 @@
         </v-card-actions>
         </v-card>
     </v-dialog>
+  <v-dialog v-model="showDialogMembers" max-width="500px">
+    <v-card>
+      <v-card-title class="bg-secondary font-weight-bold d-flex justify-between align-center">
+        <span>Miembros de {{ communityInfo.name }}</span>
+        <v-btn icon @click="showDialogMembers = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </v-card-title>
+      <v-card-text>
+        <v-list v-if="communityMembers.length">
+          <v-list-item
+              v-for="(member, index) in communityMembers"
+              :key="index"
+              class="px-3 py-2"
+          >
+            <v-row class="align-center w-100">
+              <v-col cols="auto">
+                <v-avatar size="45">
+                  <v-img :src="member.image_url" cover />
+                </v-avatar>
+              </v-col>
+              <v-col>
+                <div class="font-weight-medium">{{ member.fullname }}</div>
+                <div class="text-caption text-grey-darken-1">{{ member.username }}</div>
+              </v-col>
+              <v-col cols="auto">
+                <v-btn
+                    icon
+                    color="info"
+                    @click="sendFriendRequest(member.username)"
+                    :disabled="member.username === $store.state.main.user.username || pendingRequests.includes(member.username)"
+                >
+                  <v-icon>
+                    {{ pendingRequests.includes(member.username) ? 'mdi-clock-outline' : 'mdi-account-plus' }}
+                  </v-icon>
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-list-item>
+        </v-list>
+        <v-alert v-else type="info">No hay miembros en esta comunidad</v-alert>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
 
-  </template>
+
+</template>
   
   
   
@@ -399,6 +449,9 @@
         postComments: [],
         postCommentBody: {},
         commentForms: [],
+        communityMembers: [],
+        pendingRequests: [],
+        showDialogMembers: false,
         rules: {
             nameRequired: value => !!value || 'Debe ingresar un nombre',
             topicRequired: value => !!value || 'Debe ingresar un tópico',
@@ -477,7 +530,28 @@
                 console.error('Error al obtener posteos de la comunidad:', error)
             }
         },
+        async fetchCommunityMembers() {
+          try {
+            const response = await axios.get(`http://localhost:3000/api/communities/${this.communityInfo.id}/members`);
+            this.communityMembers = response.data.members;
+          } catch (err) {
+            console.error('Error al obtener miembros:', err);
+          }
+        },
 
+      async sendFriendRequest(username) {
+        try {
+          await axios.post('http://localhost:3000/api/friends/requests', {
+            senderUsername: this.$store.state.main.user.username,
+            receiverUsername: username
+          });
+          this.pendingRequests.push(username); // marcar como pendiente
+          this.$toast?.success('Solicitud enviada');
+        } catch (error) {
+          console.error(error);
+          this.$toast?.error('Error al enviar solicitud');
+        }
+      },
         async fetchCommunityComments(post) {
             try {
                 const response = await axios.get('http://localhost:3000/api/communities/posts/' + post.id + '/comments')
