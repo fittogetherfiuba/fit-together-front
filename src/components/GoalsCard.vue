@@ -49,7 +49,7 @@
 
         <!-- Mensaje cuando no hay objetivos -->
         <v-col cols="12" v-if="!goalsHistory.length">
-          <div class="text--disabled text-center">No hay objetivos aún</div>
+          <div class="text--disabled font-weight-bold text-h6 text-center">No hay objetivos aún</div>
         </v-col>
       </v-row>
     </v-card-text>
@@ -101,20 +101,7 @@
       </v-card>
     </v-dialog>
 
-    <!-- Snackbar centrado en la parte superior -->
-    <v-snackbar
-      v-model="snackbar"
-      :duration="5000"
-      location="top"
-      vertical-transition="slide-y-reverse-transition"
-      class="mx-auto"
-      color="success"
-    >
-      {{ snackbarText }}
-      <template #actions>
-        <v-btn text @click="snackbar = false">Cerrar</v-btn>
-      </template>
-    </v-snackbar>
+    
   </v-card>
 </template>
 
@@ -131,10 +118,6 @@ const store = useStore();
 // Reactive refs
 const userId = ref(null);
 const goalsHistory = ref([]);
-
-// Snackbar
-const snackbar = ref(false);
-const snackbarText = ref('');
 
 // Dialog y campos para agregar objetivo
 const showDialog = ref(false);
@@ -171,38 +154,29 @@ const fetchGoals = async () => {
   userId.value = store.state.main.user.userId;
   if (!userId.value) return;
 
-  // 1) Construir un mapa con los flags notified que teníamos previamente:
-  const prevNotifiedMap = {};
-  for (const oldItem of goalsHistory.value) {
-    prevNotifiedMap[oldItem.type] = oldItem.notified;
-  }
-
   try {
-    // 2) Llamada al endpoint para obtener objetivos
     const res = await axios.get(`http://localhost:3000/api/goals/${userId.value}`);
     const data = res.data.goals || {};
 
-    // 3) Generar nuevo arreglo de objetivos, copiando “notified” si existía
-    const newArr = Object.keys(data).map((key) => ({
-      type: key,
-      goal: data[key],
-      currentProgress: 0,
-      // Si antes estaba notificado, lo mantenemos en true; si no, false.
-      notified: prevNotifiedMap[key] === true
+    // Ahora cada meta trae su value y notified
+    const newArr = Object.entries(data).map(([type, goalData]) => ({
+      type,
+      goal: goalData.value,
+      notified: goalData.notified,
+      currentProgress: 0
     }));
 
     goalsHistory.value = newArr;
 
-    // 4) Para cada meta, pedir progreso y disparar notificador si corresponde
     for (const item of goalsHistory.value) {
       await fetchProgress(item);
     }
-    console.log('[GoalsCard] Progreso recargado:', goalsHistory.value);
   } catch (err) {
     console.error('[GoalsCard] Error al obtener objetivos:', err);
     goalsHistory.value = [];
   }
 };
+
 
 /**
  * fetchProgress(goalItem): Obtiene progreso diario de calorías o agua y
@@ -214,32 +188,39 @@ const fetchProgress = async (goalItem) => {
     const date = new Date().toISOString().slice(0, 10);
 
     if (goalItem.type === 'calories') {
-      // Llamada a endpoint de calorías diarias
       const { data } = await axios.get(
         'http://localhost:3000/api/foods/calories/daily',
         { params: { userId: userId.value, date } }
       );
       goalItem.currentProgress = data.totalCalories || 0;
     } else {
-      // Llamada a endpoint de entradas de agua
       const { data } = await axios.get(
         `http://localhost:3000/api/water/entries?userId=${userId.value}`
       );
       const entries = data.entries || [];
-      goalItem.currentProgress = entries.reduce(
-        (sum, item) => sum + Number(item.liters),
-        0
-      );
+      goalItem.currentProgress = entries.reduce((sum, item) => sum + Number(item.liters), 0);
     }
 
-    // Si el progreso alcanza o supera la meta Y no se había notificado antes:
     if (
       goalItem.currentProgress >= goalItem.goal &&
       goalItem.notified === false
     ) {
       goalItem.notified = true;
       notifyGoalCompleted(goalItem);
+
+      // Marcar como notificado en backend
+      await axios.post('http://localhost:3000/api/goals/mark-notified', {
+        userId: userId.value,
+        type: goalItem.type
+      });
     }
+
+    const justLoggedIn = sessionStorage.getItem('justLoggedIn') === 'true';
+    if (justLoggedIn && goalItem.currentProgress < goalItem.goal) {
+      notifyGoalPending(goalItem);
+      sessionStorage.removeItem('justLoggedIn');
+    }
+
   } catch (err) {
     console.error('[GoalsCard] Error al obtener progreso:', err);
     goalItem.currentProgress = 0;
@@ -251,13 +232,21 @@ const fetchProgress = async (goalItem) => {
  * y activa el snackbar.
  */
 const notifyGoalCompleted = (goalItem) => {
-  if (goalItem.type === 'calories') {
-    snackbarText.value = `¡Felicidades! Has alcanzado tu objetivo de ${goalItem.goal} kcal.`;
-  } else {
-    snackbarText.value = `¡Genial! Has bebido ${goalItem.goal} L de agua.`;
-  }
-  snackbar.value = true;
+  const message = goalItem.type === 'calories'
+    ? `✅ ¡Felicidades! Has alcanzado tu objetivo de ${goalItem.goal} kcal.`
+    : `✅ ¡Genial! Has bebido ${goalItem.goal} L de agua.`;
+
+  store.dispatch('notifications/addNotification', { message, timestamp: new Date() });
 };
+
+const notifyGoalPending = (goalItem) => {
+  const message = goalItem.type === 'calories'
+    ? `⚠️ Tienes pendiente tu objetivo de ${goalItem.goal} kcal.`
+    : `⚠️ Aún no alcanzaste tu meta de ${goalItem.goal} L de agua.`;
+
+  store.dispatch('notifications/addNotification', { message, timestamp: new Date() });
+};
+
 
 /**
  * handleAddGoal(): Guarda un nuevo objetivo en el backend y lo agrega al arreglo
@@ -298,8 +287,21 @@ const handleAddGoal = async () => {
  * deleteGoal(idx): Elimina del arreglo local. No estamos llamando al backend,
  * asumo que la persistencia se maneja en otro lado si hace falta.
  */
-const deleteGoal = (idx) => {
-  goalsHistory.value.splice(idx, 1);
+const deleteGoal = async (idx) => {
+  const goalItem = goalsHistory.value[idx];
+  try {
+    await axios.delete('http://localhost:3000/api/goals', {
+      data: {
+        userId: userId.value,
+        type: goalItem.type
+      }
+    });
+
+    goalsHistory.value.splice(idx, 1);
+    eventBus.emit('progress-updated'); // opcional
+  } catch (err) {
+    console.error('[GoalsCard] Error al eliminar objetivo:', err);
+  }
 };
 
 const closeDialog = () => {

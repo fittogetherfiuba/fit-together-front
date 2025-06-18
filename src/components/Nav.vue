@@ -20,6 +20,10 @@
 
     <template v-slot:append>
 
+      
+
+      <NotificationsMenu />
+
       <FriendsDialog />
 
       <v-btn
@@ -50,11 +54,13 @@
 
 <script>
 import FriendsDialog from './FriendsDialog.vue'
+import NotificationsMenu from './NotificationsMenu.vue'
 
 export default {
   name: 'WebNav',
   components: {
-    FriendsDialog
+    FriendsDialog,
+    NotificationsMenu
   },
   methods: {
     //redirect (routeName) {

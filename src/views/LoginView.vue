@@ -136,6 +136,7 @@
       this.$store.dispatch('login', user).then(
         () => {
           console.log('Login exitoso')
+          sessionStorage.setItem('justLoggedIn', 'true')
           this.$router.push('/')
           console.log(this.$router)
         },
@@ -170,6 +171,7 @@
       this.$store.dispatch('login', user).then(
         () => {
           console.log('Login exitoso')
+          sessionStorage.setItem('justLoggedIn', 'true')
           this.$router.push('/')
           console.log(this.$router)
         },
