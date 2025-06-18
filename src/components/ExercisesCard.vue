@@ -56,11 +56,32 @@
               return-object
               :rules="[rules.required]"
               clearable
-              autofocus
               variant="outlined"
               item-title="name"
+              item-value="name"
               :menu-props="{ maxHeight: '200px' }"
-            />
+            >
+              <!-- ⭐ Misma estrella que en meals, sin texto duplicado -->
+              <template #item="{ props, item }">
+                <v-list-item
+                  :value="props.value"
+                  :active="props.active"
+                  :active-class="props.activeClass"
+                  class="px-4"
+                >
+                  <v-list-item-title>
+                    <v-icon
+                      v-if="item.raw.frequent"
+                      icon="mdi-star"
+                      color="warning"
+                      size="18"
+                      class="mr-1"
+                    />
+                    {{ item.raw.name }}
+                  </v-list-item-title>
+                </v-list-item>
+              </template>
+            </v-autocomplete>
             <v-text-field v-if="selectedType === 'Cardio'" variant="outlined" v-model="duration" @update:model-value="fetchCalories" label="Duración (minutos)" type="number" min="0" />
             <v-text-field v-if="selectedType === 'Cardio'" variant="outlined" v-model="distance" label="Distancia (km)" type="number" min="0" />
             <v-text-field v-if="selectedType === 'Musculacion'" variant="outlined" v-model="sets" label="Series" type="number" min="0" />
@@ -148,21 +169,55 @@ export default {
       }
     },
 
-    async fetchExercises() {
-      if(this.selectedType){
-        this.restartValues()
-        try {
-          //const response = await axios.get('http://localhost:3000/api/activities')
-          const response = await axios.get(
-            'http://localhost:3000/api/activities/' + this.selectedType
-          );
-          this.exerciseList = response.data
-          console.log (typeof(this.selectedType))
-        } catch (error) {
-          console.error('Error al obtener actividades:', error)
+async fetchExercises () {
+  if (!this.selectedType) return
+  this.restartValues()
+  
+
+  try {
+    // 1️⃣  llamadas en paralelo
+    const [allRes, freqRes] = await Promise.all([
+      axios.get(`http://localhost:3000/api/activities/${this.selectedType}`),
+      axios.get('http://localhost:3000/api/activities/frequent', {
+        params: {
+          userId: this.$store.state.main.user.userId,
+          type:  this.selectedType.toLowerCase()   // backend espera "cardio" | "musculacion"
         }
+      })
+    ])
+    const allActivities      = allRes.data                 // [{ id, name, … }]
+    const frequentNamesSet   = new Set(freqRes.data)       // ["Correr", "Burpees", …]
+
+    // 2️⃣  separar y marcar
+    const frequent   = []
+    const nonFrequent = []
+
+    for (const act of allActivities) {
+      if (frequentNamesSet.has(act.name)) {
+        frequent.push({ ...act, frequent: true })
+      } else {
+        nonFrequent.push(act)
       }
-    },
+    }
+
+    // 3️⃣  primero las frecuentes
+  let merged = [...frequent, ...nonFrequent]
+
+  /* ---- deduplicar -------- */
+  const seen = new Set()
+  merged = merged.filter(item => {
+    const key = item.name.toLowerCase()
+    if (seen.has(key)) return false     // ya lo vimos → fuera
+    seen.add(key)
+    return true
+  })
+  console.log('Merged activities:', merged)
+  this.exerciseList = merged
+  } catch (error) {
+    console.error('Error al obtener actividades:', error)
+  }
+},
+
 
     async fetchCalories(){
       if(this.selectedType){
