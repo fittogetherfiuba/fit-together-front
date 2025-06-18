@@ -5,7 +5,7 @@
       Alimentos consumidos
     </v-card-title>
     <v-card-text>
-      <v-list>
+      <v-list style="overflow-y: auto; max-height: 400px;">
         <span
           class="d-flex text-h6 justify-center font-weight-bold"
           v-if="mealHistory.length === 0"
@@ -34,6 +34,7 @@
       </v-btn>
     </v-card-actions>
 
+    <!-- Diálogo para agregar comida -->
     <v-dialog v-model="showDialog" max-width="450px" @after-leave="closeDialog">
       <v-card>
         <v-card-title class="pa-0">
@@ -56,7 +57,6 @@
                   :rules="[rules.required]"
                   clearable
                   variant="outlined"
-                  item-title="name"
                   :menu-props="{ maxHeight: '200px' }"
                 />
               </v-col>
@@ -70,7 +70,7 @@
                   :rules="[rules.required]"
                   clearable
                   variant="outlined"
-                  item-title="name"
+                  item-title="nameWithStar"
                   :menu-props="{ maxHeight: '200px' }"
                 />
               </v-col>
@@ -105,6 +105,7 @@
       </v-card>
     </v-dialog>
 
+    <!-- Diálogo info comida -->
     <v-dialog v-model="showFoodInfo" max-width="450px" @after-leave="closeFoodInfo">
       <v-card class="d-flex align-center">
         <v-card-title class="pa-0 w-100">
@@ -117,9 +118,9 @@
         <v-card-text class="w-75">
           <p><strong>Periodo: </strong> {{ selectedMealInfo.period }}</p>
           <p><strong>Cantidad: </strong> {{ selectedMealInfo.grams }}g</p>
-          <p><strong>Calorias: </strong> {{ selectedMealInfo.calories }}</p>
-          <br/>
-          <p class="font-weight-bold mb-2 text-center">Nutrientes </p>
+          <p><strong>Calorías: </strong> {{ selectedMealInfo.calories }}</p>
+          <br />
+          <p class="font-weight-bold mb-2 text-center">Nutrientes</p>
           <v-data-table
             class="border-md"
             :items="selectedMealInfo.nutrients"
@@ -134,100 +135,156 @@
 </template>
 
 <script>
-import { ref } from 'vue'
 import axios from 'axios'
-import eventBus from '../eventBus';
+import eventBus from '../eventBus'
 
 export default {
   name: 'MealsCard',
   data () {
     return {
-      mealList: ref(null),
-      mealHistory: ref([]),
+      mealList: [],        
+      mealHistory: [],
       mealPeriods: ['Desayuno', 'Almuerzo', 'Merienda', 'Cena'],
-      showDialog: ref(false),
-      showFoodInfo: ref(false),
-      selectedPeriod: ref(null),
-      selectedMeal: ref(null),
-      selectedMealInfo: ref(null),
-      grams: ref(''),
-      form: ref(null),
-      headers: [{title: 'Name', value: 'name'}, {title: 'Amount', value: 'amount'}],
+      showDialog: false,
+      showFoodInfo: false,
+      selectedPeriod: null,
+      selectedMeal: null,
+      selectedMealInfo: null,
+      topFoods: [],            // comidas destacadas (⭐)
+      grams: '',
+      form: null,
+      headers: [
+        { title: 'Name', value: 'name' },
+        { title: 'Amount', value: 'amount' }
+      ],
       rules: {
         required: value => !!value || 'Debe ingresar una comida',
-        foodRequired: value => !!value || 'Debe ingresar una cantidad de comida',
+        foodRequired: value => !!value || 'Debe ingresar una cantidad de comida'
+      }
+    }
+  },
+
+  watch: {
+    async selectedPeriod (newVal) {
+      if (newVal) {
+        await this.fetchTopFoods()
+      } else {
+        this.topFoods = []
+        this.decorateAndSortMealList()
       }
     }
   },
 
   methods: {
-    closeDialog() {
+    decorateAndSortMealList () {
+      // Añade la estrella y reordena: primero top‑foods, luego resto alfabético
+      const topSet = new Set(this.topFoods.map(n => n.toLowerCase()))
+
+      this.mealList.forEach(item => {
+        item.nameWithStar = topSet.has(item.name.toLowerCase()) ? `⭐ ${item.name}` : item.name
+      })
+
+      this.mealList.sort((a, b) => {
+        const aStar = topSet.has(a.name.toLowerCase())
+        const bStar = topSet.has(b.name.toLowerCase())
+        if (aStar && !bStar) return -1
+        if (!aStar && bStar) return 1
+        return a.name.localeCompare(b.name)
+      })
+    },
+
+    async fetchTopFoods () {
+      try {
+        const userId = this.$store.state.main.user.userId
+        const periodParam = this.selectedPeriod.toLowerCase()
+        const res = await axios.get(`http://localhost:3000/api/foods/top-foods?userId=${userId}&period=${periodParam}`)
+        this.topFoods = res.data.foods || []
+      } catch (error) {
+        console.error('Error al obtener top foods:', error)
+        this.topFoods = []
+      } finally {
+        this.decorateAndSortMealList()
+      }
+    },
+
+    async fetchMeals () {
+      try {
+        const [mealsRes, restrictedRes] = await Promise.all([
+          axios.get('http://localhost:3000/api/foods'),
+          axios.get(`http://localhost:3000/api/diet/restricted-foods/${this.$store.state.main.user.userId}`)
+        ])
+
+        const restrictedNames = restrictedRes.data.map(f => f.name.toLowerCase())
+
+        // Construimos mealList básica (sin estrella todavía)
+        this.mealList = mealsRes.data
+          .filter(meal => !restrictedNames.includes(meal.name.toLowerCase()))
+          .map(meal => ({ ...meal, nameWithStar: meal.name }))
+
+        // Si ya hay período seleccionado, asegura que queden primero los top foods
+        this.decorateAndSortMealList()
+      } catch (error) {
+        console.error('Error al obtener comidas:', error)
+      }
+    },
+
+    async fetchEatenMeals () {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/foods/entry/${this.$store.state.main.user.userId}`)
+        this.mealHistory = response.data.entries
+      } catch (error) {
+        console.error('Error al obtener comidas:', error)
+      }
+    },
+
+    closeDialog () {
       this.showDialog = false
       this.selectedMeal = null
       this.selectedPeriod = null
       this.grams = ''
     },
-    closeFoodInfo() {
-      this.selectedMealInfo = null
-      this.showFoodInfo = false
-    },
-    async handleMealInfo(meal) {
-      this.selectedMealInfo = meal;
-      this.showFoodInfo = true;
-    },
-    async handleAddMeal() {
+
+    async handleAddMeal () {
       const isValid = this.$refs.form.validate()
-      if (!isValid) {
-        return
-      }
+      if (!isValid) return
 
       if (this.selectedMeal && this.grams) {
         try {
           const meal = {
-            "userId": this.$store.state.main.user.userId,
-            "foodName": this.selectedMeal.name,
-            "grams": parseInt(this.grams),
-            "period": this.selectedPeriod,
-            "consumedAt": new Date().toISOString()
+            userId: this.$store.state.main.user.userId,
+            foodName: this.selectedMeal.name,
+            grams: parseInt(this.grams, 10),
+            period: this.selectedPeriod,
+            consumedAt: new Date().toISOString()
           }
           await axios.post('http://localhost:3000/api/foods/entry', meal)
-          this.fetchEatenMeals()
-          eventBus.emit('progress-updated');
-          console.log('[MealsCard] Emitido progress-updated tras agregar comida');
+          await this.fetchEatenMeals()
+          eventBus.emit('progress-updated')
+          console.log('[MealsCard] Emitido progress-updated tras agregar comida')
         } catch (error) {
-          console.error('Error al obtener comidas:', error)
+          console.error('Error al registrar comida:', error)
         }
         this.closeDialog()
       }
     },
-    async fetchMeals() {
-        try {
-          const [mealsRes, restrictedRes] = await Promise.all([
-          axios.get('http://localhost:3000/api/foods'),
-          axios.get('http://localhost:3000/api/diet/restricted-foods/' + this.$store.state.main.user.userId.toString())
-        ]);
 
-        const restrictedNames = restrictedRes.data.map(f => f.name.toLowerCase());
-        this.mealList = mealsRes.data.filter(meal => !restrictedNames.includes(meal.name.toLowerCase()));
-      } catch (error) {
-        console.error('Error al obtener comidas:', error)
-      }
+    async handleMealInfo (meal) {
+      this.selectedMealInfo = meal
+      this.showFoodInfo = true
     },
-    async fetchEatenMeals() {
-      try {
-        const response = await axios.get('http://localhost:3000/api/foods/entry/' + this.$store.state.main.user.userId.toString())
-        this.mealHistory = response.data.entries
-      } catch (error) {
-        console.error('Error al obtener comidas:', error)
-      }
+    closeFoodInfo () {
+      this.selectedMealInfo = null
+      this.showFoodInfo = false
     }
   },
 
   async created () {
-    await this.fetchEatenMeals()
     await this.fetchMeals()
+    await this.fetchEatenMeals()
   }
-
 }
-
 </script>
+
+<style scoped>
+/* Puedes añadir estilos específicos si lo deseas */
+</style>
