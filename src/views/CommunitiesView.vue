@@ -409,10 +409,13 @@
                     icon
                     color="info"
                     @click="sendFriendRequest(member.username)"
-                    :disabled="member.username === $store.state.main.user.username"
+                    :disabled="member.username === $store.state.main.user.username || pendingRequests.includes(member.username)"
                 >
-                  <v-icon>mdi-account-plus</v-icon>
+                  <v-icon>
+                    {{ pendingRequests.includes(member.username) ? 'mdi-clock-outline' : 'mdi-account-plus' }}
+                  </v-icon>
                 </v-btn>
+
               </v-col>
             </v-row>
           </v-list-item>
@@ -458,6 +461,7 @@ export default {
       showDialogMembers: false,
       communityMembers: [],
       selectedCommunityMembers: null,
+      pendingRequests: [],
       rules: {
         nameRequired: value => !!value || 'Debe ingresar un nombre',
         descriptionRequired: value => !!value || 'Debe ingresar un texto',
@@ -502,12 +506,14 @@ export default {
           senderUsername: this.$store.state.main.user.username,
           receiverUsername: username
         });
+        this.pendingRequests.push(username); // marcar como pendiente
         this.$toast?.success('Solicitud enviada');
       } catch (error) {
         console.error(error);
         this.$toast?.error('Error al enviar solicitud');
       }
-    },
+    }
+    ,
     getRelativeTime(dateString) {
       const date = new Date(dateString);
       const now = new Date();
