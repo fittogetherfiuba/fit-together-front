@@ -262,7 +262,10 @@
                   :color="editing ? 'warning' : 'secondary'"
                   size="small"
                   v-on:click="handleEditButton()"
-                  :disabled="editing && (!isWeightValid() || !isHeightValid())"
+                  :disabled="editing && (
+  (user.weight !== originalWeight && !isWeightValid()) ||
+  (user.height !== originalHeight && !isHeightValid())
+)"
                   class="my-2"
                 >
                   <v-icon class="mr-2">
@@ -311,6 +314,8 @@ export default {
       block_loading: false,
       tab: null,
       editing: false,
+      originalWeight: '',
+      originalHeight: '',
 
       weightRules: [
         v => !isNaN(v) || 'Debe ser un número',
@@ -343,6 +348,9 @@ export default {
     this.fetchUserDietProfiles(this.user.id);
     this.fetchAvailableProfiles()
     this.loading = false
+    this.originalWeight = this.user.weight
+    this.originalHeight = this.user.height
+
   },
   computed: {
     isEditing () {
