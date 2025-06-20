@@ -95,6 +95,7 @@
 import FriendRequestTable from './FriendRequestTable.vue'
 import FriendsTable from './FriendsTable.vue'
 import FriendsService from '../services/friends.service'
+import axios from 'axios'
 
 export default {
     name: 'FriendsDialog',
@@ -124,6 +125,7 @@ export default {
             try {
                 const request = await FriendsService.sendFriendRequest(this.$store.state.main.user.username, this.request_username)
                 console.log(request)
+                await this.notifyRequest()
                 this.alertMessage = 'Solicitud enviada con éxito';
                 this.alertType = 'success';
                 this.showAlert = true;
@@ -144,7 +146,19 @@ export default {
         refreshFriends () {
             console.log(this.refresh)
             this.refresh = !this.refresh
-        }
+        },
+
+        async notifyRequest() {
+            try {
+                const notification = {
+                    username: this.request_username,
+                    message: `👤 Nueva solicitud de amistad de '${this.$store.state.main.user.username}'`,
+                }
+                await axios.post('http://localhost:3000/api/notifications/create', notification)
+            } catch (error) {
+                console.error('Error al enviar la notificación:', error)
+            }
+        },
     }
 }
 </script>

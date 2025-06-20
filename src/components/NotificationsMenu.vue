@@ -54,8 +54,7 @@ export default {
     async clearAll() {
       try {
         await axios.delete('http://localhost:3000/api/notifications/delete_all/' + this.$store.state.main.user.userId.toString());
-        this.notifications = [];
-        localStorage.setItem('lastSeenNotifications', '0');
+
       } catch (error) {
         console.error('Error deleting notifications:', error);
       }
@@ -65,32 +64,31 @@ export default {
         const response = await axios.get('http://localhost:3000/api/notifications?userId=' + this.$store.state.main.user.userId.toString());
         this.notifications = response.data.notifications;
 
-        const lastSeenCount = parseInt(localStorage.getItem('lastSeenNotifications')) || 0;
-
-        if (this.notifications.length > lastSeenCount) {
-          this.hasNewNotifications = true;
-        }
-        else {
-          this.hasNewNotifications = false;
-        }
-
       } catch (error) {
         console.error('Error fetching notifications:', error);
+      }
+    },
+    async fetchHasNewNotifications() {
+      try {
+        const response = await axios.get('http://localhost:3000/api/notifications/has_unread/' + this.$store.state.main.user.userId.toString());
+        this.hasNewNotifications = response.data.hasUnread;
+        console.log('Has new notifications:', this.hasNewNotifications);
+      } catch (error) {
+        console.error('Error checking for new notifications:', error);
       }
     }
   },
   watch: {
     menuOpen(val) {
       if (val) {
-        this.hasNewNotifications = false
-        localStorage.setItem('lastSeenNotifications', this.notifications.length.toString());
+        this.fetchNotifications();
+        this.hasNewNotifications = false;
       }
     }
   },
-  
   async created() {
-    await this.fetchNotifications();
-    eventBus.on('new-notification', this.fetchNotifications);
+    await this.fetchHasNewNotifications();
+    eventBus.on('new-notification', this.fetchHasNewNotifications);
   }
 }
 

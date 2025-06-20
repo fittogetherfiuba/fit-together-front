@@ -250,8 +250,6 @@ const notifyGoalCompleted = async (goalItem) => {
   }catch (error) {
     console.error('Error al enviar notificación:', error);
   }
-
-  //store.dispatch('notifications/addNotification', { notificationMessage, timestamp: new Date() });
 };
 
 const notifyGoalPending = async (goalItem) => {
@@ -270,8 +268,6 @@ const notifyGoalPending = async (goalItem) => {
   }catch (error) {
     console.error('Error al enviar notificación:', error);
   }
-
-  //store.dispatch('notifications/addNotification', { message, timestamp: new Date() });
 };
 
 
