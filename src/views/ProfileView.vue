@@ -15,7 +15,7 @@
           
         </v-alert>
         <v-card class="mx-5 my-5 rounded-sm">
-          <v-sheet :color="isEditing ? '#FF5537' : 'primary'" height="6"></v-sheet>
+          <v-sheet :color="isEditing ? 'warning' : 'primary'" height="6"></v-sheet>
           <v-card-item>
             <v-row class="fill-height">
               <v-col cols="3" class="mt-2 mb-10">
@@ -29,14 +29,14 @@
                       class="mx-3 rounded-circle borde-foto"
                       width="180"
                       height="180"
-                      :style= "editing ? 'border: 3px solid #FF5537;' : ''"
+                      :style= "editing ? 'border: 3px solid #EB8334;' : ''"
                       cover
                     ></v-img>
                     <v-btn
                       icon
                       v-if="editing"
                       size="small"
-                      color="#FF5537"
+                      color="warning"
                       class="btn-editar"
                       @click="editingProfilePic = true"
                     >
@@ -140,12 +140,12 @@
               </v-col>
               <v-divider vertical class="mt-5 mb-5" style="height: auto;" thickness="2"></v-divider>
               <v-col cols="7" class="mt-2 mb-4">
-                <div class="mb-15 font-weight-bold font-italic mx-auto">
+                <div class="font-weight-bold font-italic mx-auto">
                   Información del usuario
                 </div>
-                <v-row class="ml-8 mt-15 d-flex align-center" justify="center" align="start">
+                <v-row class="ml-8 mt-10 d-flex align-center" justify="center" align="start">
                   <v-col cols="10" offset="2" justify="center" align="center">
-                    <v-row justify="center" align="center" class="mb-7">
+                    <v-row justify="center" align="center" class="mb-2">
                       <v-col cols="5" class="ml-4">
                         <v-text-field
                           class="info-icon"
@@ -169,7 +169,7 @@
                         ></v-text-field>
                       </v-col>
                     </v-row>
-                    <v-row justify="center" align="center" class="mb-7">
+                    <v-row justify="center" align="center" class="mb-2">
                       <v-col cols="5" class="ml-4">
                         <v-text-field
                           class="info-icon"             
@@ -193,7 +193,7 @@
                         ></v-text-field>
                       </v-col>
                     </v-row>
-                    <v-row justify="center" align="center">
+                    <v-row justify="center" align="center" class="mb-2">
                       <v-col cols="5" class="ml-4">
                         <v-date-input
                           :class="editing ? 'edit-icon date' : 'info-icon date'"
@@ -232,57 +232,40 @@
                           persistent-placeholder
                         ></v-text-field>
                       </v-col>
-                      <v-row justify="center" class="mt-10" v-if="editing">
-                        <v-col cols="10">
-                          <v-checkbox
-                              v-model="hasDietRestrictions"
-                              label="¿Tenés restricciones alimenticias?"
-                          />
-                          <v-select
-                              v-if="hasDietRestrictions"
-                              v-model="selectedProfiles"
-                              :items="availableProfiles"
-                              item-title="profile_name"
-                              item-value="profile_name"
-                              label="Seleccioná tus perfiles dietarios"
-                              multiple
-                              chips
-                              return-object
-                          />
-                        </v-col>
-                      </v-row>
-                      <v-row v-if="userDietProfiles.length > 0 && !editing" class="mt-5">
-                        <v-col class="text-left">
-                          <div class="text-subtitle-1 font-weight-bold mb-2">
-                            Perfiles dietarios
-                          </div>
-                          <v-chip-group column>
-                            <v-chip
-                                v-for="(profile, index) in userDietProfiles"
-                                :key="index"
-                                color="primary"
-                                class="ma-1"
-                                label
-                                variant="elevated"
-                            >
-                              {{ profile }}
-                            </v-chip>
-                          </v-chip-group>
-                        </v-col>
-                      </v-row>
-
                     </v-row>
-
-
+                    <v-row justify="center" align="center" class="mb-7">
+                      <v-col class="ml-4">
+                        <v-autocomplete 
+                        :class="editing ? 'edit-icon' : 'info-icon'"
+                        density="comfortable"
+                        label="Perfiles dietarios"
+                        :readonly="!editing"
+                        v-model="userDietProfiles"
+                        :items="availableProfiles"
+                        placeholder="No hay perfiles dietarios registrados."
+                        prepend-icon="mdi-peanut-off-outline"
+                        variant="underlined"
+                        multiple
+                        chips
+                        persistent-placeholder
+                        :closable-chips=" editing ? true : false"
+                        item-title="profile_name"
+                        return-object
+                        ></v-autocomplete>
+                      </v-col>
+                    </v-row>
                   </v-col>
                 </v-row>
               </v-col>
               <v-col align="right">
                 <v-btn
-                  :color="editing ? '#FF5537' : 'secondary'"
+                  :color="editing ? 'warning' : 'secondary'"
                   size="small"
                   v-on:click="handleEditButton()"
-                  :disabled="editing && (!isWeightValid() || !isHeightValid())"
+                  :disabled="editing && (
+  (user.weight !== originalWeight && !isWeightValid()) ||
+  (user.height !== originalHeight && !isHeightValid())
+)"
                   class="my-2"
                 >
                   <v-icon class="mr-2">
@@ -320,10 +303,9 @@ export default {
         height: '',
         verified: '',
       },
-      hasDietRestrictions: false,
       availableProfiles: [],
-      selectedProfiles: [],
       userDietProfiles: [],
+      userDietProfilesBeforeEdit: [],
       editingProfilePic: false,
       profilePicUrl: '',
       showEditingProfilePic: false,
@@ -332,6 +314,8 @@ export default {
       block_loading: false,
       tab: null,
       editing: false,
+      originalWeight: '',
+      originalHeight: '',
 
       weightRules: [
         v => !isNaN(v) || 'Debe ser un número',
@@ -362,20 +346,11 @@ export default {
     const response = await UserService.getCurrentUserInfo()
     this.user = response.data
     this.fetchUserDietProfiles(this.user.id);
-
-    console.log(this.user)
-
-    console.log(this.isWeightValid())
-    //this.markers[0].position.lat = parseFloat(this.user.latitude)
-    //this.markers[0].position.lng = parseFloat(this.user.longitude)
-    //console.log(!(this.user.city || ''))
-    //console.log(this.user)
-    //if (this.user.profileimage !== '') {
-    //  this.profile_pic = await generateMediaURL('users/' + this.user.profileimage)
-    //};
-
-    console.log(localStorage.getItem('user'))
+    this.fetchAvailableProfiles()
     this.loading = false
+    this.originalWeight = this.user.weight
+    this.originalHeight = this.user.height
+
   },
   computed: {
     isEditing () {
@@ -389,21 +364,11 @@ export default {
     async handleEditButton() {
       if (this.editing) {
         await UserService.editCurrentUserInfo(this.user)
-
         await this.applyDietProfiles()
-
-
         await this.fetchUserDietProfiles(this.user.id)
+      } else {
+        this.userDietProfilesBeforeEdit = this.userDietProfiles
       }
-      else {
-        await this.fetchAvailableProfiles()
-        this.selectedProfiles = this.availableProfiles.filter(profile =>
-            this.userDietProfiles.includes(profile.profile_name)
-        )
-
-        this.hasDietRestrictions = this.selectedProfiles.length > 0
-      }
-
       this.editing = !this.editing
     }
     ,
@@ -441,39 +406,24 @@ export default {
     },
     async applyDietProfiles() {
       const userId = this.user.id
+      const selectedNames = this.userDietProfiles.map(p => p.profile_name)
+      const previouslyAssigned = this.userDietProfilesBeforeEdit.map(p => p.profile_name)
 
-      // 🔥 Si el usuario destildó el checkbox, eliminar todos los perfiles
-      if (!this.hasDietRestrictions) {
-        for (const name of this.userDietProfiles) {
-          const profile = this.availableProfiles.find(p => p.profile_name === name)
-          if (profile) {
-            try {
-              await UserService.deleteUserDietProfile(userId, profile.profile_id)
-            } catch (err) {
-              console.error('Error al eliminar perfil dietario', name, err)
-            }
-          }
-        }
-        return // salimos, no hay nada más que hacer
-      }
+      const toAdd = selectedNames.filter(item => !previouslyAssigned.includes(item));
+      const toDelete = previouslyAssigned.filter(item => !selectedNames.includes(item));
 
-      // ⚖️ Comparar selección actual con lo que ya tenía
-      const selectedNames = this.selectedProfiles.map(p => p.profile_name)
-      const previouslyAssigned = [...this.userDietProfiles]
+      console.log(toAdd)
+      console.log(toDelete)
 
-      const toAdd = selectedNames.filter(name => !previouslyAssigned.includes(name))
-      const toDelete = previouslyAssigned.filter(name => !selectedNames.includes(name))
-
-      // ➕ Agregar nuevos
       for (const name of toAdd) {
         try {
+          console.log(name)
           await UserService.addUserDietProfile(name, userId)
         } catch (err) {
           console.error('Error al asignar perfil dietario', name, err)
         }
       }
-
-      // ➖ Eliminar los deseleccionados
+      
       for (const name of toDelete) {
         const profile = this.availableProfiles.find(p => p.profile_name === name)
         if (profile) {
@@ -484,21 +434,17 @@ export default {
           }
         }
       }
-    }
+    },
 
-    ,
     async fetchUserDietProfiles(userId) {
       try {
         const res = await UserService.getUserDietProfiles(userId)
-        this.userDietProfiles = res.data.map(p => p.profile_name)
+        this.userDietProfiles = res.data
       } catch (err) {
         console.error('Error al obtener perfiles del usuario:', err)
         this.userDietProfiles = []
       }
     }
-
-
-
   }
 }
 
@@ -526,8 +472,9 @@ export default {
 
 .edit-icon .v-icon {
   opacity: 1 !important;
-  color: #FF5537 !important;
+  color: #EB8334 !important;
 }
+
 .rounded-sm {
   background: #F7F7F7;
 }

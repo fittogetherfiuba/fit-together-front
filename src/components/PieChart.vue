@@ -1,68 +1,63 @@
 <template>
-  <div>
-    <Pie :data="chartData" :options="chartOptions" />
-  </div>
+  <Doughnut :data="chartData" :options="chartOptions" />
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { Pie } from 'vue-chartjs';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { computed } from 'vue'
+import { Doughnut } from 'vue-chartjs'
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend
+} from 'chart.js'
 
-// Registrar elementos de Chart.js
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(ArcElement, Tooltip, Legend)
 
-// Props: filled (progreso), total (objetivo) y goalType (tipo de objetivo)
 const props = defineProps({
-  filled: { type: Number, required: true },
-  total: { type: Number, required: true },
-  goalType: { type: String, required: true }  // 'water' o 'calories'
-});
+  filled: Number,
+  total: Number,
+  goalType: String // 'calories' o 'water'
+})
 
 const chartData = computed(() => {
-  // Calcular porción de progreso y resto
-  const progress = Math.min(props.filled, props.total);
-  const remaining = Math.max(props.total - props.filled, 0);
-
-  // Elegir color según tipo y si excedió
-  let progressColor;
-  if (props.goalType === 'water') {
-    // Para agua: azul si excedió, rojo si no
-    progressColor = props.filled > props.total 
-      ? 'rgb(75,192,192)'   // azul cuando excede
-      : 'rgb(255,99,132)';  // rojo cuando no alcanza
-  } else {
-    // Para calorías: rojo si excede, azul si no
-    progressColor = props.filled > props.total 
-      ? 'rgb(255,99,132)'   // rojo cuando excede
-      : 'rgb(75,192,192)';  // azul cuando no alcanza
-  }
+  const over = props.goalType === 'calories' ? props.filled > props.total : 0
+  const fill = over ? props.total : props.filled
+  const remaining = Math.max(props.total - props.filled, 0)
+  const excess = over ? props.filled - props.total : 0
 
   return {
-    labels: ['Progreso', 'Restante'],
+    labels: ['Progreso', 'Restante', 'Exceso'],
     datasets: [
       {
-        data: [progress, remaining],
+        data: [fill, remaining, excess],
         backgroundColor: [
-          progressColor,
-          'rgb(211,211,211)'  // gris para la porción restante
+          props.goalType === 'calories' ? '#4caf50' : '#2196f3',
+          '#e0e0e0', 
+          over ? '#f44336' : 'transparent'
         ],
         borderWidth: 0
       }
     ]
-  };
-});
+  }
+})
 
 const chartOptions = {
-  cutout: '70%',              // estilo donut
-  animation: { animateRotate: true },
+  responsive: true,
+  cutout: '65%',
   plugins: {
-    legend: { display: false },
-    tooltip: { enabled: false }
+    legend: {
+      display: false
+    },
+    tooltip: {
+      callbacks: {
+        label: function (context) {
+          const label = context.label || ''
+          const value = context.parsed
+          return `${label}: ${value}`
+        }
+      }
+    }
   }
-};
+}
 </script>
-
-<style scoped>
-/* Aquí puedes añadir estilos si lo necesitas */
-</style>

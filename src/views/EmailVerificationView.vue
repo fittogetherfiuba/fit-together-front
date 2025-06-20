@@ -90,6 +90,7 @@ import { ref, computed, onMounted, nextTick } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+const API_URL = import.meta.env.VITE_APP_API_URL
 
 const store = useStore()
 const router = useRouter()
@@ -108,7 +109,7 @@ const isCodeComplete = computed(() =>
 onMounted(async () => {
   try {
     const username = store.state.main.user.username
-    const response = await axios.get(`http://localhost:3000/api/users/${username}`)
+    const response = await axios.get(API_URL + `users/${username}`)
     isVerified.value = response.data.verified
   } catch {
     alertMessage.value = 'No se pudo verificar el estado de la cuenta.'
@@ -147,7 +148,7 @@ async function verifyCode() {
     const code = codeDigits.value.join('')
     const user = store.state.main.user
 
-    await axios.post('http://localhost:3000/api/users/verify', {
+    await axios.post(API_URL + 'users/verify', {
       userId: user.userId,
       code
     })
@@ -175,7 +176,7 @@ async function resendCode() {
   try {
     const user = store.state.main.user
 
-    await axios.post('http://localhost:3000/api/users/resend-verification-code', {
+    await axios.post(API_URL + 'users/resend-verification-code', {
       userId: user.userId
     })
 

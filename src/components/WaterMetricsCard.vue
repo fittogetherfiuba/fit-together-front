@@ -15,6 +15,7 @@
 import axios from 'axios';
 import { defineComponent } from 'vue';
 import WaterBar from '@/components/Charts/WaterBar.vue';
+const API_URL = import.meta.env.VITE_APP_API_URL
 
 export default defineComponent({
   name: 'WaterMetricsCard',
@@ -45,7 +46,7 @@ export default defineComponent({
 
       try {
         const { data } = await axios.get(
-          `http://localhost:3000/api/water/entries?userId=${this.userId}`
+          API_URL + `water/entries?userId=${this.userId}`
         );
         this.entries = Array.isArray(data.entries) ? data.entries : [];
       } catch (err) {

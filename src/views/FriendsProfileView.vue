@@ -229,11 +229,7 @@
   .info-icon .v-icon {
     color: #219653 !important;
   }
-  
-  .edit-icon .v-icon {
-    opacity: 1 !important;
-    color: #FF5537 !important;
-  }
+
   .rounded-sm {
     background: #F7F7F7;
   }

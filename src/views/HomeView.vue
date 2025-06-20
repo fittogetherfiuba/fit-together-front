@@ -1,21 +1,19 @@
 <template>
   <v-container fluid class="d-flex align-center justify-center fill-height">
-    <v-row justify="center" align="start">
-      <v-col cols="12" sm="8" md="10">
-        <v-col class="pa-0">
-          <Goals />
-        </v-col>    
-        <v-row justify="center" align="start">
-          <v-col cols="12" sm="4">
+    <v-row align="center" justify="center">
+      <v-col cols="10">
+        <v-row align="center" justify="center">
+          <v-col cols="3" offset="0">
+            <Goals />
+          </v-col> 
+          <v-col cols="4">
             <Exercises />
           </v-col>
-          <v-col cols="12" sm="4">
+          <v-col cols="4">
             <Meals />
-          </v-col>
-          <v-col cols="12" sm="4">
             <Water />
           </v-col>
-        </v-row>
+        </v-row>   
       </v-col>
     </v-row>
   </v-container>

@@ -23,6 +23,7 @@
 
 <script>
 import axios from 'axios';
+const API_URL = import.meta.env.VITE_APP_API_URL;
 import { defineComponent } from 'vue';
 import CaloriesBarChart from '@/components/Charts/CaloriesBar.vue';
 import CaloriesByPeriodBarChart from '@/components/Charts/CaloriesByPeriodBar.vue';
@@ -63,7 +64,7 @@ export default defineComponent({
 
       try {
         const resp = await axios.get(
-          `http://localhost:3000/api/foods/entries/since-last-monday?userId=${this.userId}`
+          API_URL + `foods/entries/since-last-monday?userId=${this.userId}`
         );
         this.entries = resp.data?.entries ?? [];
         console.log(this.entries)

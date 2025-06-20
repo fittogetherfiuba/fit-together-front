@@ -1,26 +1,28 @@
 <template>
-  <v-card class="pb-4 mt-4" elevation="10">
-    <v-card-title
-      class="mb-4 text-center font-weight-bold bg-secondary"
-      style="font-size: 1.4rem;"
-    >
-      <v-icon start icon="mdi-water" />
-      Agua consumida
+  <v-card class="pb-4 mt-4" elevation="10" height="200">
+    <v-card-title class="bg-secondary text-white py-3 px-4">
+      <v-row no-gutters class="align-center justify-space-between">
+        <v-col cols="auto" class="d-flex align-center">
+          <v-icon class="mr-2">mdi-water</v-icon>
+          <span style="font-size: 1.5rem;" class="font-weight-bold">Agua consumida</span>
+        </v-col>
+        <v-btn size="small" icon variant="tonal" color="white" @click="showDialog = true">
+          <v-icon size="x-large">mdi-plus</v-icon>
+        </v-btn>
+      </v-row>
     </v-card-title>
-    <v-card-text
-      class="font-weight-medium text-h4 d-flex justify-center"
-      style="font-size: 1.2rem;"
-    >
-      {{ waterHistory }} {{ waterHistory === 1 ? 'litro' : 'litros' }}
+
+    
+    <v-card-text class="d-flex align-center justify-center text-center fill-height">
+      <span class="font-weight-bold mb-8" style="font-size: 2.2rem;">
+        {{ waterHistory.toFixed(2) }} 
+      </span>
+      <span class="mb-7 ml-2" style="font-size: 1.6rem;">
+        {{ waterHistory === 1 ? ' litro' : ' litros' }}
+      </span>
     </v-card-text>
-    <v-card-actions class="justify-center">
-      <v-btn
-        class="border-sm font-weight-bold bg-warning"
-        @click="showDialog = true"
-      >
-        Agregar agua
-      </v-btn>
-    </v-card-actions>
+
+
 
     <v-dialog v-model="showDialog" max-width="450px">
       <v-card class="d-flex align-center">
@@ -50,12 +52,13 @@
 import { ref } from 'vue'
 import axios from 'axios'
 import eventBus from '../eventBus';
+const API_URL = import.meta.env.VITE_APP_API_URL
 
 export default {
   name: 'WaterCard',
   data () {
     return {
-      waterHistory: ref([]),
+      waterHistory: ref(0),
       showDialog: ref(false),
       waterQuantity: ref(null),
       form: ref(null),
@@ -80,9 +83,9 @@ export default {
         try {
           const water = {
             "userId": this.$store.state.main.user.userId,
-            "liters": parseInt(this.waterQuantity),
+            "liters": parseFloat(this.waterQuantity),
           }
-          await axios.post('http://localhost:3000/api/water/entry', water)
+          await axios.post(API_URL + 'water/entry', water)
           this.fetchConsumedWater()
           eventBus.emit('progress-updated');
           console.log('[WaterCard] Emitido "progress-updated" tras agregar agua');
@@ -94,10 +97,10 @@ export default {
     },
     async fetchConsumedWater() {
       try {
-        const response = await axios.get('http://localhost:3000/api/water/entries?userId=' + this.$store.state.main.user.userId.toString())
+        const response = await axios.get(API_URL + 'water/entries?userId=' + this.$store.state.main.user.userId.toString())
         const waterEntries = response.data.entries
         this.waterHistory = waterEntries.reduce((total, entry) => { 
-          return total + parseInt(entry.liters) 
+          return total + parseFloat(entry.liters) 
         }, 0)
       } catch (error) {
         console.error('Error al obtener agua consumida:', error)

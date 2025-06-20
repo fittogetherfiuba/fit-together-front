@@ -1,42 +1,53 @@
 <template>
-  <v-card class="pb-4 mt-4" elevation="10">
-    <v-card-title class="mb-4 text-center font-weight-bold bg-secondary" style="font-size: 1.4rem;">
-      <v-icon start icon="mdi-food-drumstick" />
-      Alimentos consumidos
+  <v-card class="pb-10 mt-4" elevation="10" height="453">
+    <v-card-title class="bg-secondary text-white py-3 px-4">
+      <v-row no-gutters class="align-center justify-space-between">
+        <v-col cols="auto" class="d-flex align-center">
+          <v-icon class="mr-2">mdi-food-drumstick</v-icon>
+          <span style="font-size: 1.5rem;" class="font-weight-bold">Alimentos consumidos</span>
+        </v-col>
+        <v-btn size="small" icon variant="tonal" color="white" @click="showDialog = true">
+          <v-icon size="x-large">mdi-plus</v-icon>
+        </v-btn>
+      </v-row>
     </v-card-title>
-    <v-card-text>
-      <v-list style="overflow-y: auto; max-height: 400px;">
-        <span
-          class="d-flex text-h6 justify-center font-weight-bold"
-          v-if="mealHistory.length === 0"
-        >
-          No hay alimentos registrados
-        </span>
-        <v-list-item
-          class="border-b"
-          v-for="(meal, index) in mealHistory"
-          @click="handleMealInfo(meal)"
-          :key="index"
-        >
-          <v-list-item-title class="font-weight-bold">
-            {{ meal.foodName }}
-          </v-list-item-title>
-          <v-list-item-subtitle>
-            <span>Cantidad: {{ meal.grams }}g - </span>
-            <span>Calorías: {{ meal.calories }}</span>
-          </v-list-item-subtitle>
-        </v-list-item>
-      </v-list>
+
+    <v-card-text class="fill-height mt-2">
+      <v-row class="justify-center align-center fill-height">
+        <v-col cols="12" v-if="!mealHistory.length">
+          <v-card elevation="0" class="d-flex align-center justify-center">
+            <v-row justify="center">
+              <v-col cols="12" class="text-center">
+                <v-icon color="grey" size="90">mdi-star-off-outline</v-icon>
+                <div style="font-size: 20px;" class="font-weight-bold mt-2 mb-10">No hay alimentos registrados</div>
+              </v-col>
+            </v-row>
+          </v-card>
+        </v-col>
+        <v-col v-if="mealHistory.length" class="fill-height pb-7 pt-6 px-4" cols="12">
+          <v-card class="fill-height" variant="outlined" style="border-color: lightgray;">
+            <v-list class="fill-height pa-2 pt-1" style="overflow-y: auto;">
+              <v-list-item
+                class="border-b py-5"
+                v-for="(meal, index) in mealHistory"
+                @click="handleMealInfo(meal)"
+                :key="index"
+              >
+                <v-list-item-title class="font-weight-bold">
+                  {{ meal.foodName }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  <span>Cantidad: {{ meal.grams }}g - </span>
+                  <span>Calorías: {{ meal.calories }}</span>
+                </v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+          </v-card>
+        </v-col>
+      </v-row>
     </v-card-text>
-    <v-card-actions class="justify-center">
-      <v-btn class="border-sm bg-warning font-weight-bold" @click="openAddDialog">
-        Agregar comida
-      </v-btn>
-    </v-card-actions>
 
-    <!-- Dialog para agregar entrada de comida existente o nueva -->
     <v-dialog v-model="showDialog" max-width="450px" @after-leave="resetAddDialog">
-
       <v-card>
         <v-card-title class="pa-0">
           <v-row no-gutters class="text-center pa-2 bg-secondary w-100">
@@ -94,7 +105,11 @@
               </v-btn>
             </v-col>
             <v-col cols="auto">
-              <v-btn class="border-sm bg-warning font-weight-bold" @click="onAddConfirm">
+              <v-btn
+                class="border-sm bg-warning font-weight-bold"
+                :disabled="!selectedMeal || selectedMeal.name === 'Otra'"
+                @click="onAddConfirm"
+              >
                 Continuar
               </v-btn>
             </v-col>
@@ -205,7 +220,6 @@
       </v-card>
     </v-dialog>
 
-
     <!-- Diálogo info comida -->
     <v-dialog v-model="showFoodInfo" max-width="450px" @after-leave="closeFoodInfo">
       <v-card class="d-flex align-center">
@@ -217,12 +231,10 @@
           </v-row>
         </v-card-title>
         <v-card-text class="w-75">
-
           <p><strong>Periodo: </strong> {{ selectedMealInfo?.period }}</p>
           <p><strong>Cantidad: </strong> {{ selectedMealInfo?.grams }}g</p>
           <p><strong>Calorías: </strong> {{ selectedMealInfo?.calories }}</p>
           <br/>
-
           <p class="font-weight-bold mb-2 text-center">Nutrientes</p>
           <v-data-table
             class="border-md"
@@ -240,12 +252,12 @@
 <script>
 import axios from 'axios'
 import eventBus from '../eventBus'
+const API_URL = import.meta.env.VITE_APP_API_URL
 
 export default {
   name: 'MealsCard',
   data() {
     return {
-
       mealList: [],
       mealHistory: [],
       mealPeriods: ['Desayuno', 'Almuerzo', 'Merienda', 'Cena'],
@@ -254,7 +266,6 @@ export default {
       showFoodInfo: false,
       selectedPeriod: null,
       selectedMeal: null,
-      selectedMealInfo: null,
       grams: null,
       customName: '',
       customCaloriesPer100g: null,
@@ -263,64 +274,74 @@ export default {
       customFatPer100g: null,
       customSodiumPer100g: null,
       customFiberPer100g: null,
-      topFoods: [],            // comidas destacadas (⭐)
-      form: null,
-
+      topFoods: [],
       headers: [
         { title: 'Name', value: 'name' },
         { title: 'Amount', value: 'amount' }
       ],
       rules: {
-
         required: value => !!value || 'Debe ingresar un valor',
         foodRequired: value => (value > 0) || 'Debe ingresar una cantidad de comida',
         nonNegative: value => (value === null || value >= 0) || 'Debe ser número >= 0'
-
       }
     }
   },
-
   watch: {
-    async selectedPeriod (newVal) {
+    selectedPeriod: async function(newVal) {
       if (newVal) {
         await this.fetchTopFoods()
       } else {
         this.topFoods = []
         this.decorateAndSortMealList()
-
+      }
+    },
+    selectedMeal: function(newVal) {
+      if (newVal && newVal.name === 'Otra') {
+        this.showDialog = false
+        this.openCustomDialog()
       }
     }
   },
   methods: {
-
     openAddDialog() {
       this.resetAddDialog()
       this.showDialog = true
     },
     resetAddDialog() {
-
-    decorateAndSortMealList () {
-      // Añade la estrella y reordena: primero top‑foods, luego resto alfabético
+      this.selectedPeriod = null
+      this.selectedMeal = null
+      this.grams = null
+    },
+    decorateAndSortMealList() {
       const topSet = new Set(this.topFoods.map(n => n.toLowerCase()))
-
-      this.mealList.forEach(item => {
-        item.nameWithStar = topSet.has(item.name.toLowerCase()) ? `⭐ ${item.name}` : item.name
+      const otherItem = this.mealList.find(item => item.name === 'Otra')
+      if (otherItem) {
+        otherItem.nameWithStar = 'Otra'
+      }
+      const listWithoutOther = this.mealList.filter(item => item.name !== 'Otra')
+      listWithoutOther.forEach(item => {
+        item.nameWithStar = topSet.has(item.name.toLowerCase())
+          ? `⭐ ${item.name}`
+          : item.name
       })
-
-      this.mealList.sort((a, b) => {
+      listWithoutOther.sort((a, b) => {
         const aStar = topSet.has(a.name.toLowerCase())
         const bStar = topSet.has(b.name.toLowerCase())
         if (aStar && !bStar) return -1
         if (!aStar && bStar) return 1
         return a.name.localeCompare(b.name)
       })
+      if (otherItem) {
+        this.mealList = [otherItem, ...listWithoutOther]
+      } else {
+        this.mealList = listWithoutOther
+      }
     },
-
-    async fetchTopFoods () {
+    async fetchTopFoods() {
       try {
         const userId = this.$store.state.main.user.userId
         const periodParam = this.selectedPeriod.toLowerCase()
-        const res = await axios.get(`http://localhost:3000/api/foods/top-foods?userId=${userId}&period=${periodParam}`)
+        const res = await axios.get(API_URL + `foods/top-foods?userId=${userId}&period=${periodParam}`)
         this.topFoods = res.data.foods || []
       } catch (error) {
         console.error('Error al obtener top foods:', error)
@@ -329,44 +350,14 @@ export default {
         this.decorateAndSortMealList()
       }
     },
-
-    async fetchMeals () {
+    async fetchEatenMeals() {
       try {
-        const [mealsRes, restrictedRes] = await Promise.all([
-          axios.get('http://localhost:3000/api/foods'),
-          axios.get(`http://localhost:3000/api/diet/restricted-foods/${this.$store.state.main.user.userId}`)
-        ])
-
-        const restrictedNames = restrictedRes.data.map(f => f.name.toLowerCase())
-
-        // Construimos mealList básica (sin estrella todavía)
-        this.mealList = mealsRes.data
-          .filter(meal => !restrictedNames.includes(meal.name.toLowerCase()))
-          .map(meal => ({ ...meal, nameWithStar: meal.name }))
-
-        // Si ya hay período seleccionado, asegura que queden primero los top foods
-        this.decorateAndSortMealList()
-      } catch (error) {
-        console.error('Error al obtener comidas:', error)
-      }
-    },
-
-    async fetchEatenMeals () {
-      try {
-        const response = await axios.get(`http://localhost:3000/api/foods/entry/${this.$store.state.main.user.userId}`)
+        const response = await axios.get(API_URL + `foods/entry/${this.$store.state.main.user.userId}`)
         this.mealHistory = response.data.entries
       } catch (error) {
         console.error('Error al obtener comidas:', error)
       }
     },
-
-    closeDialog () {
-      this.showDialog = false
-      this.selectedMeal = null
-      this.selectedPeriod = null
-      this.grams = null
-    },
-
     closeAddDialog() {
       this.showDialog = false
       this.resetAddDialog()
@@ -375,12 +366,7 @@ export default {
       const form = this.$refs.form
       if (form && typeof form.validate === 'function' && !form.validate()) return
       if (!this.selectedMeal) return
-      if (this.selectedMeal.name === 'Otra') {
-        this.showDialog = false
-        this.openCustomDialog()
-      } else {
-        await this.addMealEntry()
-      }
+      await this.addMealEntry()
     },
     async addMealEntry() {
       if (!this.selectedMeal || !this.grams || this.grams <= 0 || !this.selectedPeriod) return
@@ -392,38 +378,16 @@ export default {
         consumedAt: new Date().toISOString()
       }
       try {
-        const res = await axios.post('http://localhost:3000/api/foods/entry', payload)
+        const res = await axios.post(API_URL + 'foods/entry', payload)
         if (res.status === 200 || res.status === 201) {
-          console.log('[MealsCard] Entrada guardada')
           await this.fetchEatenMeals()
           eventBus.emit('progress-updated')
-
-
-    async handleAddMeal () {
-      const isValid = this.$refs.form.validate()
-      if (!isValid) return
-
-      if (this.selectedMeal && this.grams) {
-        try {
-          const meal = {
-            userId: this.$store.state.main.user.userId,
-            foodName: this.selectedMeal.name,
-            grams: parseInt(this.grams, 10),
-            period: this.selectedPeriod,
-            consumedAt: new Date().toISOString()
-          }
-          await axios.post('http://localhost:3000/api/foods/entry', meal)
-          await this.fetchEatenMeals()
-          eventBus.emit('progress-updated')
-          console.log('[MealsCard] Emitido progress-updated tras agregar comida')
-        } catch (error) {
-          console.error('Error al registrar comida:', error)
-
         }
       } catch (error) {
-        console.error('Error al agregar entrada de comida:', error.response?.status, error.response?.data)
+        console.error('Error al agregar entrada de comida:', error)
+      } finally {
+        this.closeAddDialog()
       }
-      this.closeAddDialog()
     },
     openCustomDialog() {
       this.resetCustomDialog()
@@ -461,9 +425,8 @@ export default {
       if (this.customFiberPer100g != null) nutrientsArr.push({ nutrientId: 5, amountPer100g: this.customFiberPer100g })
       if (nutrientsArr.length) payload.nutrients = nutrientsArr
       try {
-        const res = await axios.post('http://localhost:3000/api/foods', payload)
+        const res = await axios.post(API_URL + 'foods', payload)
         if (res.status === 201) {
-          console.log('[MealsCard] Nueva comida creada')
           await this.fetchMeals()
           const newItem = this.mealList.find(item => item.id === res.data.food.id || item.name === res.data.food.name)
           if (newItem) this.selectedMeal = newItem
@@ -474,7 +437,6 @@ export default {
         console.error('Error al crear nueva comida:', error.response?.status, error.response?.data)
       }
     },
-
     closeFoodInfo() {
       this.showFoodInfo = false
       this.selectedMealInfo = null
@@ -487,11 +449,10 @@ export default {
       try {
         const userId = this.$store.state.main.user.userId
         const [mealsRes, restrictedRes] = await Promise.all([
-          axios.get('http://localhost:3000/api/foods', { params: { userId } }),
-          axios.get(`http://localhost:3000/api/diet/restricted-foods/${userId}`)
+          axios.get(API_URL + 'foods'),
+          axios.get(API_URL + `diet/restricted-foods/${userId}`)
         ])
         const restrictedNames = restrictedRes.data.map(f => f.name.toLowerCase())
-        // Mapear respuesta snake_case a camelCase y filtrar localmente si se desea
         const foods = mealsRes.data.map(m => ({
           id: m.id,
           name: m.name,
@@ -504,27 +465,20 @@ export default {
           if (m.createdByUserId == null) return true
           return m.createdByUserId === userId
         })
-        this.mealList = [...filtered, { name: 'Otra' }]
+        const baseList = filtered.map(meal => ({
+          ...meal,
+          nameWithStar: meal.name
+        }))
+        this.mealList = [{ name: 'Otra' }, ...baseList]
+        this.decorateAndSortMealList()
       } catch (error) {
         console.error('Error al obtener comidas:', error)
       }
-    },
-    async fetchEatenMeals() {
-      try {
-        const userId = this.$store.state.main.user.userId
-        const res = await axios.get(`http://localhost:3000/api/foods/entry/${userId}`)
-        this.mealHistory = res.data.entries || []
-      } catch (error) {
-        console.error('Error al obtener comidas registradas:', error)
-      }
     }
   },
-
-  async created () {
+  async created() {
     await this.fetchMeals()
     await this.fetchEatenMeals()
   }
 }
 </script>
-
-

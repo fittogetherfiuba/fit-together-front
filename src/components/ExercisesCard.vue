@@ -1,28 +1,49 @@
 <template>
-  <v-card class="pb-4 mt-4" elevation="10">
-    <v-card-title class="mb-4 text-center text-main font-weight-bold bg-secondary" style="font-size: 1.4rem;">
-      <v-icon start icon="mdi-run"></v-icon>
-      Actividades Realizadas
+  <v-card class="pb-10 mt-4" elevation="10" height="670">
+    <v-card-title class="bg-secondary text-white py-3 px-4">
+      <v-row no-gutters class="align-center justify-space-between">
+        <v-col cols="auto" class="d-flex align-center">
+          <v-icon class="mr-2">mdi-run</v-icon>
+          <span style="font-size: 1.5rem;" class="font-weight-bold">Actividades realizadas</span>
+        </v-col>
+        <v-btn size="small" icon variant="tonal" color="white" @click="showDialog = true">
+          <v-icon size="x-large">mdi-plus</v-icon>
+        </v-btn>
+      </v-row>
     </v-card-title>
-    <v-card-text>
-      <v-list style="overflow-y: auto; max-height: 400px;">
-        <span class="d-flex text-h6 justify-center font-weight-bold" v-if="exerciseHistory.length === 0">No hay actividades registradas</span>
-        <v-list-item class="border-b" v-for="(activity, index) in exerciseHistory" :key="index">
-          <v-list-item-title class="font-weight-bold">
-            {{ activity.activityName }}
-          </v-list-item-title>
-          <v-list-item-subtitle>
-            <span v-if="activity.durationMinutes">Duración: {{ activity.durationMinutes }} min - </span>
-            <span v-if="activity.distanceKm">Distancia: {{ activity.distanceKm }} km </span>
-            <span v-if="activity.series">Series: {{ activity.series }} - </span>
-            <span v-if="activity.repetitions">Repeticiones: {{ activity.repetitions }}</span>
-          </v-list-item-subtitle>
-        </v-list-item>
-      </v-list>
+
+    <v-card-text class="fill-height mt-2">
+      <v-row class="justify-center align-center fill-height">
+        <v-col cols="12" v-if="!exerciseHistory.length">
+          <v-card elevation="0" class="d-flex align-center justify-center">
+            <v-row justify="center">
+              <v-col cols="12" class="text-center">
+                <v-icon color="grey" size="90">mdi-star-off-outline</v-icon>
+                <div style="font-size: 20px;" class="font-weight-bold mt-2 mb-10">No hay actividades registradas</div>
+              </v-col>
+            </v-row>
+          </v-card>
+        </v-col>
+        <v-col class="fill-height pb-7 pt-6 px-4" v-if="exerciseHistory.length" cols="12">
+          <v-card class="fill-height" variant="outlined" style="border-color: lightgray;">
+            <v-list class="fill-height pa-2 pt-1" style="overflow-y: auto;">
+              <v-list-item class="border-b py-5"  v-for="(activity, index) in exerciseHistory" :key="index">
+                <v-list-item-title class="font-weight-bold">
+                  {{ activity.activityName }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  <span v-if="activity.durationMinutes">Duración: {{ activity.durationMinutes }} min </span>
+                  <span v-if="activity.durationMinutes && activity.distanceKm"> - </span>
+                  <span v-if="activity.distanceKm">Distancia: {{ activity.distanceKm }} km </span>
+                  <span v-if="activity.series">Series: {{ activity.series }} - </span>
+                  <span v-if="activity.repetitions">Repeticiones: {{ activity.repetitions }}</span>
+                </v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+          </v-card>
+        </v-col>
+      </v-row>
     </v-card-text>
-    <v-card-actions class="justify-center">
-      <v-btn variant="tonal" class="border-sm font-weight-bold bg-warning" @click="showDialog = true">Agregar actividad</v-btn>
-    </v-card-actions>
 
     <v-dialog v-model="showDialog" max-width="450px" @after-leave="closeDialog">
       <v-card class="d-flex align-center">
@@ -95,6 +116,7 @@
 
 <script>
 import axios from 'axios'
+const API_URL = import.meta.env.VITE_APP_API_URL
 
 export default {
   name: 'ExerciseCard',
@@ -154,7 +176,7 @@ export default {
             performedAt: new Date().toISOString(),
             caloriesBurned: this.calories
           }
-          await axios.post('http://localhost:3000/api/activities/entry', newExercise)
+          await axios.post(API_URL + 'activities/entry', newExercise)
           this.fetchDoneExercises()
         } catch (error) {
           console.error('Error al obtener comidas:', error)
@@ -171,8 +193,8 @@ async fetchExercises () {
   try {
     // 1️⃣  llamadas en paralelo
     const [allRes, freqRes] = await Promise.all([
-      axios.get(`http://localhost:3000/api/activities/${this.selectedType}`),
-      axios.get('http://localhost:3000/api/activities/entries/frequent', {
+      axios.get(API_URL + `activities/${this.selectedType}`),
+      axios.get(API_URL + 'activities/entries/frequent', {
         params: {
           userId: this.$store.state.main.user.userId,
           type:  this.selectedType.toLowerCase()   // backend espera "cardio" | "musculacion"
@@ -215,7 +237,7 @@ async fetchExercises () {
       if(this.selectedType){
 
         try {
-          const response = await axios.post('http://localhost:3000/api/activities/estimate-calories',
+          const response = await axios.post(API_URL + 'activities/estimate-calories',
               {
                 activityName: this.selectedExercise.name,
                 durationMinutes: this.duration,
@@ -232,7 +254,7 @@ async fetchExercises () {
 
     async fetchDoneExercises() {
       try {
-        const response = await axios.get('http://localhost:3000/api/activities/entry/' + this.$store.state.main.user.userId.toString())
+        const response = await axios.get(API_URL + 'activities/entry/' + this.$store.state.main.user.userId.toString())
         this.exerciseHistory = response.data.entries
       } catch (error) {
         console.error('Error al obtener actividades:', error)
