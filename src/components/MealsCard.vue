@@ -1,40 +1,52 @@
 <template>
-  <v-card class="pb-4 mt-4" elevation="10">
-    <v-card-title class="mb-4 text-center font-weight-bold bg-secondary" style="font-size: 1.4rem;">
-      <v-icon start icon="mdi-food-drumstick" />
-      Alimentos consumidos
+  <v-card class="pb-10 mt-4" elevation="10" height="453">
+    <v-card-title class="bg-secondary text-white py-3 px-4">
+      <v-row no-gutters class="align-center justify-space-between">
+        <v-col cols="auto" class="d-flex align-center">
+          <v-icon class="mr-2">mdi-food-drumstick</v-icon>
+          <span style="font-size: 1.5rem;" class="font-weight-bold">Alimentos consumidos</span>
+        </v-col>
+        <v-btn size="small" icon variant="tonal" color="white" @click="showDialog = true">
+          <v-icon size="x-large">mdi-plus</v-icon>
+        </v-btn>
+      </v-row>
     </v-card-title>
-    <v-card-text>
-      <v-list style="overflow-y: auto; max-height: 400px;">
-        <span
-          class="d-flex text-h6 justify-center font-weight-bold"
-          v-if="mealHistory.length === 0"
-        >
-          No hay alimentos registrados
-        </span>
-        <v-list-item
-          class="border-b"
-          v-for="(meal, index) in mealHistory"
-          @click="handleMealInfo(meal)"
-          :key="index"
-        >
-          <v-list-item-title class="font-weight-bold">
-            {{ meal.foodName }}
-          </v-list-item-title>
-          <v-list-item-subtitle>
-            <span>Cantidad: {{ meal.grams }}g - </span>
-            <span>Calorías: {{ meal.calories }}</span>
-          </v-list-item-subtitle>
-        </v-list-item>
-      </v-list>
-    </v-card-text>
-    <v-card-actions class="justify-center">
-      <v-btn class="border-sm bg-warning font-weight-bold" @click="openAddDialog">
-        Agregar comida
-      </v-btn>
-    </v-card-actions>
 
-    <!-- Dialog para agregar entrada de comida existente o nueva -->
+    <v-card-text class="fill-height mt-2">
+      <v-row class="justify-center align-center fill-height">
+        <v-col cols="12" v-if="!mealHistory.length">
+          <v-card elevation="0" class="d-flex align-center justify-center">
+            <v-row justify="center">
+              <v-col cols="12" class="text-center">
+                <v-icon color="grey" size="90">mdi-star-off-outline</v-icon>
+                <div style="font-size: 20px;" class="font-weight-bold mt-2 mb-10">No hay alimentos registrados</div>
+              </v-col>
+            </v-row>
+          </v-card>
+        </v-col>
+        <v-col v-if="mealHistory.length" class="fill-height pb-7 pt-6 px-4" cols="12">
+          <v-card class="fill-height" variant="outlined" style="border-color: lightgray;">
+            <v-list class="fill-height pa-2 pt-1" style="overflow-y: auto;">
+              <v-list-item
+                class="border-b py-5"
+                v-for="(meal, index) in mealHistory"
+                @click="handleMealInfo(meal)"
+                :key="index"
+              >
+                <v-list-item-title class="font-weight-bold">
+                  {{ meal.foodName }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  <span>Cantidad: {{ meal.grams }}g - </span>
+                  <span>Calorías: {{ meal.calories }}</span>
+                </v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-card-text>
+
     <v-dialog v-model="showDialog" max-width="450px" @after-leave="resetAddDialog">
       <v-card>
         <v-card-title class="pa-0">
