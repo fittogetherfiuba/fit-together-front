@@ -81,7 +81,7 @@ export default {
         try {
           const water = {
             "userId": this.$store.state.main.user.userId,
-            "liters": parseInt(this.waterQuantity),
+            "liters": parseFloat(this.waterQuantity),
           }
           await axios.post(API_URL + 'water/entry', water)
           this.fetchConsumedWater()
@@ -98,7 +98,7 @@ export default {
         const response = await axios.get(API_URL + 'water/entries?userId=' + this.$store.state.main.user.userId.toString())
         const waterEntries = response.data.entries
         this.waterHistory = waterEntries.reduce((total, entry) => { 
-          return total + parseInt(entry.liters) 
+          return total + parseFloat(entry.liters) 
         }, 0)
       } catch (error) {
         console.error('Error al obtener agua consumida:', error)
