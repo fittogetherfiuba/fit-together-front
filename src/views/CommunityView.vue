@@ -423,7 +423,9 @@
   <script>
   import axios from 'axios'
   import UserService from '../services/user.service'
+  import eventBus from '../eventBus';
   const API_URL = import.meta.env.VITE_APP_API_URL
+  
   export default {
     name: 'CommunityView',
     data () {
@@ -541,20 +543,31 @@
             console.error('Error al obtener miembros:', err);
           }
         },
-
-      async sendFriendRequest(username) {
-        try {
-          await axios.post(API_URL + 'friends/requests', {
-            senderUsername: this.$store.state.main.user.username,
-            receiverUsername: username
-          });
-          this.pendingRequests.push(username); // marcar como pendiente
-          this.$toast?.success('Solicitud enviada');
-        } catch (error) {
-          console.error(error);
-          this.$toast?.error('Error al enviar solicitud');
-        }
-      },
+        async sendFriendRequest(username) {
+            try {
+                await axios.post(API_URL + 'friends/requests', {
+                  senderUsername: this.$store.state.main.user.username,
+                  receiverUsername: username
+                });
+                await this.notifyRequest(username);
+                this.pendingRequests.push(username); // marcar como pendiente
+                this.$toast?.success('Solicitud enviada');
+            } catch (error) {
+                console.error(error);
+                this.$toast?.error('Error al enviar solicitud');
+            }
+        },
+        async notifyRequest(username) {
+            try {
+                const notification = {
+                    username: username,
+                    message: `👤 Nueva solicitud de amistad de '${this.$store.state.main.user.username}'`,
+                }
+                await axios.post('http://localhost:3000/api/notifications/create', notification)
+            } catch (error) {
+                console.error('Error al enviar la notificación:', error)
+            }
+        },
         async fetchCommunityComments(post) {
             try {
                 const response = await axios.get(API_URL + 'communities/posts/' + post.id + '/comments')
@@ -591,9 +604,27 @@
                     }
                     await axios.post(API_URL + 'communities/posts', post)
                     this.fetchCommunityPosts(this.$route.params.id)
+                    this.notifyPost()
                     this.closeDialogCreatePost()
                 } catch (error) {
                     console.error('Error al crear el post:', error)
+                }
+            }
+        },
+
+        async notifyPost() {
+            await this.fetchCommunityMembers()
+            for (const member of this.communityMembers) {
+                
+                try {
+                    const notification = {
+                        user_id: member.id,
+                        message: `👥 Nuevo post en la comunidad '${this.communityInfo.name}'`,
+                    }
+                    await axios.post('http://localhost:3000/api/notifications/create', notification)
+                    eventBus.emit('new-notification');
+                } catch (error) {
+                    console.error('Error al enviar la notificación:', error)
                 }
             }
         },

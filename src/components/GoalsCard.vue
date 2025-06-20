@@ -192,6 +192,10 @@ const fetchGoals = async () => {
     for (const item of goalsHistory.value) {
       await fetchProgress(item);
     }
+    if (sessionStorage.getItem('justLoggedIn') === 'true') {
+      sessionStorage.removeItem('justLoggedIn');
+    }
+    
   } catch (err) {
     console.error('[GoalsCard] Error al obtener objetivos:', err);
     goalsHistory.value = [];
@@ -239,7 +243,6 @@ const fetchProgress = async (goalItem) => {
     const justLoggedIn = sessionStorage.getItem('justLoggedIn') === 'true';
     if (justLoggedIn && goalItem.currentProgress < goalItem.goal) {
       notifyGoalPending(goalItem);
-      sessionStorage.removeItem('justLoggedIn');
     }
 
   } catch (err) {
@@ -252,20 +255,40 @@ const fetchProgress = async (goalItem) => {
  * notifyGoalCompleted(goalItem): Prepara el texto según tipo de objetivo
  * y activa el snackbar.
  */
-const notifyGoalCompleted = (goalItem) => {
-  const message = goalItem.type === 'calories'
-    ? `✅ ¡Felicidades! Has alcanzado tu objetivo de ${goalItem.goal} kcal.`
-    : `✅ ¡Genial! Has bebido ${goalItem.goal} L de agua.`;
+const notifyGoalCompleted = async (goalItem) => {
+  try{
+    const notificationMessage = goalItem.type === 'calories'
+      ? `✅ ¡Felicidades! Has alcanzado tu objetivo de ${goalItem.goal} kcal.`
+      : `✅ ¡Genial! Has bebido ${goalItem.goal} L de agua.`;
 
-  store.dispatch('notifications/addNotification', { message, timestamp: new Date() });
+    const notification = {
+      user_id: userId.value,
+      message: notificationMessage,
+    };
+  
+    await axios.post('http://localhost:3000/api/notifications/create', notification)
+    eventBus.emit('new-notification');
+  }catch (error) {
+    console.error('Error al enviar notificación:', error);
+  }
 };
 
-const notifyGoalPending = (goalItem) => {
-  const message = goalItem.type === 'calories'
-    ? `⚠️ Tienes pendiente tu objetivo de ${goalItem.goal} kcal.`
-    : `⚠️ Aún no alcanzaste tu meta de ${goalItem.goal} L de agua.`;
+const notifyGoalPending = async (goalItem) => {
+  try{
+    const notificationMessage = goalItem.type === 'calories'
+      ? `⚠️ Tienes pendiente tu objetivo de ${goalItem.goal} kcal.`
+      : `⚠️ Aún no alcanzaste tu meta de ${goalItem.goal} L de agua.`;
 
-  store.dispatch('notifications/addNotification', { message, timestamp: new Date() });
+    const notification = {
+      user_id: userId.value,
+      message: notificationMessage,
+    };
+  
+    await axios.post('http://localhost:3000/api/notifications/create', notification)
+    eventBus.emit('new-notification');
+  }catch (error) {
+    console.error('Error al enviar notificación:', error);
+  }
 };
 
 
