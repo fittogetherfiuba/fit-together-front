@@ -100,30 +100,6 @@
   <script>
   import { ref } from 'vue'
   import router from '@/router'
-
-/*
-  const register = () => {
-    console.log('Registrando:', email.value)
-
-    try {
-      const response = axios.post('http://localhost:3000/api/register', {
-        email: email.value,
-        password: password.value,
-      })
-
-      // cambiarlo por un token cuando haya
-      const userData = response.data
-      localStorage.setItem('user', JSON.stringify(userData))
-      console.log('Registro exitoso:', userData)
-
-      // redirigir a verificacion
-      router.push('/')
-    } catch (error) {
-      console.error('Error al registrar:', error.response?.data || error.message)
-    }
-
-  }
-*/
   export default {
   name: 'LoginView',
   data () {

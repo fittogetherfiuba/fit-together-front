@@ -423,6 +423,7 @@
   <script>
   import axios from 'axios'
   import UserService from '../services/user.service'
+  const API_URL = import.meta.env.VITE_APP_API_URL
   export default {
     name: 'CommunityView',
     data () {
@@ -497,7 +498,7 @@
         },
         async fetchCommunityInfo() {
             try {
-                const response = await axios.get('http://localhost:3000/api/communities/all') 
+                const response = await axios.get(API_URL + 'communities/all') 
                 this.communityInfo = response.data.communities.find(community => community.id.toString() === this.$route.params.id)  
             } catch (error) {
                 console.error('Error al obtener comunidades:', error)
@@ -515,7 +516,7 @@
                     params.append('until', this.untilFilter.toISOString().split('T')[0]);
                 }
 
-                const response = await axios.post('http://localhost:3000/api/communities/' + communityId + '/posts?' + params.toString(), {
+                const response = await axios.post(API_URL + 'communities/' + communityId + '/posts?' + params.toString(), {
                     topics: this.topicFilters
                 })
                 this.communityPosts = response.data.posts
@@ -534,7 +535,7 @@
         },
         async fetchCommunityMembers() {
           try {
-            const response = await axios.get(`http://localhost:3000/api/communities/${this.communityInfo.id}/members`);
+            const response = await axios.get(API_URL + `communities/${this.communityInfo.id}/members`);
             this.communityMembers = response.data.members;
           } catch (err) {
             console.error('Error al obtener miembros:', err);
@@ -543,7 +544,7 @@
 
       async sendFriendRequest(username) {
         try {
-          await axios.post('http://localhost:3000/api/friends/requests', {
+          await axios.post(API_URL + 'friends/requests', {
             senderUsername: this.$store.state.main.user.username,
             receiverUsername: username
           });
@@ -556,7 +557,7 @@
       },
         async fetchCommunityComments(post) {
             try {
-                const response = await axios.get('http://localhost:3000/api/communities/posts/' + post.id + '/comments')
+                const response = await axios.get(API_URL + 'communities/posts/' + post.id + '/comments')
                 this.postComments[post.id] = response.data.comments
             } catch (error) {
                 console.error('Error al obtener comentarios del post:', error)
@@ -565,7 +566,7 @@
 
         async fetchTopicList() {
             try {
-                const response = await axios.get('http://localhost:3000/api/communities/topics')
+                const response = await axios.get(API_URL + 'communities/topics')
                 this.topicList = response.data.topics
             } catch (error) {
                 console.error('Error al obtener comentarios del post:', error)
@@ -588,7 +589,7 @@
                         topic: this.postTopic,
                         photos: this.postPhotos
                     }
-                    await axios.post('http://localhost:3000/api/communities/posts', post)
+                    await axios.post(API_URL + 'communities/posts', post)
                     this.fetchCommunityPosts(this.$route.params.id)
                     this.closeDialogCreatePost()
                 } catch (error) {
@@ -617,7 +618,7 @@
                         postId: post.id,
                         body: commentBody
                     }
-                    await axios.post('http://localhost:3000/api/communities/posts/' + post.id + '/comments', comment)
+                    await axios.post(API_URL + 'communities/posts/' + post.id + '/comments', comment)
                     this.fetchCommunityComments(post)
                     this.postCommentBody[post.id] = ''
                 } catch (error) {

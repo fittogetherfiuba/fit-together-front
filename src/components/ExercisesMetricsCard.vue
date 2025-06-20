@@ -25,7 +25,7 @@
 <script>
 import axios from 'axios';
 import { defineComponent } from 'vue';
-
+const API_URL = import.meta.env.VITE_APP_API_URL;
 import CaloriesBurnedBarChart   from '@/components/Charts/CaloriesBurnedBar.vue';
 import ActivitiesTypePieChart   from '@/components/Charts/ActivitiesTypePie.vue';
 
@@ -69,7 +69,7 @@ export default defineComponent({
 
       try {
         const resp = await axios.get(
-          `http://localhost:3000/api/activities/since-last-monday?userId=${this.userId}`
+          API_URL + `activities/since-last-monday?userId=${this.userId}`
         );
 
         this.entries = resp.data?.entries ?? [];

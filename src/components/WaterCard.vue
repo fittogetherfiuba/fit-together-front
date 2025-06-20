@@ -50,6 +50,7 @@
 import { ref } from 'vue'
 import axios from 'axios'
 import eventBus from '../eventBus';
+const API_URL = import.meta.env.VITE_APP_API_URL
 
 export default {
   name: 'WaterCard',
@@ -82,7 +83,7 @@ export default {
             "userId": this.$store.state.main.user.userId,
             "liters": parseInt(this.waterQuantity),
           }
-          await axios.post('http://localhost:3000/api/water/entry', water)
+          await axios.post(API_URL + 'water/entry', water)
           this.fetchConsumedWater()
           eventBus.emit('progress-updated');
           console.log('[WaterCard] Emitido "progress-updated" tras agregar agua');
@@ -94,7 +95,7 @@ export default {
     },
     async fetchConsumedWater() {
       try {
-        const response = await axios.get('http://localhost:3000/api/water/entries?userId=' + this.$store.state.main.user.userId.toString())
+        const response = await axios.get(API_URL + 'water/entries?userId=' + this.$store.state.main.user.userId.toString())
         const waterEntries = response.data.entries
         this.waterHistory = waterEntries.reduce((total, entry) => { 
           return total + parseInt(entry.liters) 

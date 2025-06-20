@@ -240,6 +240,7 @@
 <script>
 import axios from 'axios'
 import eventBus from '../eventBus'
+const API_URL = import.meta.env.VITE_APP_API_URL
 
 export default {
   name: 'MealsCard',
@@ -321,7 +322,7 @@ export default {
       try {
         const userId = this.$store.state.main.user.userId
         const periodParam = this.selectedPeriod.toLowerCase()
-        const res = await axios.get(`http://localhost:3000/api/foods/top-foods?userId=${userId}&period=${periodParam}`)
+        const res = await axios.get(API_URL + `foods/top-foods?userId=${userId}&period=${periodParam}`)
         this.topFoods = res.data.foods || []
       } catch (error) {
         console.error('Error al obtener top foods:', error)
@@ -335,7 +336,7 @@ export default {
 
     async fetchEatenMeals () {
       try {
-        const response = await axios.get(`http://localhost:3000/api/foods/entry/${this.$store.state.main.user.userId}`)
+        const response = await axios.get(API_URL + `foods/entry/${this.$store.state.main.user.userId}`)
         this.mealHistory = response.data.entries
       } catch (error) {
         console.error('Error al obtener comidas:', error)
@@ -375,7 +376,7 @@ export default {
         consumedAt: new Date().toISOString()
       }
       try {
-        const res = await axios.post('http://localhost:3000/api/foods/entry', payload)
+        const res = await axios.post(API_URL + 'foods/entry', payload)
         if (res.status === 200 || res.status === 201) {
           console.log('[MealsCard] Entrada guardada')
           await this.fetchEatenMeals()
@@ -400,7 +401,7 @@ export default {
             period: this.selectedPeriod,
             consumedAt: new Date().toISOString()
           }
-          await axios.post('http://localhost:3000/api/foods/entry', meal)
+          await axios.post(API_URL + 'foods/entry', meal)
           await this.fetchEatenMeals()
           eventBus.emit('progress-updated')
           console.log('[MealsCard] Emitido progress-updated tras agregar comida')
@@ -447,7 +448,7 @@ export default {
       if (this.customFiberPer100g != null) nutrientsArr.push({ nutrientId: 5, amountPer100g: this.customFiberPer100g })
       if (nutrientsArr.length) payload.nutrients = nutrientsArr
       try {
-        const res = await axios.post('http://localhost:3000/api/foods', payload)
+        const res = await axios.post(API_URL + 'foods', payload)
         if (res.status === 201) {
           console.log('[MealsCard] Nueva comida creada')
           await this.fetchMeals()
@@ -476,8 +477,8 @@ export default {
       const userId = this.$store.state.main.user.userId
 
       const [mealsRes, restrictedRes] = await Promise.all([
-        axios.get('http://localhost:3000/api/foods'),
-        axios.get(`http://localhost:3000/api/diet/restricted-foods/${userId}`)
+        axios.get(API_URL + 'foods'),
+        axios.get(API_URL + `diet/restricted-foods/${userId}`)
       ])
 
       const restrictedNames = restrictedRes.data.map(f => f.name.toLowerCase())

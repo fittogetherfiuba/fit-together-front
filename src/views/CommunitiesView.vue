@@ -229,6 +229,7 @@
 
 <script>
 import axios from 'axios'
+const API_URL = import.meta.env.VITE_APP_API_URL
 
 export default {
   name: 'CommunitiesView',
@@ -270,7 +271,7 @@ export default {
             "name": this.name,
             "description": this.description,
           }
-          await axios.post('http://localhost:3000/api/communities/create', community)
+          await axios.post(API_URL + 'communities/create', community)
           await this.fetchSubscribedCommunities()
           await this.fetchCommunities()
         } catch (error) {
@@ -285,7 +286,7 @@ export default {
             userId: this.$store.state.main.user.userId, 
             communityId: community.id
         }
-        await axios.post('http://localhost:3000/api/communities/subscribe', communitySuscription)
+        await axios.post(API_URL + 'communities/subscribe', communitySuscription)
         await this.fetchSubscribedCommunities()
         await this.fetchCommunities()
       } catch (error) {
@@ -299,7 +300,7 @@ export default {
     async fetchCommunities() {
       
       try {
-        const response = await axios.get('http://localhost:3000/api/communities/all')    
+        const response = await axios.get(API_URL + 'communities/all')    
         this.communitiesList = response.data.communities.filter(
           community => !this.subscribedCommunitiesList.some(
             subscribed => subscribed.communityId === community.id
@@ -311,7 +312,7 @@ export default {
     },
     async fetchSubscribedCommunities() {
       try {
-        const response = await axios.get('http://localhost:3000/api/communities?userId=' + this.$store.state.main.user.userId.toString())
+        const response = await axios.get(API_URL + 'communities?userId=' + this.$store.state.main.user.userId.toString())
         this.subscribedCommunitiesList = response.data.communities
         console.log(this.subscribedCommunitiesList)
       } catch (error) {

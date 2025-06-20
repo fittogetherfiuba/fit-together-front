@@ -111,6 +111,7 @@ import { useStore } from 'vuex';
 import axios from 'axios';
 import PieChart from './PieChart.vue';
 import eventBus from '../eventBus';
+const API_URL = import.meta.env.VITE_APP_API_URL;
 
 // Vuex store para obtener userId
 const store = useStore();
@@ -155,7 +156,7 @@ const fetchGoals = async () => {
   if (!userId.value) return;
 
   try {
-    const res = await axios.get(`http://localhost:3000/api/goals/${userId.value}`);
+    const res = await axios.get(API_URL + `goals/${userId.value}`);
     const data = res.data.goals || {};
 
     // Ahora cada meta trae su value y notified
@@ -189,13 +190,13 @@ const fetchProgress = async (goalItem) => {
 
     if (goalItem.type === 'calories') {
       const { data } = await axios.get(
-        'http://localhost:3000/api/foods/calories/daily',
+        API_URL + 'foods/calories/daily',
         { params: { userId: userId.value, date } }
       );
       goalItem.currentProgress = data.totalCalories || 0;
     } else {
       const { data } = await axios.get(
-        `http://localhost:3000/api/water/entries?userId=${userId.value}`
+        API_URL + `water/entries?userId=${userId.value}`
       );
       const entries = data.entries || [];
       goalItem.currentProgress = entries.reduce((sum, item) => sum + Number(item.liters), 0);
@@ -209,7 +210,7 @@ const fetchProgress = async (goalItem) => {
       notifyGoalCompleted(goalItem);
 
       // Marcar como notificado en backend
-      await axios.post('http://localhost:3000/api/goals/mark-notified', {
+      await axios.post(API_URL + 'goals/mark-notified', {
         userId: userId.value,
         type: goalItem.type
       });
@@ -256,7 +257,7 @@ const handleAddGoal = async () => {
   if (!canAdd.value) return;
 
   try {
-    await axios.post('http://localhost:3000/api/goals', {
+    await axios.post(API_URL + 'goals', {
       userId: userId.value,
       type: selectedType.value,
       goal: selectedGoal.value
@@ -290,7 +291,7 @@ const handleAddGoal = async () => {
 const deleteGoal = async (idx) => {
   const goalItem = goalsHistory.value[idx];
   try {
-    await axios.delete('http://localhost:3000/api/goals', {
+    await axios.delete(API_URL + 'goals', {
       data: {
         userId: userId.value,
         type: goalItem.type

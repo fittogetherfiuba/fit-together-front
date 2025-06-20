@@ -228,6 +228,7 @@
 <script>
 import Recipes from '../components/RecipesCard.vue'
 import axios from 'axios'
+const API_URL = import.meta.env.VITE_APP_API_URL
 
 
 export default {
@@ -312,7 +313,7 @@ export default {
           if (!this.picError && this.showPic) {
             recipe["pic"] = this.picUrl
           }
-          await axios.post('http://localhost:3000/api/recipes/create', recipe)
+          await axios.post(API_URL + 'recipes/create', recipe)
           this.fetchRecipes()
         } catch (error) {
           console.error('Error al obtener recetas:', error)
@@ -322,7 +323,7 @@ export default {
     },
     async fetchMeals() {
       try {
-        const response = await axios.get('http://localhost:3000/api/foods')
+        const response = await axios.get(API_URL + 'foods')
         this.mealList = response.data
       } catch (error) {
         console.error('Error al obtener comidas:', error)
@@ -330,7 +331,7 @@ export default {
     },
     async fetchRecipes() {
       try {
-        const response = await axios.post('http://localhost:3000/api/recipes', {
+        const response = await axios.post(API_URL + 'recipes', {
           filterIngredients: this.chips
         })
         this.recipesList = response.data.recipes
@@ -341,7 +342,7 @@ export default {
     },
     async fetchIngredients() {
       try {
-        const response = await axios.get('http://localhost:3000/api/foods')
+        const response = await axios.get(API_URL + 'foods')
         this.ingredientsList = response.data
         console.log(this.ingredientsList)
       } catch (error) {

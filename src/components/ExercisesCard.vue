@@ -95,6 +95,7 @@
 
 <script>
 import axios from 'axios'
+const API_URL = import.meta.env.VITE_APP_API_URL
 
 export default {
   name: 'ExerciseCard',
@@ -154,7 +155,7 @@ export default {
             performedAt: new Date().toISOString(),
             caloriesBurned: this.calories
           }
-          await axios.post('http://localhost:3000/api/activities/entry', newExercise)
+          await axios.post(API_URL + 'activities/entry', newExercise)
           this.fetchDoneExercises()
         } catch (error) {
           console.error('Error al obtener comidas:', error)
@@ -171,8 +172,8 @@ async fetchExercises () {
   try {
     // 1️⃣  llamadas en paralelo
     const [allRes, freqRes] = await Promise.all([
-      axios.get(`http://localhost:3000/api/activities/${this.selectedType}`),
-      axios.get('http://localhost:3000/api/activities/entries/frequent', {
+      axios.get(API_URL + `activities/${this.selectedType}`),
+      axios.get(API_URL + 'activities/entries/frequent', {
         params: {
           userId: this.$store.state.main.user.userId,
           type:  this.selectedType.toLowerCase()   // backend espera "cardio" | "musculacion"
@@ -215,7 +216,7 @@ async fetchExercises () {
       if(this.selectedType){
 
         try {
-          const response = await axios.post('http://localhost:3000/api/activities/estimate-calories',
+          const response = await axios.post(API_URL + 'activities/estimate-calories',
               {
                 activityName: this.selectedExercise.name,
                 durationMinutes: this.duration,
@@ -232,7 +233,7 @@ async fetchExercises () {
 
     async fetchDoneExercises() {
       try {
-        const response = await axios.get('http://localhost:3000/api/activities/entry/' + this.$store.state.main.user.userId.toString())
+        const response = await axios.get(API_URL + 'activities/entry/' + this.$store.state.main.user.userId.toString())
         this.exerciseHistory = response.data.entries
       } catch (error) {
         console.error('Error al obtener actividades:', error)
