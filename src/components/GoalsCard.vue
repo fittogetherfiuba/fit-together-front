@@ -1,42 +1,41 @@
 <template>
-  <v-card elevation="10">
-    <!-- Título del card -->
-    <v-card-title
-      class="mb-4 text-center text-main font-weight-bold bg-secondary"
-      style="font-size: 1.4rem;"
-    >
-      <v-icon start icon="mdi-flag-checkered" />
-      Objetivos Establecidos
+  <v-card class="pb-10 mt-4" elevation="10" height="670">
+    <v-card-title class="bg-secondary text-white py-3 px-4">
+      <v-row no-gutters class="align-center justify-space-between">
+        <v-col cols="auto" class="d-flex align-center">
+          <v-icon class="mr-2">mdi-flag-checkered</v-icon>
+          <span style="font-size: 1.5rem;" class="font-weight-bold">Objetivos</span>
+        </v-col>
+        <v-btn :disabled="goalsHistory.length === 2" size="small" icon variant="tonal" color="white" @click="showDialog = true">
+          <v-icon size="x-large">mdi-plus</v-icon>
+        </v-btn>
+      </v-row>
     </v-card-title>
 
-    <!-- Contenido: lista de objetivos con gráficos circulares -->
-    <v-card-text>
-      <v-row class="d-flex flex-wrap">
+    <v-card-text class="fill-height mt-2">
+      <v-row class="justify-center align-center fill-height">
         <v-col
           cols="12"
-          sm="6"
-          :offset-sm="goalsHistory.length === 1 ? 3 : 0"
           v-for="(goalItem, index) in goalsHistory"
           :key="goalItem.type"
-          class="pb-6"
+          class="justify-center align-center"
         >
-          <div class="d-flex justify-space-between align-center mb-2">
+          <div class="d-flex justify-space-between align-center mx-10">
             <span class="font-weight-bold">
               {{ goalItem.type === 'calories' ? 'Calorías' : 'Agua' }}: {{ goalItem.goal }}
               <span v-if="goalItem.type === 'water'"> litros</span>
               <span v-else> kcal</span>
             </span>
-            <v-btn icon @click="deleteGoal(index)">
+            <v-btn size="small" icon @click="deleteGoal(index)">
               <v-icon>mdi-close</v-icon>
             </v-btn>
           </div>
 
-          <!-- PieChart muestra filled/total según tipo -->
           <PieChart
             :filled="goalItem.currentProgress"
             :total="goalItem.goal"
             :goalType="goalItem.type"
-            class="mx-auto my-4"
+            class="mx-auto my-3"
             style="max-width: 160px;"
           />
 
@@ -45,59 +44,82 @@
             <span v-if="goalItem.type === 'water'">L</span>
             <span v-else>kcal</span>
           </div>
+
         </v-col>
 
-        <!-- Mensaje cuando no hay objetivos -->
         <v-col cols="12" v-if="!goalsHistory.length">
-          <div class="text--disabled font-weight-bold text-h6 text-center">No hay objetivos aún</div>
+          <v-card elevation="0" class="d-flex align-center justify-center">
+            <v-row justify="center">
+              <v-col cols="12" class="text-center">
+                <v-icon color="grey" size="90">mdi-star-off-outline</v-icon>
+                <div style="font-size: 20px;" class="font-weight-bold mt-2">No hay objetivos</div>
+                <div style="font-size: 20px;" class="font-weight-bold">definidos</div>
+              </v-col>
+            </v-row>
+          </v-card>
         </v-col>
       </v-row>
+      
     </v-card-text>
+    
 
-    <!-- Botón para agregar objetivo (hasta 2 objetivos) -->
-    <v-card-actions class="justify-center">
-      <v-btn
-        v-if="goalsHistory.length < 2"
-        class="border-sm bg-warning"
-        @click="showDialog = true"
-      >
-        Agregar objetivo
-      </v-btn>
-    </v-card-actions>
-
-    <!-- Dialog para crear nuevo objetivo -->
     <v-dialog v-model="showDialog" max-width="500px">
       <v-card>
-        <v-card-title>
-          <span class="text-h6">Agregar objetivo</span>
+        <v-card-title class="pa-0">
+          <v-row no-gutters class="text-center pa-2 bg-secondary w-100">
+            <v-col class="d-flex justify-center align-center">
+              <v-icon start icon="mdi-flag-checkered"></v-icon>
+              <span class="text-h6 font-weight-bold">Agregar objetivo</span>
+            </v-col>
+          </v-row>
         </v-card-title>
-        <v-card-text>
+
+        <v-card-text class="pt-6 pb-3 d-flex justify-center">
           <v-form ref="formRef" lazy-validation>
-            <v-select
-              v-model="selectedType"
-              :items="availableTypeOptions"
-              label="Tipo de objetivo"
-              item-title="label"
-              item-value="value"
-              required
-            />
-            <v-text-field
-              v-model.number="selectedGoal"
-              label="Valor"
-              type="number"
-              min="1"
-              :rules="[valueRule]"
-              :suffix="selectedType === 'water' ? ' litros' : ' kcal'"
-              required
-            />
+            <v-row dense>
+              <v-col cols="12">
+                <v-select
+                  v-model="selectedType"
+                  :items="availableTypeOptions"
+                  label="Tipo de objetivo"
+                  item-title="label"
+                  item-value="value"
+                  required
+                />
+              </v-col>
+              <v-col cols="12">
+                <v-text-field
+                  v-model.number="selectedGoal"
+                  label="Valor"
+                  type="number"
+                  min="1"
+                  :rules="[valueRule]"
+                  :suffix="selectedType === 'water' ? ' litros' : ' kcal'"
+                  required
+                />
+              </v-col>
+            </v-row>
           </v-form>
         </v-card-text>
-        <v-card-actions class="justify-end">
-          <v-btn text @click="closeDialog">Cancelar</v-btn>
-          <v-btn color="primary" @click="handleAddGoal" :disabled="!canAdd">
-            Agregar
-          </v-btn>
+        <v-card-actions class="pb-4">
+          <v-row justify="center" class="w-100">
+            <v-col cols="auto">
+              <v-btn class="border-sm bg-error font-weight-bold" text @click="closeDialog">
+                Cancelar
+              </v-btn>
+            </v-col>
+            <v-col cols="auto">
+              <v-btn
+                class="border-sm bg-warning font-weight-bold"
+                :disabled="!canAdd"
+                @click="handleAddGoal"
+              >
+                Agregar
+              </v-btn>
+            </v-col>
+          </v-row>
         </v-card-actions>
+
       </v-card>
     </v-dialog>
 
@@ -112,8 +134,6 @@ import axios from 'axios';
 import PieChart from './PieChart.vue';
 import eventBus from '../eventBus';
 const API_URL = import.meta.env.VITE_APP_API_URL;
-
-// Vuex store para obtener userId
 const store = useStore();
 
 // Reactive refs
