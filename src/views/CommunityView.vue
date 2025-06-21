@@ -43,7 +43,7 @@
             </v-card-actions>
         </v-col>
 
-        <v-col v-if="showFilters" cols="7" class="mt-1 pl-7 pa-0">
+        <v-col v-if="showFilters" cols="8" class="mt-1 pl-7 pa-0">
             <v-card class="text-center bg-primary px-5 pt-5">
                 <v-row no-gutters class="text-center pa-0" align="start">
                     <v-col cols="6">
@@ -169,35 +169,50 @@
                     </v-card-text>
                     <v-expansion-panels>
                         <v-expansion-panel @click="fetchCommunityComments(post)">
-                        <v-expansion-panel-title class="my-1 font-weight-bold">
-                            Comentarios ({{ this.postComments[post.id]?.length || 0 }})
-                        </v-expansion-panel-title>
-                        <v-expansion-panel-text class="pt-0">
-                            <v-form :ref="el => commentForms[post.id] = el" class="d-flex flex-column">
+                            <v-expansion-panel-title class="my-2 font-weight-bold">
+                            <v-icon start small class="mr-2 text-secondary">mdi-comment-text-multiple-outline</v-icon>
+                            Comentarios ({{ postComments[post.id]?.length || 0 }})
+                            </v-expansion-panel-title>
+                        <v-expansion-panel-text class="pt-0 mx-2">
+                            <v-list class="py-0">
+                            <v-list-item
+                                v-for="(comment, i) in postComments[post.id] || []"
+                                :key="i"
+                                class="mb-3 pa-3 rounded border"
+                                style="background-color: #f9f9f9;"
+                            >
+                                <div>
+                                <div class="text-body-2 font-weight-bold mb-1">
+                                    {{ comment.username }} • {{ getRelativeTime(comment.createdAt) }}
+                                </div>
+                                <div class="text-body-2">{{ comment.body }}</div>
+                                </div>
+                            </v-list-item>
+                            </v-list>
+
+                            <v-divider class="mt-2"></v-divider>
+
+                            <v-form :ref="el => commentForms[post.id] = el" class="mt-5">
                             <v-textarea
                                 v-model="postCommentBody[post.id]"
                                 variant="outlined"
                                 placeholder="Escribe un comentario..."
-                                :rows="2"
+                                auto-grow
+                                rows="1"
                                 :rules="[rules.commentRequired]"
-                                hide-details
+                                class="py-0"
                             ></v-textarea>
+
                             <v-btn
-                                class="border-sm bg-secondary font-weight-bold mt-1 mb-2"
+                                class="bg-secondary text-white font-weight-bold mb-3"
+                                block
+                                size="large"
+                                :disabled="!postCommentBody[post.id]"
                                 @click="handleCreateComment(post)"
                             >
                                 Comentar
                             </v-btn>
                             </v-form>
-                            <v-list>
-                            <v-list-item v-for="(comment, i) in this.postComments[post.id] || []" :key="i">
-                                <v-list-item-title>
-                                <span class="font-weight-bold">{{ comment.username }}</span> • {{ getRelativeTime(comment.createdAt) }}
-                                </v-list-item-title>
-                                <v-list-item-subtitle class="mb-1">{{ comment.body }}</v-list-item-subtitle>
-                                <v-divider></v-divider>
-                            </v-list-item>
-                            </v-list>
                         </v-expansion-panel-text>
                         </v-expansion-panel>
                     </v-expansion-panels>
@@ -238,9 +253,6 @@
                 <v-card-title class="pt-0">
                     <p class="mb-3"> {{ communityInfo.subscribers }} </p>
                 </v-card-title>
-                    <!--<v-card-subtitle class="pt-3">
-                        <p>Fitters suscritos</p>
-                    </v-card-subtitle>-->
             </v-card>
         </v-col>
       </v-row>
@@ -417,9 +429,6 @@
   </v-container>
 
 </template>
-  
-  
-  
   <script>
   import axios from 'axios'
   import UserService from '../services/user.service';
@@ -462,7 +471,6 @@
             nameRequired: value => !!value || 'Debe ingresar un nombre',
             topicRequired: value => !!value || 'Debe ingresar un tópico',
             descriptionRequired: value => !!value || 'Debe ingresar un texto',
-            commentRequired: value => !!value || '',
             picRequired: value => !!value || 'Debe ingresar una foto'
         }
       }
