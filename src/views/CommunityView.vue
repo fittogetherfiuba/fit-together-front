@@ -381,47 +381,63 @@
         </v-card>
     </v-dialog>
   <v-dialog v-model="showDialogMembers" max-width="500px">
-    <v-card>
-      <v-card-title class="bg-secondary font-weight-bold d-flex justify-between align-center">
-        <span>Miembros de {{ communityInfo.name }}</span>
-        <v-btn icon @click="showDialogMembers = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </v-card-title>
-      <v-card-text>
-        <v-list v-if="communityMembers.length">
-          <v-list-item
-              v-for="(member, index) in communityMembers"
-              :key="index"
-              class="px-3 py-2"
-          >
-            <v-row class="align-center w-100">
-              <v-col cols="auto">
-                <v-avatar size="45">
-                  <v-img :src="member.image_url" cover />
-                </v-avatar>
-              </v-col>
-              <v-col>
-                <div class="font-weight-medium">{{ member.fullname }}</div>
-                <div class="text-caption text-grey-darken-1">{{ member.username }}</div>
-              </v-col>
-              <v-col cols="auto">
+    <v-card color="secondary">
+        <v-row justify="center">
+            <v-col>
+                <v-card-title class="my-1 font-weight-bold bg-secondary" style="font-size: 1.4rem;">
+                    <v-icon start icon="mdi-account-multiple-outline"></v-icon>
+                    Miembros de {{  communityInfo.name  }}
+                </v-card-title>
+            </v-col>
+            <v-col align="end">
+                
                 <v-btn
-                    icon
-                    color="info"
-                    @click="sendFriendRequest(member.username)"
-                    :disabled="member.username === $store.state.main.user.username || pendingRequests.includes(member.username)"
+                class="mr-1 mt-1"
+                icon
+                color="secondary"
+                @click="showDialogMembers = false"
+                size="medium"
+                elevation="0"
                 >
-                  <v-icon>
-                    {{ pendingRequests.includes(member.username) ? 'mdi-clock-outline' : 'mdi-account-plus' }}
-                  </v-icon>
+                    <v-icon>
+                    mdi-close
+                    </v-icon>
                 </v-btn>
-              </v-col>
-            </v-row>
-          </v-list-item>
-        </v-list>
-        <v-alert v-else type="info">No hay miembros en esta comunidad</v-alert>
-      </v-card-text>
+            </v-col>
+        </v-row>
+
+        <v-card class="mx-2 mb-3">
+            <v-card-text>
+                <v-list class="pa-0">
+                    <v-list-item class="pa-0 px-2" v-for="(member, index) in communityMembers" :key="index">
+                        <v-row class="align-center w-100 my-3">
+                        <v-col cols="auto">
+                            <v-avatar size="45">
+                            <v-img :src="member.image_url" cover />
+                            </v-avatar>
+                        </v-col>
+                        <v-col>
+                            <div class="font-weight-medium">{{ member.fullname }}</div>
+                            <div class="text-caption text-grey-darken-1">{{ member.username }}</div>
+                        </v-col>
+                        <v-col cols="auto">
+                            <v-btn
+                                icon
+                                color="info"
+                                @click="sendFriendRequest(member.username)"
+                                :disabled="member.username === $store.state.main.user.username || pendingRequests.includes(member.username)"
+                            >
+                            <v-icon>
+                                {{ pendingRequests.includes(member.username) ? 'mdi-clock-outline' : 'mdi-account-plus' }}
+                            </v-icon>
+                            </v-btn>
+                        </v-col>
+                        </v-row>    
+                        <v-divider v-if="index != communityMembers.length - 1"></v-divider>     
+                    </v-list-item>
+                </v-list>
+            </v-card-text>
+        </v-card>
     </v-card>
 
   </v-dialog>
