@@ -98,7 +98,7 @@
                     <v-row justify="center" class="ml-5">
                         <v-col cols="12" class="text-center">
                         <v-icon color="grey" size="90">mdi-note-off-outline</v-icon>
-                        <div style="font-size: 20px;" class="font-weight-bold mt-2">Todavía no hay posteos en esta comunidad</div>
+                        <div style="font-size: 20px;" class="mt-2">Todavía no hay posteos en esta comunidad</div>
                         </v-col>
                     </v-row>
                 </v-card>

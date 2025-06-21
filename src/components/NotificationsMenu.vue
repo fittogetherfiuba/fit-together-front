@@ -28,7 +28,7 @@
             </tbody>
           </v-table>
 
-          <div v-else class="text-center font-weight-bold my-4">
+          <div v-else class="text-center my-4">
             No hay notificaciones nuevas
           </div>
       </v-card>

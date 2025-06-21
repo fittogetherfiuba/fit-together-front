@@ -49,7 +49,7 @@
           <v-row justify="center">
             <v-col cols="12" class="text-center">
               <v-icon color="grey" size="90">mdi-account-group</v-icon>
-              <div style="font-size: 20px;" class="font-weight-bold mt-2">No estas suscripto a ninguna comunidad</div>
+              <div style="font-size: 20px;" class="mt-2">No estas suscripto a ninguna comunidad</div>
             </v-col>
           </v-row>
         </v-card>
@@ -146,7 +146,7 @@
           <v-row justify="center">
             <v-col cols="12" class="text-center">
               <v-icon color="grey" size="90">mdi-account-group</v-icon>
-              <div style="font-size: 20px;" class="font-weight-bold mt-2">No hay comunidades nuevas disponibles</div>
+              <div style="font-size: 20px;" class="mt-2">No hay comunidades nuevas disponibles</div>
             </v-col>
           </v-row>
         </v-card>

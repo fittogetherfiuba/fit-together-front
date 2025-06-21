@@ -21,11 +21,17 @@
           class="justify-center align-center"
         >
           <div class="d-flex justify-space-between align-center mx-10">
-            <span class="font-weight-bold">
-              {{ goalItem.type === 'calories' ? 'Calorías' : 'Agua' }}: {{ goalItem.goal }}
-              <span v-if="goalItem.type === 'water'"> litros</span>
-              <span v-else> kcal</span>
-            </span>
+<span style="font-size: 0.9rem;">
+  <span class="font-weight-bold">
+    {{ goalItem.type === 'calories' ? 'Calorías' : 'Agua' }}:
+  </span>
+  <span class="font-weight-regular">
+    {{ goalItem.goal }}
+    <span v-if="goalItem.type === 'water'"> litros</span>
+    <span v-else> kcal</span>
+  </span>
+</span>
+
             <v-btn size="small" icon @click="deleteGoal(index)">
               <v-icon>mdi-close</v-icon>
             </v-btn>
@@ -51,8 +57,8 @@
             <v-row justify="center">
               <v-col cols="12" class="text-center">
                 <v-icon color="grey" size="90">mdi-star-off-outline</v-icon>
-                <div style="font-size: 20px;" class="font-weight-bold mt-2">No hay objetivos</div>
-                <div style="font-size: 20px;" class="font-weight-bold">definidos</div>
+                <div style="font-size: 20px;">No hay objetivos</div>
+                <div style="font-size: 20px;">definidos</div>
               </v-col>
             </v-row>
           </v-card>
