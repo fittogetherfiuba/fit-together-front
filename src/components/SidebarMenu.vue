@@ -19,21 +19,18 @@
   
       <v-divider></v-divider>
   
-      <v-list>
+      <v-list density="compact">
         <v-list-item
-        v-for="item in items"
-        :key="item.title"
-        :to="item.route"
-        link
-        >
-          <v-list-item-icon>
-            <v-icon color="primary">{{ item.icon }}</v-icon>
-          </v-list-item-icon>
-  
-          <v-list-item-content>
-            <v-list-item-title>{{ item.title }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
+  v-for="item in items"
+  :key="item.title"
+  :to="item.route"
+  link
+  class="d-flex align-center"
+>
+  <v-icon color="primary" class="me-3">{{ item.icon }}</v-icon>
+  <span class="me-3">{{ item.title }}</span>
+</v-list-item>
+
       </v-list>
     </v-navigation-drawer>
   </template>
