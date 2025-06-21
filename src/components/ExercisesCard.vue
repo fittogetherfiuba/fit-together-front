@@ -116,6 +116,8 @@
 
 <script>
 import axios from 'axios'
+import eventBus from '../eventBus';
+
 const API_URL = import.meta.env.VITE_APP_API_URL
 
 export default {
@@ -177,6 +179,7 @@ export default {
             caloriesBurned: this.calories
           }
           await axios.post(API_URL + 'activities/entry', newExercise)
+          eventBus.emit('progress-updated');
           this.fetchDoneExercises()
         } catch (error) {
           console.error('Error al obtener comidas:', error)
