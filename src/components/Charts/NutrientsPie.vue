@@ -11,6 +11,9 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { Pie } from 'vue-chartjs';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+Chart.register(ChartDataLabels);
+
 import {
     Chart,
     ArcElement,
@@ -28,10 +31,28 @@ const props = defineProps({
 const chartData = ref(null);
 const isChartDataReady = ref(false);
 const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { position: 'bottom' } }
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      position: 'bottom'
+    },
+    datalabels: {
+      formatter: (value, ctx) => {
+        const dataset = ctx.chart.data.datasets[0].data;
+        const total = dataset.reduce((acc, val) => acc + val, 0);
+        const percentage = (value / total) * 100;
+        return percentage >= 5 ? percentage.toFixed(1) + '%' : ''; // oculta < 5%
+      },
+      color: '#fff',
+      font: {
+        weight: 'bold'
+      }
+    }
+
+  }
 };
+
 
 function buildChart() {
 const PALETTE = [
