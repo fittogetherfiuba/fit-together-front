@@ -21,7 +21,7 @@
                 <td class="d-flex flex-row justify-center align-center">
                     <div class="font-weight-bold mr-2">{{ notification.message }}</div>
                     <div class="text-caption text-grey">
-                      {{ new Date(notification.timestamp).toLocaleTimeString() }}
+                      {{ new Date(notification.createdAt).toLocaleTimeString() }}
                     </div>
                 </td>
               </tr>
@@ -37,43 +37,58 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { watch } from 'vue'
+import axios from 'axios'
+import eventBus from '../eventBus';
 
 export default {
   name: 'NotificationsMenu',
-  computed: {
-    ...mapGetters('notifications', ['notifications'])
-  },
   data() {
     return {
+      notifications: [],
+      oldNotifications: 0,
       menuOpen: false,
-      hasNewNotifications: false
+      hasNewNotifications: false,
     }
   },
   methods: {
-    clearAll() {
-      this.$store.dispatch('notifications/clearNotifications');
+    async clearAll() {
+      try {
+        await axios.delete('http://localhost:3000/api/notifications/delete_all/' + this.$store.state.main.user.userId.toString());
+
+      } catch (error) {
+        console.error('Error deleting notifications:', error);
+      }
+    },
+    async fetchNotifications(){
+      try {
+        const response = await axios.get('http://localhost:3000/api/notifications?userId=' + this.$store.state.main.user.userId.toString());
+        this.notifications = response.data.notifications;
+
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      }
+    },
+    async fetchHasNewNotifications() {
+      try {
+        const response = await axios.get('http://localhost:3000/api/notifications/has_unread/' + this.$store.state.main.user.userId.toString());
+        this.hasNewNotifications = response.data.hasUnread;
+        console.log('Has new notifications:', this.hasNewNotifications);
+      } catch (error) {
+        console.error('Error checking for new notifications:', error);
+      }
     }
   },
   watch: {
     menuOpen(val) {
       if (val) {
-        this.hasNewNotifications = false
+        this.fetchNotifications();
+        this.hasNewNotifications = false;
       }
     }
   },
-  mounted() {
-    // Watch manual del getter computado
-    watch(
-      () => this.notifications,
-      (newList) => {
-        if (newList.length > 0) {
-          this.hasNewNotifications = true
-        }
-      },
-      { immediate: true, deep: true }
-    )
+  async created() {
+    await this.fetchHasNewNotifications();
+    eventBus.on('new-notification', this.fetchHasNewNotifications);
   }
 }
 

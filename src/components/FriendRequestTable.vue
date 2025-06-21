@@ -63,6 +63,7 @@
 <script>
 //import generateMediaURL from '../services/firebase'
 import FriendsService from '../services/friends.service'
+import axios from 'axios'
 export default {
   name: 'FriendRequestTable',
   data: () => ({
@@ -92,9 +93,21 @@ export default {
     },
     async acceptRequest(k) {
         const response = await FriendsService.acceptFriendRequest(this.users_info[k].subtitle, this.$store.state.main.user.username);
+        await this.notifyAcceptance(this.users_info[k].subtitle)
         this.users_info.splice(k, 1)
         this.$emit('accepted-request')
         console.log(response)
+    },
+    async notifyAcceptance(username) {
+        try {
+            const notification = {
+                username: username,
+                message: `👤 '${this.$store.state.main.user.username}' ha aceptado tu solicitud de amistad`,
+            }
+            await axios.post('http://localhost:3000/api/notifications/create', notification)
+        } catch (error) {
+            console.error('Error al enviar la notificación:', error)
+        }
     },
   }
 }
