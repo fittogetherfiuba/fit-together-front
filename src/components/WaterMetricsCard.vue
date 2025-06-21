@@ -1,6 +1,11 @@
 <template>
-  <v-card class="mx-auto my-4" elevation="10" max-width="550">
-    <v-card-title class="text-h6 text-center font-weight-bold bg-secondary">
+  <v-card 
+  max-width="550"
+  :class="friend ? 'mx-auto mb-4' : 'mx-auto my-4'" 
+  :elevation="friend ? '0' : '10'"
+  :variant="friend ? 'outlined' : undefined"
+  >
+    <v-card-title v-if="!friend" class="text-center bg-secondary">
       <v-icon left>mdi-water</v-icon>
       Agua consumida esta semana
     </v-card-title>
@@ -22,7 +27,11 @@ export default defineComponent({
   components: { WaterBar },
 
   props: {
-    userId: { type: [String, Number], required: true }
+    userId: { type: [String, Number], required: true },
+    friend: {
+      type: [Boolean],
+      required: false
+    }
   },
 
   data() {

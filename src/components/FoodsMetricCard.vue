@@ -1,6 +1,10 @@
 <template>
-  <v-card class="mx-auto my-4" elevation="10">
-    <v-card-title class="text-h6 text-center font-weight-bold bg-secondary">
+  <v-card 
+  :class="friend ? 'mx-4 mb-4' : 'mx-auto my-4'" 
+  :elevation="friend ? '0' : '10'"
+  :variant="friend ? 'outlined' : undefined"
+  >
+    <v-card-title v-if="!friend" class="text-center bg-secondary">
       <v-icon left>mdi-food</v-icon>
       Comidas Consumidas esta semana
     </v-card-title>
@@ -40,6 +44,10 @@ export default defineComponent({
     userId: {
       type: [String, Number],
       required: true,
+    },
+    friend: {
+      type: [Boolean],
+      required: false,
     }
   },
   data() {
@@ -56,7 +64,6 @@ export default defineComponent({
   },
   methods: {
     async fetchEntries() {
-      //const userId = this.$store.state.main.user.userId?.toString();
       if (!this.userId) {
         console.warn('userId no disponible');
         return;

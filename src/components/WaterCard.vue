@@ -12,7 +12,6 @@
       </v-row>
     </v-card-title>
 
-    
     <v-card-text class="d-flex align-center justify-center text-center fill-height">
       <span class="font-weight-bold mb-8" style="font-size: 2.2rem;">
         {{ waterHistory.toFixed(2) }} 
@@ -21,8 +20,6 @@
         {{ waterHistory === 1 ? ' litro' : ' litros' }}
       </span>
     </v-card-text>
-
-
 
     <v-dialog v-model="showDialog" max-width="450px">
       <v-card class="d-flex align-center">

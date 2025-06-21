@@ -1,8 +1,8 @@
 <template>
     <div>
       <v-row align="center" justify="center"> 
-        <v-col cols="12" sm="10" class="mx-5 my-5">
-          <v-card class="mx-5 my-5 rounded-sm">
+        <v-col cols="12" sm="10" class="mx-5 mt-5">
+          <v-card class="mx-5 mt-5 rounded-sm">
             <v-sheet :color="isEditing ? '#FF5537' : 'primary'" height="6"></v-sheet>
             <v-card-item>
               <v-row class="fill-height">
@@ -158,14 +158,31 @@
         </v-col>
       </v-row>
       <v-row justify="center">
-        <v-col cols="12" md="3">
-          <WaterMetricsCard :userId="user.id"/>
-        </v-col>
-        <v-col cols="12" md="3">
-          <FoodsMetricCard :userId="user.id" class="mb-4" />
-        </v-col>
-        <v-col  cols="12" md="3">
-          <ActivitiesMetricsCard :userId="user.id"/>
+        <v-col cols="10">
+          <v-card class="mx-5 mb-10 rounded-sm">
+              <v-sheet :color="isEditing ? '#FF5537' : 'primary'" height="6"></v-sheet>
+              <div class="pa-0 d-flex flex-column align-center">
+                <v-tabs v-model="tab" align-tabs="center">
+                  <v-tab value="foods">Alimentos</v-tab>
+                  <v-tab value="water">Agua</v-tab>
+                  <v-tab value="activities">Ejercicios</v-tab>
+                </v-tabs>
+
+                <v-window v-model="tab" class="pa-0" style="width:100%;">
+                  <v-window-item value="foods">
+                    <FoodsMetricCard :userId="user.id" :friend="true"/>
+                  </v-window-item>
+
+                  <v-window-item value="water">
+                    <WaterMetricsCard :userId="user.id" :friend="true" />
+                  </v-window-item>
+
+                  <v-window-item value="activities">
+                    <ActivitiesMetricsCard :userId="user.id" :friend="true" />
+                  </v-window-item>
+                </v-window>
+              </div>
+          </v-card>
         </v-col>
       </v-row>
     </div>
@@ -201,29 +218,19 @@
         editing: false,
         loading: true,
         profile_pic: '/user-icon-white-background.png',
-        block_loading: false,
-        tab: null,
-  
+        tab: null,  
       }
     },
     async mounted () {
-    
       const response = await UserService.getUserInfoByUsername(this.$route.params.id)
-      console.log(this.$route.params.id)
       this.user = response.data
-      console.log(this.user.id)
-  
-      console.log(localStorage.getItem('user'))
       this.loading = false
     },
     methods: {
     }
   }
-  
+
   </script>
-  
-
-
   
   <style>
   .info-icon .v-icon {
