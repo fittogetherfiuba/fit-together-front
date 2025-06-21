@@ -22,7 +22,7 @@
               </div>
 
               <v-card-text>
-                <v-form class="mt-12" @submit.prevent="handleLogin" v-model="valid">
+                <v-form class="mt-12 mx-3" @submit.prevent="handleLogin" v-model="valid">
                   <v-text-field
                     label="Email"
                     v-model="email"
@@ -42,38 +42,45 @@
                     required
                   />
 
-                  <v-card-actions class="justify-center">
-                    <v-btn type="submit" variant="elevated" color="primary" :disabled="!valid">
+                    <v-btn class="mt-3 mb-5" block type="submit" variant="elevated" color="primary" :disabled="!valid">
                       Ingresar
                     </v-btn>
 
-                                                                                          <v-btn
-                      icon
-                      elevation="2"
-                      class="google-icon-btn ml-7"
+  <v-row class="my-4 align-center">
+    <v-col class="px-3">
+      <div class="border-b w-100"></div>
+    </v-col>
+
+    <span class="text-caption font-weight-medium text-grey">o</span>
+
+    <v-col class="px-3">
+      <div class="border-b w-100"></div>
+    </v-col>
+  </v-row>
+
+                    <v-btn
+                      class="mb-5"
+                      variant="outlined"
+                      block
                       @click="googleLogin"
                     >
                       <v-img
+                        class="mr-2"
                         src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png"
-                        width="34"
-                        height="34"
+                        width="22"
+                        height="22"
                         cover
                       />
+                      Ingresar con Google
                     </v-btn>
-                  </v-card-actions>
 
+                    <div class="text-center mt-8">
+                      <span>¿No tenés cuenta?&nbsp;</span>
+                      <RouterLink to="/register" class="text-primary font-weight-medium ml-1">Registrate</RouterLink>
+                    </div>
+                  
                 </v-form>
-
-              </v-card-text>
-  
-              <v-card-actions class="justify-center">
-
-                <v-btn variant="elevated" color="primary" @click="handleRegister">
-                  Crear una cuenta
-                </v-btn>
-
-              </v-card-actions>     
-              
+              </v-card-text>              
             </v-col>
           </v-row>
 
