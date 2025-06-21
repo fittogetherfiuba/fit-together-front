@@ -13,7 +13,10 @@
 </span>
     </v-card-title>
     <v-card-text>
-      <span class="font-weight-bold text-h6">Calorias totales: {{ recipe.totalCalories }}</span>
+<span class="text-h6">
+  <span class="font-weight-bold">Calorías totales:  </span>
+  <span class="font-weight-regular"> {{ recipe.totalCalories }}</span>
+</span>
       <br/>
       <span class="font-weight-bold text-h6">Ingredientes:</span>
       <v-list-item class="border-b"  v-for="(food, index) in recipe.items" :key="index">
