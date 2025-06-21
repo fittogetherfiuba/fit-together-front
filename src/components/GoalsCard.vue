@@ -146,8 +146,9 @@ const selectedGoal = ref(null);
 const formRef = ref(null);
 
 const formatProgress = (value) => {
-  return Number.isInteger(value) ? value : value.toFixed(1);
+  return Number.isInteger(value) ? value : value.toFixed(0);
 };
+
 
 // Opciones de tipo de objetivo
 const typeOptions = [
@@ -215,24 +216,28 @@ const fetchProgress = async (goalItem) => {
   try {
 
     if (goalItem.type === 'calories') {
-      if (goalItem.type === 'calories') {
-        const today = new Date().toISOString().slice(0, 10);
+      const today = new Date().toISOString().slice(0, 10);
 
-        const { data } = await axios.get(API_URL + 'activities/entry/' + userId.value);
-        const entries = data.entries || [];
+      // Obtener comidas y actividades en paralelo
+      const [foodRes, activityRes] = await Promise.all([
+        axios.get(API_URL + 'foods/calories/daily', {
+          params: { userId: userId.value, date: today }
+        }),
+        axios.get(API_URL + 'activities/entry/' + userId.value)
+      ]);
 
-        // Filtrar solo actividades realizadas hoy
-        const actividadesHoy = entries.filter(entry =>
-            entry.performedAt.slice(0, 10) === today
-        );
+      const totalComidas = foodRes.data.totalCalories || 0;
 
-        // Sumar calorías quemadas
-        const totalQuemadas = actividadesHoy.reduce((sum, act) => sum + (Number(act.caloriesBurned) || 0), 0);
+      const entries = activityRes.data.entries || [];
+      const actividadesHoy = entries.filter(entry =>
+          entry.performedAt.slice(0, 10) === today
+      );
+      const totalQuemado = actividadesHoy.reduce((sum, act) => sum + (Number(act.caloriesBurned) || 0), 0);
 
-        goalItem.currentProgress = totalQuemadas;
-      }
-
+      const neto = totalComidas - totalQuemado;
+      goalItem.currentProgress = Math.max(neto, 0);
     }
+
     else {
       const { data } = await axios.get(
         API_URL + `water/entries?userId=${userId.value}`
