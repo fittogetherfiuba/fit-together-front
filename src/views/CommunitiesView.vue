@@ -48,7 +48,7 @@
         <v-card elevation="0" height="440" class="d-flex align-center justify-center">
           <v-row justify="center">
             <v-col cols="12" class="text-center">
-              <v-icon color="grey" size="90">mdi-account-group</v-icon>
+              <v-icon color="grey" size="90">mdi-account-off-outline</v-icon>
               <div style="font-size: 20px;" class="mt-2">No estas suscripto a ninguna comunidad</div>
             </v-col>
           </v-row>
@@ -66,7 +66,7 @@
               <v-sheet class="w-100 d-flex flex-column flex-grow-1" border>
                 <v-card class="pb-4 d-flex flex-column h-100" elevation="10">
                   <v-card-title class="mb-4 text-center d-flex justify-center align-center font-weight-bold bg-secondary" style="font-size: 1.4rem;">
-                    <v-icon start icon="mdi-account-group"></v-icon>
+                    <v-icon start icon="mdi-account-file-outline"></v-icon>
                     {{ community.raw.name }}
                   </v-card-title>
                   <v-card-text>
@@ -113,7 +113,7 @@
             <v-row justify="center">
                 <v-col>
                   <v-card-title class="my-1 font-weight-bold bg-secondary" style="font-size: 1.8rem;">
-                    <v-icon start class="mb-1" icon="mdi-account-group" style="font-size: 2.2rem;"></v-icon>
+                    <v-icon start class="mb-1" icon="mdi-account-tag" style="font-size: 2.2rem;"></v-icon>
                     Comunidades disponibles
                   </v-card-title>
                 </v-col>
@@ -145,7 +145,7 @@
         <v-card elevation="0" height="440" class="d-flex align-center justify-center">
           <v-row justify="center">
             <v-col cols="12" class="text-center">
-              <v-icon color="grey" size="90">mdi-account-group</v-icon>
+              <v-icon color="grey" size="90">mdi-account-off-outline</v-icon>
               <div style="font-size: 20px;" class="mt-2">No hay comunidades nuevas disponibles</div>
             </v-col>
           </v-row>

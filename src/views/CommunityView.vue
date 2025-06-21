@@ -406,38 +406,51 @@
             </v-col>
         </v-row>
 
-        <v-card class="mx-2 mb-3">
-            <v-card-text>
-                <v-list class="pa-0">
-                    <v-list-item class="pa-0 px-2" v-for="(member, index) in communityMembers" :key="index">
-                        <v-row class="align-center w-100 my-3">
-                        <v-col cols="auto">
-                            <v-avatar size="45">
-                            <v-img :src="member.image_url" cover />
-                            </v-avatar>
-                        </v-col>
-                        <v-col>
-                            <div class="font-weight-medium">{{ member.fullname }}</div>
-                            <div class="text-caption text-grey-darken-1">{{ member.username }}</div>
-                        </v-col>
-                        <v-col cols="auto">
-                            <v-btn
-                                icon
-                                color="info"
-                                @click="sendFriendRequest(member.username)"
-                                :disabled="member.username === $store.state.main.user.username || pendingRequests.includes(member.username)"
-                            >
-                            <v-icon>
-                                {{ pendingRequests.includes(member.username) ? 'mdi-clock-outline' : 'mdi-account-plus' }}
-                            </v-icon>
-                            </v-btn>
-                        </v-col>
-                        </v-row>    
-                        <v-divider v-if="index != communityMembers.length - 1"></v-divider>     
-                    </v-list-item>
-                </v-list>
-            </v-card-text>
-        </v-card>
+<v-card class="mx-3 mb-4 rounded-xl elevation-2">
+  <v-card-text>
+    <v-list class="py-0">
+      <v-list-item
+        v-for="(member, index) in communityMembers"
+        :key="index"
+        class="py-3"
+      >
+        <v-row class="align-center w-100">
+          <v-col cols="auto">
+            <v-avatar size="50" class="elevation-1">
+              <v-img :src="member.image_url" cover />
+            </v-avatar>
+          </v-col>
+          <v-col>
+            <div class="text-body-1 font-weight-medium">
+              {{ member.fullname }}
+            </div>
+            <div class="text-caption text-grey-darken-1">
+              {{ member.username }}
+            </div>
+          </v-col>
+          <v-col cols="auto">
+            <v-btn
+              icon
+              :color="pendingRequests.includes(member.username) ? 'grey' : 'info'"
+              @click="sendFriendRequest(member.username)"
+              :disabled="member.username === $store.state.main.user.username || pendingRequests.includes(member.username)"
+              class="elevation-1"
+            >
+              <v-icon>
+                {{ pendingRequests.includes(member.username) ? 'mdi-clock-outline' : 'mdi-account-plus' }}
+              </v-icon>
+            </v-btn>
+          </v-col>
+        </v-row>
+        <v-divider
+          v-if="index !== communityMembers.length - 1"
+          class="mt-6"
+        />
+      </v-list-item>
+    </v-list>
+  </v-card-text>
+</v-card>
+
     </v-card>
 
   </v-dialog>
