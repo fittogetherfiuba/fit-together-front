@@ -1,6 +1,7 @@
 <template>
   <v-card 
   :class="friend ? 'mx-4 mb-4' : 'mx-auto my-4'" 
+  :style="friend ? 'border-color: gray;': undefined"
   :elevation="friend ? '0' : '10'"
   :variant="friend ? 'outlined' : undefined"
   >

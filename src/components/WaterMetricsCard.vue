@@ -2,6 +2,7 @@
   <v-card 
   max-width="550"
   :class="friend ? 'mx-auto mb-4' : 'mx-auto my-4'" 
+  :style="friend ? 'border-color: gray;': undefined"
   :elevation="friend ? '0' : '10'"
   :variant="friend ? 'outlined' : undefined"
   >

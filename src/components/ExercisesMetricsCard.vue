@@ -2,6 +2,7 @@
   <v-card 
   :class="friend ? 'mx-4 mb-4' : 'mx-auto my-4'" 
   :elevation="friend ? '0' : '10'"
+  :style="friend ? 'border-color: gray;': undefined"
   :variant="friend ? 'outlined' : undefined"
   >
     <v-card-title v-if="!friend" class="text-center bg-secondary">
