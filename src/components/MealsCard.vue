@@ -19,7 +19,7 @@
             <v-row justify="center">
               <v-col cols="12" class="text-center">
                 <v-icon color="grey" size="90">mdi-star-off-outline</v-icon>
-                <div style="font-size: 20px;" class="font-weight-bold mt-2 mb-10">No hay alimentos registrados</div>
+                <div style="font-size: 20px;" class="mt-2 mb-10">No hay alimentos registrados</div>
               </v-col>
             </v-row>
           </v-card>
