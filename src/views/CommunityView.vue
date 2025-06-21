@@ -423,6 +423,7 @@
   <script>
   import axios from 'axios'
   import UserService from '../services/user.service'
+  import defaultPostImage from '../assets/img1.png';
   const API_URL = import.meta.env.VITE_APP_API_URL
   export default {
     name: 'CommunityView',
@@ -578,6 +579,9 @@
             if (!isValid) {
                 return
             }
+          if (!this.postPhotos.some(photo => photo.url && photo.url.trim() !== '')) {
+            this.postPhotos = [{ url: defaultPostImage }];
+          }
 
             if (this.postTitle && this.postBody && this.postTopic) {
                 try {
