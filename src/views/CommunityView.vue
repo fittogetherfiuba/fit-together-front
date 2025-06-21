@@ -190,23 +190,22 @@
                             </v-list-item>
                             </v-list>
 
-                            <v-divider class="mt-2"></v-divider>
+                            <v-divider class="mt-3"></v-divider>
 
-                            <v-form :ref="el => commentForms[post.id] = el" class="mt-5">
+                            <v-form :ref="el => commentForms[post.id] = el" class="mt-6">
                             <v-textarea
                                 v-model="postCommentBody[post.id]"
                                 variant="outlined"
                                 placeholder="Escribe un comentario..."
                                 auto-grow
-                                rows="1"
+                                rows="2"
                                 :rules="[rules.commentRequired]"
                                 class="py-0"
                             ></v-textarea>
 
                             <v-btn
-                                class="bg-secondary text-white font-weight-bold mb-3"
+                                class="bg-secondary text-white font-weight-bold pa-0 mb-3"
                                 block
-                                size="large"
                                 :disabled="!postCommentBody[post.id]"
                                 @click="handleCreateComment(post)"
                             >
