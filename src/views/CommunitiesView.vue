@@ -1,199 +1,121 @@
 <template>
   <v-container fluid class="bg-background">
-  <v-card class="mx-5 my-8">
-    <v-data-iterator
-      :items="subscribedCommunitiesList"
-      :items-per-page="itemsPerPage"
+  <v-card class="mx-5 my-8" style="max-height: 480px; min-height: 480px; overflow-y: auto;">
+    <v-card-title
+      class="font-weight-bold d-flex align-center flex-row bg-secondary"
+      style="font-size: 1.8rem; position: sticky; top: 0; z-index: 1;"
     >
-      <template v-slot:header="{ page, pageCount, prevPage, nextPage }">
-          <v-card color="secondary rounded-0" style="width:100%" flat>
-            <v-row justify="center">
-                <v-col>
-                  <v-card-title class="my-1 font-weight-bold bg-secondary" style="font-size: 1.8rem;">
-                    <v-icon start class="mb-1" icon="mdi-account-group" style="font-size: 2.2rem;"></v-icon>
-                    Comunidades suscriptas
-                  </v-card-title>
-                </v-col>
-                <v-col class="my-4 mr-3" align="end">
+      <v-icon start class="mb-1" icon="mdi-account-group" style="font-size: 2.2rem;"></v-icon>
+      Comunidades suscriptas
 
-                  <v-btn 
-                    class="mr-5"
-                    variant="tonal"
-                    @click="showDialog = true"
-                  >Nueva comunidad</v-btn>
+      <v-spacer></v-spacer>
 
+      <v-btn class="mr-5" variant="tonal" @click="showDialog = true">
+        Nueva comunidad
+      </v-btn>
+    </v-card-title>
+
+    <v-container class="py-4">
+      <v-row dense>
+        <template v-if="subscribedCommunitiesList.length">
+          <v-col
+            v-for="(community, i) in subscribedCommunitiesList"
+            :key="i"
+            cols="12"
+          >
+            <v-card elevation="10" class="d-flex flex-column mb-2 border-sm border-opacity-50">
+              <v-card-title class="font-weight-bold border-b" style="font-size: 1.4rem;">
+                <v-icon start icon="mdi-account-file-outline"></v-icon>
+                {{ community.name }}
+              </v-card-title>
+              <div class="d-flex flex-row">
+                <v-card-text>
+                  <p class="text-h6">{{ community.description }}</p>
+                </v-card-text>
+                <v-card-actions class="justify-end">
                   <v-btn
-                    :disabled="page === 1"
-                    class="me-2"
-                    icon="mdi-arrow-left"
-                    size="small"
-                    variant="tonal"
-                    @click="prevPage"
-                  ></v-btn>
+                    class="border-sm bg-secondary mr-5 font-weight-bold"
+                    @click="handleViewPosts(community)"
+                  >
+                    Ingresar
+                  </v-btn>
+                </v-card-actions>
+              </div>
+            </v-card>
+          </v-col>
+        </template>
 
-                  <v-btn
-                    :disabled="page === pageCount"
-                    icon="mdi-arrow-right"
-                    size="small"
-                    variant="tonal"
-                    @click="nextPage"
-                  ></v-btn>
-          
-                </v-col>
-            </v-row>
-          </v-card>
-      </template>
-
-      <template v-slot:no-data>
-        <v-card elevation="0" height="440" class="d-flex align-center justify-center">
-          <v-row justify="center">
-            <v-col cols="12" class="text-center">
-              <v-icon color="grey" size="90">mdi-account-off-outline</v-icon>
-              <div style="font-size: 20px;" class="mt-2">No estas suscripto a ninguna comunidad</div>
-            </v-col>
-          </v-row>
-        </v-card>
-      </template>
-
-      <template v-slot:default="{ items }">
-        <v-card style="min-height: 440px;">
-          <v-row class="mx-3 my-3" style="min-height: 400px;">
-            <v-col v-for="(community, i) in items" :key="i"
-            cols="9"
-            sm="3"
-            xl="3"
-            class="d-flex">
-              <v-sheet class="w-100 d-flex flex-column flex-grow-1" border>
-                <v-card class="pb-4 d-flex flex-column h-100" elevation="10">
-                  <v-card-title class="mb-4 text-center d-flex justify-center align-center font-weight-bold bg-secondary" style="font-size: 1.4rem;">
-                    <v-icon start icon="mdi-account-file-outline"></v-icon>
-                    {{ community.raw.name }}
-                  </v-card-title>
-                  <v-card-text>
-                    <span class="font-weight-bold text-h6">Descripción</span>
-                    <p class="text-h6">{{ community.raw.description }}</p>
-                  </v-card-text>
-                  <v-card-actions class="justify-center">
-                    <v-btn
-                      class="border-sm bg-secondary font-weight-bold"
-                      @click="handleViewPosts(community.raw)"
-                    >
-                      Ingresar
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-sheet>
-            </v-col>
-          </v-row>
-        </v-card>
-      </template>
-
-      <template v-slot:footer="{ page, pageCount }">
-        <v-footer
-          class="justify-space-between"
-          color="surface-variant"
-        >
-          Total de comunidades: {{ subscribedCommunitiesList.length }}
-
-          <div>
-            Página {{ page }} de {{ pageCount }}
-          </div>
-        </v-footer>
-      </template>
-    </v-data-iterator>
+        <template v-else>
+          <v-col
+            cols="12"
+            class="d-flex align-center justify-center flex-column text-center"
+            style="height: 100%; min-height: 380px;"
+          >
+            <v-icon color="grey" size="90">mdi-account-off-outline</v-icon>
+            <div style="font-size: 20px;" class="mt-2">No estás suscripto a ninguna comunidad</div>
+          </v-col>
+        </template>
+      </v-row>
+    </v-container>
   </v-card>
+
+
   
-  <v-card class="mx-5 my-8">
-    <v-data-iterator
-      :items="communitiesList"
-      :items-per-page="itemsPerPage"
+  <v-card class="mx-5 my-8" style="max-height: 480px; min-height: 480px; overflow-y: auto;">
+    <v-card-title
+      class="font-weight-bold d-flex align-center flex-row bg-secondary"
+      style="font-size: 1.8rem; position: sticky; top: 0; z-index: 1;"
     >
-      <template v-slot:header="{ page, pageCount, prevPage, nextPage }">
-          <v-card color="secondary rounded-0" style="width:100%" flat>
-            <v-row justify="center">
-                <v-col>
-                  <v-card-title class="my-1 font-weight-bold bg-secondary" style="font-size: 1.8rem;">
-                    <v-icon start class="mb-1" icon="mdi-account-tag" style="font-size: 2.2rem;"></v-icon>
-                    Comunidades disponibles
-                  </v-card-title>
-                </v-col>
-                <v-col class="my-4 mr-3" align="end">
+      <v-icon start class="mb-1" icon="mdi-account-tag" style="font-size: 2.2rem;"></v-icon>
+      Comunidades disponibles
+    </v-card-title>
 
+    <v-container class="py-4">
+      <v-row dense>
+        <template v-if="communitiesList.length">
+          <v-col
+            v-for="(community, i) in communitiesList"
+            :key="i"
+            cols="12"
+          >
+            <v-card elevation="10" class="d-flex flex-column mb-2 border-sm border-opacity-50">
+              <v-card-title class="font-weight-bold border-b" style="font-size: 1.4rem;">
+                <v-icon start icon="mdi-account-group"></v-icon>
+                {{ community.name }}
+              </v-card-title>
+              <div class="d-flex flex-row">
+                <v-card-text>
+                  <p class="text-h6">{{ community.description }}</p>
+                </v-card-text>
+                <v-card-actions class="justify-end">
                   <v-btn
-                    :disabled="page === 1"
-                    class="me-2"
-                    icon="mdi-arrow-left"
-                    size="small"
-                    variant="tonal"
-                    @click="prevPage"
-                  ></v-btn>
+                    class="border-sm bg-secondary mr-5 font-weight-bold"
+                    @click="handleSubscribeCommunity(community)"
+                  >
+                    Suscribirse
+                  </v-btn>
+                </v-card-actions>
+              </div>
+            </v-card>
+          </v-col>
+        </template>
 
-                  <v-btn
-                    :disabled="page === pageCount"
-                    icon="mdi-arrow-right"
-                    size="small"
-                    variant="tonal"
-                    @click="nextPage"
-                  ></v-btn>
-          
-                </v-col>
-            </v-row>
-          </v-card>
-      </template>
+        <template v-else>
+          <v-col
+            cols="12"
+            class="d-flex align-center justify-center flex-column text-center"
+            style="height: 100%; min-height: 380px;"
+          >
+            <v-icon color="grey" size="90">mdi-account-off-outline</v-icon>
+            <div style="font-size: 20px;" class="mt-2">No hay comunidades nuevas disponibles</div>
+          </v-col>
+        </template>
 
-      <template v-slot:no-data>
-        <v-card elevation="0" height="440" class="d-flex align-center justify-center">
-          <v-row justify="center">
-            <v-col cols="12" class="text-center">
-              <v-icon color="grey" size="90">mdi-account-off-outline</v-icon>
-              <div style="font-size: 20px;" class="mt-2">No hay comunidades nuevas disponibles</div>
-            </v-col>
-          </v-row>
-        </v-card>
-      </template>
-
-      <template v-slot:default="{ items }">
-        <v-card style="min-height: 440px;">
-          <v-row class="mx-3 my-3" style="min-height: 400px;">
-            <v-col v-for="(community, i) in items" :key="i"
-            cols="9"
-            sm="3"
-            xl="3"
-            class="d-flex">
-              <v-sheet class="w-100 d-flex flex-column flex-grow-1" border>
-                <v-card class="pb-4 d-flex flex-column h-100" elevation="10">
-                  <v-card-title class="mb-4 text-center d-flex justify-center align-center font-weight-bold bg-secondary" style="font-size: 1.4rem;">
-                    <v-icon start icon="mdi-account-group"></v-icon>
-                    {{ community.raw.name }}
-                  </v-card-title>
-                  <v-card-text>
-                    <span class="font-weight-bold text-h6">Descripción</span>
-                    <p class="text-h6">{{ community.raw.description }}</p>
-                  </v-card-text>
-                  <v-card-actions class="justify-center">
-                    <v-btn class="border-sm bg-secondary font-weight-bold" @click="handleSubscribeCommunity(community.raw)">Suscribirse</v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-sheet>
-            </v-col>
-          </v-row>
-        </v-card>
-      </template>
-
-      <template v-slot:footer="{ page, pageCount }">
-        <v-footer
-          class="justify-space-between"
-          color="surface-variant"
-        >
-          Total de comunidades: {{ communitiesList.length }}
-
-          <div>
-            Página {{ page }} de {{ pageCount }}
-          </div>
-        </v-footer>
-      </template>
-    </v-data-iterator>
+      </v-row>
+    </v-container>
   </v-card>
+
+
   
   <v-dialog v-model="showDialog" max-width="550px" style="overflow-y: auto; max-height: 70vh;" @after-leave="closeDialog">
     <v-card class="d-flex align-center">
@@ -242,7 +164,7 @@ export default {
       name: '',
       description: '',
       form: null,
-      itemsPerPage: 4,
+      itemsPerPage: 3,
       rules: {
         nameRequired: value => !!value || 'Debe ingresar un nombre',
         descriptionRequired: value => !!value || 'Debe ingresar un texto',
