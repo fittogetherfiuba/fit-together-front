@@ -172,7 +172,8 @@
         fullname: userData.data.name,
         username: userData.data.email.split("@")[0],
         password: userData.data.sub,
-        imageUrl: userData.data.picture
+        imageUrl: userData.data.picture,
+        emailVerified: true
       }
 
       this.$store.dispatch('login', user).then(
