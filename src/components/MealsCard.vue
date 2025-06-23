@@ -40,6 +40,9 @@
                   <span>Cantidad: {{ meal.grams }}g - </span>
                   <span>Calorías: {{ meal.calories }}</span>
                 </v-list-item-subtitle>
+                <v-list-item-subtitle class="mt-1">
+                  <span v-if="meal.consumedAt" class="mt-4">Fecha: {{ meal.consumedAt.split('T')[0] }} </span>
+                </v-list-item-subtitle>
               </v-list-item>
             </v-list>
           </v-card>

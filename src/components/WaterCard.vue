@@ -4,7 +4,7 @@
       <v-row no-gutters class="align-center justify-space-between">
         <v-col cols="auto" class="d-flex align-center">
           <v-icon class="mr-2">mdi-water</v-icon>
-          <span style="font-size: 1.5rem;" class="font-weight-bold">Agua consumida</span>
+          <span style="font-size: 1.5rem;" class="font-weight-bold">Agua consumida hoy</span>
         </v-col>
         <v-btn size="small" icon variant="tonal" color="white" @click="showDialog = true">
           <v-icon size="x-large">mdi-plus</v-icon>
@@ -94,11 +94,12 @@ export default {
     },
     async fetchConsumedWater() {
       try {
-        const response = await axios.get(API_URL + 'water/entries?userId=' + this.$store.state.main.user.userId.toString())
-        const waterEntries = response.data.entries
-        this.waterHistory = waterEntries.reduce((total, entry) => { 
-          return total + parseFloat(entry.liters) 
-        }, 0)
+        const { data } = await axios.get(
+          API_URL + 'water/daily', {
+            params: { userId: this.$store.state.main.user.userId }
+          }
+        );
+        this.waterHistory = data.totalLiters
       } catch (error) {
         console.error('Error al obtener agua consumida:', error)
       }

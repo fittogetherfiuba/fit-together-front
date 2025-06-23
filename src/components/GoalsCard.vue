@@ -220,10 +220,8 @@ const fetchGoals = async () => {
  */
 const fetchProgress = async (goalItem) => {
   try {
-
+    const today = new Date().toISOString().slice(0, 10);
     if (goalItem.type === 'calories') {
-      const today = new Date().toISOString().slice(0, 10);
-
       // Obtener comidas y actividades en paralelo
       const [foodRes, activityRes] = await Promise.all([
         axios.get(API_URL + 'foods/calories/daily', {
@@ -246,10 +244,13 @@ const fetchProgress = async (goalItem) => {
 
     else {
       const { data } = await axios.get(
-        API_URL + `water/entries?userId=${userId.value}`
+        API_URL + 'water/daily', {
+          params: { userId: userId.value, date: today }
+        }
       );
-      const entries = data.entries || [];
-      goalItem.currentProgress = entries.reduce((sum, item) => sum + Number(item.liters), 0);
+      //const entries = data.entries || [];
+      goalItem.currentProgress = data.totalLiters
+      //goalItem.currentProgress = entries.reduce((sum, item) => sum + Number(item.liters), 0);
     }
 
     if (

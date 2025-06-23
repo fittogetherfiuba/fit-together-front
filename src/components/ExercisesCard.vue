@@ -38,6 +38,9 @@
                   <span v-if="activity.series">Series: {{ activity.series }} - </span>
                   <span v-if="activity.repetitions">Repeticiones: {{ activity.repetitions }}</span>
                 </v-list-item-subtitle>
+                <v-list-item-subtitle class="mt-1">
+                  <span v-if="activity.performedAt" class="mt-4">Fecha: {{ activity.performedAt.split('T')[0] }}  </span>
+                </v-list-item-subtitle>
               </v-list-item>
             </v-list>
           </v-card>
@@ -82,9 +85,7 @@
               item-value="name"
               :menu-props="{ maxHeight: '200px' }"
             >
-              <!-- ⭐ Misma estrella que en meals, sin texto duplicado -->
             <template #item="{ props, item }">
-              <!-- spread manual pero sin la prop title -->
               <v-list-item v-bind="{ ...props, title: null }" class="px-4">
                 <v-icon
                   v-if="item.raw.frequent"
@@ -106,7 +107,7 @@
         </v-card-text>
         <v-card-actions class="pb-4 justify-end">
           <v-btn class="border-sm bg-error font-weight-bold" text @click="closeDialog">Cancelar</v-btn>
-          <v-btn class="border-sm bg-warning font-weight-bold" @click="handleAddExercise">Agregar</v-btn>
+          <v-btn :disabled="!selectedExercise" class="border-sm bg-warning font-weight-bold" @click="handleAddExercise">Agregar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
