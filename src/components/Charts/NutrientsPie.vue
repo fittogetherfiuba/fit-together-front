@@ -42,7 +42,7 @@ const chartOptions = {
         const dataset = ctx.chart.data.datasets[0].data;
         const total = dataset.reduce((acc, val) => acc + val, 0);
         const percentage = (value / total) * 100;
-        return percentage >= 5 ? percentage.toFixed(1) + '%' : ''; // oculta < 5%
+        return percentage >= 5 ? percentage.toFixed(0) + '%' : ''; // oculta < 5%
       },
       color: '#fff',
       font: {
