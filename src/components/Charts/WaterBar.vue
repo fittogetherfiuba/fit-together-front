@@ -46,14 +46,18 @@ function buildChart() {
   const labels = [];
   const data   = [];
 
-  const today  = new Date();
-  const monday = new Date(today);
-  monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
-  monday.setHours(0, 0, 0, 0);
+  const today     = new Date();
+  const startDate = new Date(today);
 
-  for (let d = new Date(monday); d <= today; d.setDate(d.getDate() + 1)) {
+  // Retrocedemos 6 días para cubrir los últimos 7 días (incluyendo hoy)
+  startDate.setDate(today.getDate() - 6);
+  startDate.setHours(0, 0, 0, 0);
+
+  for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
     const key = d.toISOString().slice(0, 10);
+    // Abreviatura del día en español (es-AR)
     labels.push(d.toLocaleDateString('es-AR', { weekday: 'short' }));
+    // Si no hay valor, caemos en 0
     data.push(totalsByDay.get(key) || 0);
   }
 
