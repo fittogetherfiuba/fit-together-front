@@ -11,9 +11,14 @@
       </v-btn>
     </template>
 
-    <v-card width="600" class=" d-flex flex-column border-md align-center justify-center">
-      <v-card-title>Notificaciones</v-card-title>
-      <v-btn v-if="notifications.length" variant="text" color="secondary" class="mb-1" @click="clearAll">Borrar todo</v-btn>
+    <v-card width="600" class="bg-primary d-flex flex-column border-md align-center justify-center">
+      <v-card-title class="w-100 px-4 d-flex align-center justify-space-between">
+        <span style="font-size: 1.3rem;" class="ml-2 font-weight-bold">Notificaciones</span>
+        <v-btn v-if="notifications.length" size="small" class="mr-2" variant="outlined" color="black" @click="clearAll">
+          Borrar todo
+        </v-btn>
+      </v-card-title>
+      
       <v-card class="d-flex flex-column justify-center mb-4" width="550">
           <v-table v-if="notifications.length">
             <tbody>
